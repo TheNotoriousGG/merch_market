@@ -11,10 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.amra.market.testing.PostgreSqlIntegrationTest;
 
 @SpringBootTest(properties = "amra.api-docs.enabled=true")
 @AutoConfigureMockMvc
-class PlatformApiContractTests {
+class PlatformApiContractTests extends PostgreSqlIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

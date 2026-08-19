@@ -2,9 +2,10 @@ package ru.amra.market;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.amra.market.testing.PostgreSqlIntegrationTest;
 
 @SpringBootTest
-class AmraMerchMarketBackendApplicationTests {
+class AmraMerchMarketBackendApplicationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void contextLoads() {
