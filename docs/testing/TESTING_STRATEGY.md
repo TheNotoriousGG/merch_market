@@ -29,6 +29,9 @@
 - Fresh-container test проверяет Flyway from scratch, повторный no-op migrate, runtime privileges/timeouts, PostgreSQL major и UUIDv7.
 - Controlled checksum mismatch доказывает отказ migration/startup gate при несовместимой истории.
 - Migration tests verify that the catalog audit table grants runtime `SELECT`/`INSERT`, denies `UPDATE`/`DELETE`, and retains its append-only trigger.
+- Catalog plan acceptance загружает 10 000 products/40 000 variants, обновляет planner statistics и выполняет actual reads с runtime `statement_timeout=2s`.
+- `EXPLAIN (ANALYZE, BUFFERS)` assertions фиксируют обязательные selective indexes и bounded cost-based планы, не отключая sequential scan искусственно.
+- Performance fixture очищается migrator-ролью после test и не является production seed. Production load/soak остаётся отдельным release gate.
 
 ## API errors and audit
 

@@ -104,14 +104,20 @@
 - MVC и Spring Security возвращают единый `application/problem+json`: stable code, status, safe detail, instance, trace ID и structured violations;
 - отсутствие `If-Match` возвращает `428 PRECONDITION_REQUIRED`, stale version — `412 STALE_RESOURCE_VERSION`; 401, authorization 403 и CSRF 403 имеют отдельные стабильные коды;
 - platform web utilities опубликованы как явный Spring Modulith named interface; architecture tests подтверждают отсутствие нового module cycle;
+- блок 11/12 завершён: автоматизированный PostgreSQL performance fixture содержит 10 000 products, 40 000 variants, 10 000 media, typed values, пятиуровневое дерево и неравномерное распределение `70/20/10`;
+- actual list/search/category/collection paths выполняются runtime role с `statement_timeout=2s`; `EXPLAIN (ANALYZE, BUFFERS)` проверяет shape и bounded execution критических планов;
+- newest и primary-media paths используют соответствующие partial indexes; canonical detail использует expression index без sequential scan;
+- category/search на этом объёме допускают cost-based sequential/hash plan только при строгом локальном ceiling; planner hints и искусственное отключение seq scan не используются;
+- canonical repository query явно применяет `lower(canonicalSlug)`, устраняя расхождение между Spring Data ignore-case expression и PostgreSQL index;
+- fixture является только test infrastructure, очищается после acceptance и никогда не попадает в Flyway/production seed; детали зафиксированы в `docs/persistence/CATALOG_QUERY_PLANS.md`;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
-- полный `qualityGate` проходит со 114 тестами без failures/errors; branch coverage — 651/907 (71,8%) при обязательном пороге 70%;
-- следующий блок 11/12: realistic catalog fixtures, измерение critical SQL plans и performance/query-count acceptance;
+- полный `qualityGate` проходит со 115 тестами без failures/errors; branch coverage — 652/907 (71,9%) при обязательном пороге 70%;
+- следующий блок 12/12: финальный catalog client/artifact audit, container smoke, документация и закрытие feature-ветки;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;

@@ -46,4 +46,4 @@ Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_sch
 - JDBC synchronization never bypasses domain invariants. It persists only an already validated aggregate, while database constraints remain the final concurrent-write barrier.
 - Audit insertion uses the same Spring transaction and runtime connection as the aggregate mutation. Rollback removes both; successful idempotency replay returns before audit insertion.
 
-Production query acceptance still requires realistic data and `EXPLAIN (ANALYZE, BUFFERS)` before release. Indexes in V3 correspond only to approved stage 7 access paths.
+Stage 7 query-plan evidence находится в `CATALOG_QUERY_PLANS.md`: automated fixture проверяет 10 000 products и 40 000 variants через `EXPLAIN (ANALYZE, BUFFERS)`. Production readiness всё ещё требует повторного baseline на production-like hardware и фактическом распределении. Indexes in V3 correspond only to approved stage 7 access paths.
