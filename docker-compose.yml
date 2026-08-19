@@ -20,5 +20,53 @@ services:
       start_period: 10s
     restart: unless-stopped
 
+  keycloak-postgres:
+    image: postgres:18.4-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${AMRA_KEYCLOAK_DB_PASSWORD:?Set AMRA_KEYCLOAK_DB_PASSWORD}
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql/18/docker
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --dbname=keycloak --username=keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13
+    command: ["start-dev", "--import-realm", "--health-enabled=true"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${AMRA_KEYCLOAK_DB_PASSWORD:?Set AMRA_KEYCLOAK_DB_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${AMRA_KEYCLOAK_ADMIN_USERNAME:?Set AMRA_KEYCLOAK_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${AMRA_KEYCLOAK_ADMIN_PASSWORD:?Set AMRA_KEYCLOAK_ADMIN_PASSWORD}
+      AMRA_OIDC_CLIENT_SECRET: ${AMRA_OIDC_CLIENT_SECRET:?Set AMRA_OIDC_CLIENT_SECRET}
+    ports:
+      - "${AMRA_KEYCLOAK_PORT:-8081}:8080"
+    volumes:
+      - ./identity/keycloak/amra-shop-realm.json:/opt/keycloak/data/import/amra-shop-realm.json:ro
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -c 'exec 3<>/dev/tcp/127.0.0.1/9000;
+          printf "GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3;
+          grep -q "200 OK" <&3'
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+    restart: unless-stopped
+
 volumes:
   postgres-data:
+  keycloak-postgres-data:
