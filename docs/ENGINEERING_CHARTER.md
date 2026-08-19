@@ -12,7 +12,7 @@
 
 - Проект и отдельный репозиторий: `amra-merch-market-backend`.
 - Java 25 и virtual threads для подходящих blocking I/O workloads.
-- Spring Boot 4.1.x; точная latest GA patch-версия закрепляется и проверяется при инициализации.
+- Spring Boot 4.1.0 и Gradle Wrapper 9.6.1; upgrades выполняются отдельной maintenance-веткой.
 - Spring MVC; WebFlux/R2DBC не входят в выбранный stack.
 - Gradle Kotlin DSL, Wrapper, reproducible build и dependency locking.
 - Managed PostgreSQL в production; Flyway SQL migrations; Spring Data JPA/Hibernate с OSIV off.
@@ -46,6 +46,7 @@
 - Lombok ограничен whitelist из реестра; entity identity и string representation реализуются осознанно.
 - Javadoc описывает contract, invariant, thread/transaction semantics и причины нетривиального решения, а не пересказывает реализацию.
 - Документы обновляются в той же feature-ветке, где меняется соответствующее решение или поведение.
+- Полная конфигурация и команды локальных gates описаны в `docs/engineering/QUALITY_GATES.md`.
 
 ## Тестовая стратегия
 
@@ -60,6 +61,8 @@
 - Performance: сценарии формируются из SLO и проверяются на realistic data перед production.
 
 Coverage — risk-based: ≥80% line и ≥70% branch overall; critical domain invariants покрываются полностью. Critical modules проходят mutation testing. Процент не заменяет качество assertions и scenarios.
+
+Тестовые doubles применяются только на boundaries. Spring context не поднимается в unit tests; `@SpringBootTest` допустим для минимального application smoke test и действительно сквозных сценариев.
 
 ## Quality gates
 
