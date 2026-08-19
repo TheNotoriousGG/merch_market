@@ -142,9 +142,14 @@ GitLab activation остаётся обязательным deferred gate до �
 - duplicate lines агрегируются в first-seen order с checked addition; lifecycle допускает только `ACTIVE → COMMITTED|RELEASED|EXPIRED`, а expired reservation нельзя commit/extend до обработки worker;
 - default TTL равен 15 минутам, одно strict extension считается от предыдущего deadline, terminal command replay остаётся ответственностью durable application idempotency до domain invocation;
 - unit и jqwik property tests покрывают дедупликацию, overflow/limits, exact expiry boundary, terminal conflicts, extension limit и неизменяемость исходного snapshot;
+- блок 4/12 завершён: Flyway V7 создаёт девять inventory-owned tables, seeded `PRIMARY` warehouse, explicit constraints/indexes/grants и PostgreSQL coordination records;
+- database constraints являются последним barrier для negative/oversold balance, неверного movement sign/binding, reservation lifecycle shape, non-positive lines и невозможных events;
+- movements, reservation events и inventory audit защищены runtime privileges и append-only triggers; balances/reservations/idempotency/leases изменяемы без runtime delete;
+- inventory не имеет FK/JPA relation к catalog tables: UUIDv7 variant reference валидируется через named application boundary; schema rationale зафиксирован в `docs/persistence/INVENTORY_SCHEMA.md`;
+- migration integration tests доказывают fresh V7, seeded warehouse, critical indexes, constraints, отсутствие cross-module FK и append-only barriers;
 - OpenAPI добавляет anonymous batch availability и защищённые balance/receipt/reconciliation endpoints без browser reservation mutations;
 - generated Java/TypeScript contracts, OpenAPI compatibility, architecture tests и полный `qualityGate` проходят;
-- следующий блок 4/12: Flyway V7 inventory schema, constraints, indexes и migration tests;
+- следующий блок 5/12: atomic balance/movement persistence, deterministic locking и ledger reconciliation;
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.

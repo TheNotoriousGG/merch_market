@@ -120,12 +120,13 @@ Commit: `chore: initialize backend project`.
 
 Ветка: `feature/inventory`.
 
-Статус: блоки 1–3/12 завершены, выполняется блок 4/12. Подробное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`, consistency boundary — в ADR-0007.
+Статус: блоки 1–4/12 завершены, выполняется блок 5/12. Подробное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`, consistency boundary — в ADR-0007.
 
 - Блок 1: контракт, архитектурные границы и проверяемые invariants.
 - Блок 2: framework-free immutable balance aggregate, checked stock quantities и append-only physical movement model с unit/property tests.
 - Блок 3: lifecycle aggregate резервирования, terminal-state/idempotency semantics и unit/property tests.
 - Блок 4: Flyway V7 inventory schema, constraints, indexes и migration tests.
+- Блок 5: atomic balance/movement persistence, locking и ledger reconciliation.
 
 - Balance, immutable movement ledger и atomic reservation.
 - Запрет negative stock/oversell на transaction/constraint levels.
