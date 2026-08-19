@@ -189,7 +189,7 @@ GitLab activation остаётся обязательным deferred gate до �
 - изолированный container smoke применил Flyway V1–V10 к PostgreSQL 18.4, создал 27 application tables, вернул health `UP` и privacy-safe `OUT_OF_STOCK`; временные resources удалены;
 - frontend handoff находится в `docs/api/FRONTEND_INVENTORY_CLIENT.md`, полный acceptance — в `docs/inventory/INVENTORY_RELEASE_CHECKLIST.md`;
 - `docs/DEVELOPER_GUIDE.md` является полным onboarding/development guide по runtime chains, решениям, классам, тестам, persistence и workflow;
-- inventory vertical slice завершён 12/12; после финального commit/fast-forward следующим разрешён этап 9 — Customer, favorites и cart в отдельной `feature/customer-cart`;
+- inventory vertical slice завершён 12/12 и fast-forward закрыт в `main`; следующим разрешён этап 9 — Customer, favorites и cart в отдельной `feature/customer-cart`;
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.
