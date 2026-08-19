@@ -71,6 +71,10 @@
 
 Этап 7 — `feature/catalog`:
 
+- ветка открыта для contract/invariant design;
+- исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
+- реализация не начинается до сверки и утверждения OpenAPI contract и domain invariants по этому ТЗ;
+
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;
 - PostgreSQL catalog model, FTS/search port и admin ETag contract;

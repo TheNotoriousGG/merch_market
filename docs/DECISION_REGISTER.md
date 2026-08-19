@@ -63,6 +63,7 @@
 
 ## Каталог, цены и склад
 
+- Product/technical requirements and acceptance criteria для этапа каталога зафиксированы в `docs/requirements/CATALOG_VERTICAL_SLICE.md`.
 - Category: adjacency list (`parent_id`), recursive CTE, sibling-unique slug, order/status, cycle prevention.
 - Product lifecycle: `DRAFT → ACTIVE → ARCHIVED`; completeness validation и audit перед publish.
 - Editable slug с old aliases/redirects; без cycles/reuse.

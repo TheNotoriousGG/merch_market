@@ -104,6 +104,8 @@ Commit: `chore: initialize backend project`.
 
 Ветка: `feature/catalog`.
 
+Подробное продуктовое и техническое ТЗ: `docs/requirements/CATALOG_VERTICAL_SLICE.md`.
+
 - OpenAPI: categories, products, variants, attributes, media metadata и search/filtering.
 - Domain: category tree invariants, lifecycle, slug aliases, immutable SKU, publish validation.
 - Persistence: relational model, constraints, indexes, FTS + `pg_trgm`, object-storage port.
