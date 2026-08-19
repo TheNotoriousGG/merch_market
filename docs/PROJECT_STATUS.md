@@ -69,7 +69,7 @@
 
 ## Завершённый этап 7
 
-Этап 7 — `feature/catalog`:
+Этап 7 реализован в `feature/catalog` и fast-forward слит в `main`:
 
 - блок 1/12: OpenAPI contract и архитектурные границы реализованы, проходят validation и Java/TypeScript generation;
 - блок 2/12: framework-free category domain реализован с immutable aggregate, typed values, hierarchy validation и unit/property tests;
@@ -125,7 +125,7 @@
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
-- каталог готов к fast-forward закрытию `feature/catalog`; production-only deferred gates не блокируют следующий локальный vertical slice;
+- `feature/catalog` fast-forward закрыта в `main`; production-only deferred gates не блокируют следующий локальный vertical slice;
 
 GitLab activation остаётся обязательным deferred gate до первого shared remote, release или deployment.
 
