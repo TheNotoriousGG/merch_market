@@ -197,3 +197,11 @@ tasks.withType<AbstractArchiveTask>().configureEach {
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
 }
+
+tasks.bootJar {
+    archiveFileName.set("application.jar")
+}
+
+tasks.jar {
+    enabled = false
+}
