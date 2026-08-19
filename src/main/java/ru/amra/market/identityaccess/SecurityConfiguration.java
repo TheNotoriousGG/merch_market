@@ -64,6 +64,8 @@ public class SecurityConfiguration {
                         .permitAll()
                         .requestMatchers("/api/v1/admin/catalog/**")
                         .access(catalogManagerWithMfa(properties))
+                        .requestMatchers("/api/v1/admin/inventory/**")
+                        .access(warehouseManagerWithMfa(properties))
                         .requestMatchers("/internal/api-docs/**", "/api/v1/admin/**")
                         .access(adminWithMfa(properties))
                         .requestMatchers("/api/v1/**")
@@ -166,6 +168,25 @@ public class SecurityConfiguration {
                     .map(authority -> authority.getAuthority())
                     .anyMatch(authority -> AccessRole.ADMIN.authority().equals(authority)
                             || AccessRole.CATALOG_MANAGER.authority().equals(authority));
+            var granted = roleGranted
+                    && user.map(IdentityClaims::emailVerified).orElse(false)
+                    && acr != null
+                    && acceptedAcrValues.contains(acr);
+            return new AuthorizationDecision(granted);
+        };
+    }
+
+    private static AuthorizationManager<org.springframework.security.web.access.intercept.RequestAuthorizationContext>
+            warehouseManagerWithMfa(SecurityProperties properties) {
+        var acceptedAcrValues = Set.copyOf(properties.adminMfaAcrValues());
+        return (authenticationSupplier, context) -> {
+            var authentication = authenticationSupplier.get();
+            var user = oidcUser(authentication);
+            var acr = user.map(principal -> principal.getClaimAsString("acr")).orElse(null);
+            var roleGranted = authentication.getAuthorities().stream()
+                    .map(authority -> authority.getAuthority())
+                    .anyMatch(authority -> AccessRole.ADMIN.authority().equals(authority)
+                            || AccessRole.WAREHOUSE_MANAGER.authority().equals(authority));
             var granted = roleGranted
                     && user.map(IdentityClaims::emailVerified).orElse(false)
                     && acr != null

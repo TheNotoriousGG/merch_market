@@ -159,9 +159,15 @@ GitLab activation остаётся обязательным deferred gate до �
 - catalog active view и inventory availability reader выполняют два bounded batch queries без N+1; unknown/inactive/missing balance всегда выглядит как `OUT_OF_STOCK`;
 - response использует `Cache-Control: no-store`, trace header и никогда не содержит exact quantity, warehouse, reserved или on-hand fields;
 - contract integration test подтверждает anonymous access, order, de-duplication, privacy и generated DTO shape;
+- блок 8/12 завершён: generated protected warehouse API читает exact primary balance, принимает receipts и выполняет physical reconciliation;
+- `/api/v1/admin/inventory/**` требует `WAREHOUSE_MANAGER` или `ADMIN`, verified email, MFA ACR и CSRF; GET также защищён, но не требует CSRF;
+- exact balance и каждый mutation result возвращают strong `ETag`; reconciliation требует current `If-Match`, различая `428` missing precondition и `412` stale version;
+- receipt/reconciliation используют actor-scoped durable idempotency и collision-safe canonical fingerprint; одинаковая команда после более поздних движений возвращает исходные balance/movement/ETag без повторной мутации;
+- Flyway V9 добавляет typed append-only `inventory_stock_command_results`, поэтому idempotent replay не хранит критический balance snapshot в JSON и не зависит от текущего состояния balance;
+- contract integration tests подтверждают authorization, MFA, verified identity, CSRF, exact replay, conflict, inactive/missing variant и stable RFC 9457 codes;
 - OpenAPI добавляет anonymous batch availability и защищённые balance/receipt/reconciliation endpoints без browser reservation mutations;
 - generated Java/TypeScript contracts, OpenAPI compatibility, architecture tests и полный `qualityGate` проходят;
-- следующий блок 8/12: protected warehouse balance/receipt/reconciliation API, ETag и authorization;
+- следующий разрешённый блок 9/12: internal commit/release/strict extension reservation contracts;
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.

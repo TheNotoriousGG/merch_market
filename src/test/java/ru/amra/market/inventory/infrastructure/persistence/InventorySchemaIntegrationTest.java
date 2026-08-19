@@ -42,6 +42,7 @@ class InventorySchemaIntegrationTest extends PostgreSqlIntegrationTest {
                         "inventory_reservation_events",
                         "inventory_reservation_lines",
                         "inventory_reservations",
+                        "inventory_stock_command_results",
                         "inventory_warehouses");
         assertThat(jdbc.queryForObject(
                         "select count(*) from inventory_warehouses where code = 'PRIMARY' and status = 'ACTIVE'",
@@ -161,8 +162,12 @@ class InventorySchemaIntegrationTest extends PostgreSqlIntegrationTest {
         var runtimeJdbc = runtimeJdbc();
         var migrationJdbc = new JdbcTemplate(flyway.getConfiguration().getDataSource());
 
-        for (var table :
-                new String[] {"inventory_movements", "inventory_reservation_events", "inventory_audit_events"}) {
+        for (var table : new String[] {
+            "inventory_movements",
+            "inventory_reservation_events",
+            "inventory_audit_events",
+            "inventory_stock_command_results"
+        }) {
             assertThat(runtimeJdbc.queryForObject(
                             "select has_table_privilege(current_user, ?, 'INSERT')", Boolean.class, table))
                     .isTrue();

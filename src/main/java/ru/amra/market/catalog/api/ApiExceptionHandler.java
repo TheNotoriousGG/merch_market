@@ -208,7 +208,7 @@ public final class ApiExceptionHandler {
                         "COLLECTION_" + violation.invariant().name(), "The collection change violates a catalog rule.");
             case DataIntegrityViolationException ignored ->
                 conflict("CATALOG_CONFLICT", "The catalog change conflicts with existing data.");
-            case IllegalArgumentException ignored -> invalidRequest("The catalog command is invalid.");
+            case IllegalArgumentException ignored -> invalidRequest("The request command is invalid.");
             default ->
                 new Descriptor(
                         HttpStatus.INTERNAL_SERVER_ERROR,

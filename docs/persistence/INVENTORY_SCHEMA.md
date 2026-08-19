@@ -1,10 +1,10 @@
 # Inventory persistence model
 
-Status: Flyway V7 baseline accepted for stage 8; V8 hardens UUIDv7 checks against PostgreSQL `UNKNOWN` semantics.
+Status: Flyway V7 baseline accepted for stage 8; V8 hardens UUIDv7 checks against PostgreSQL `UNKNOWN` semantics; V9 adds immutable exact command-result snapshots.
 
 ## Ownership boundary
 
-Inventory owns nine relational tables in `amra_shop`. Catalog variant UUIDs are external references, not database foreign keys: the inventory application layer validates active variants through `CatalogVariantInventoryView`. This prevents a hidden cross-module persistence dependency while keeping UUIDv7 validation at the inventory boundary.
+Inventory owns ten relational tables in `amra_shop`. Catalog variant UUIDs are external references, not database foreign keys: the inventory application layer validates active variants through `CatalogVariantInventoryView`. This prevents a hidden cross-module persistence dependency while keeping UUIDv7 validation at the inventory boundary.
 
 UUIDv7 constraints use `(uuid_extract_version(value) = 7) IS TRUE`. The explicit truth test is required because a UUID without an encoded RFC version yields `NULL`, and a plain SQL `CHECK (... = 7)` would otherwise accept the `UNKNOWN` result.
 
@@ -18,18 +18,21 @@ UUIDv7 constraints use `(uuid_extract_version(value) = 7) IS TRUE`. The explicit
 - `inventory_reservation_lines` is immutable after insert and references an existing inventory balance.
 - `inventory_reservation_events` is append-only lifecycle evidence with database-validated transition shape.
 - `inventory_audit_events` is append-only administrative evidence with bounded safe JSON object diff.
+- `inventory_stock_command_results` is an append-only typed snapshot of the exact balance representation produced by a physical movement. It enables exact idempotent replay even after later balance mutations without putting stock state in an opaque JSON payload.
 
 Runtime may update balances, reservations, idempotency records and leases, but cannot delete them. Runtime may only insert movements, reservation lines/events and audit events. Migration-owned triggers reject ledger/audit update or delete even when a more privileged role is used accidentally.
 
 ## Coordination records
 
 - `inventory_command_idempotency` binds actor scope and key to operation, canonical SHA-256 fingerprint and completed resource.
+- Warehouse command fingerprints use length-prefixed nullable components before SHA-256, so separators and the literal string `null` cannot produce ambiguous commands.
 - `inventory_job_leases` stores the stable job name, instance owner, database deadline and optimistic version; it is the only cross-instance expiry-worker coordination state.
 
 ## Critical access paths
 
 - Public/admin variant reads use `ix_inventory_balances__variant_warehouse`.
 - Balance reconciliation uses `ix_inventory_movements__balance_time`.
+- Exact command replay uses the movement primary key and `ix_inventory_stock_command_results__balance` supports balance/version diagnostics.
 - Expiry scans use the partial `ix_inventory_reservations__active_expiry` index.
 - Reserved reconciliation and deterministic balance locking use `ix_inventory_reservation_lines__balance_reservation`.
 - Reservation history uses owner and reservation-event time indexes.
