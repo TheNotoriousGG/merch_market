@@ -1,6 +1,35 @@
 spring:
   application:
     name: amra-merch-market-backend
+  datasource:
+    url: ${AMRA_DB_URL:jdbc:postgresql://localhost:5432/amra_market?currentSchema=amra_shop&ApplicationName=amra-merch-market-backend}
+    username: ${AMRA_DB_USER:amra_runtime}
+    password: ${AMRA_DB_PASSWORD}
+    hikari:
+      schema: amra_shop
+      maximum-pool-size: ${AMRA_DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${AMRA_DB_POOL_MIN_IDLE:2}
+      connection-timeout: 2000
+      validation-timeout: 1000
+      max-lifetime: 1800000
+  flyway:
+    url: ${AMRA_DB_MIGRATION_URL:${spring.datasource.url}}
+    user: ${AMRA_DB_MIGRATION_USER:amra_migrator}
+    password: ${AMRA_DB_MIGRATION_PASSWORD}
+    default-schema: amra_shop
+    schemas: amra_shop
+    create-schemas: false
+    clean-disabled: true
+    validate-migration-naming: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: amra_shop
+        jdbc:
+          time_zone: UTC
   threads:
     virtual:
       enabled: true

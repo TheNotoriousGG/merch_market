@@ -40,8 +40,11 @@ val openApiDiffCli =
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
+    implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.springframework.modulith:spring-modulith-api")
 
     compileOnly("jakarta.annotation:jakarta.annotation-api")
@@ -63,7 +66,10 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("org.wiremock:wiremock:3.13.2")
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    runtimeOnly("org.postgresql:postgresql")
 
     openApiDiffCli("org.openapitools.openapidiff:openapi-diff-cli:2.1.7")
 }
@@ -297,6 +303,10 @@ val packageTypeScriptClient =
 
 tasks.compileJava {
     dependsOn(generateJavaApi)
+}
+
+tasks.compileTestJava {
+    options.compilerArgs.add("-Xlint:deprecation")
 }
 
 tasks.processResources {
