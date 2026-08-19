@@ -13,12 +13,51 @@ tags:
     description: API discovery and platform metadata.
   - name: Identity
     description: Browser session and authenticated identity metadata.
+  - name: Catalog
+    description: Public storefront navigation and published product discovery.
+  - name: Catalog administration
+    description: MFA-protected catalog authoring commands for authorized employees.
 paths:
   /:
     $ref: paths/platform.yaml
   /session:
     $ref: paths/session.yaml
+  /catalog/categories:
+    $ref: paths/catalog-categories.yaml
+  /catalog/products:
+    $ref: paths/catalog-products.yaml
+  /catalog/products/{slug}:
+    $ref: paths/catalog-product-by-slug.yaml
+  /admin/catalog/categories:
+    $ref: paths/admin-catalog-categories.yaml
+  /admin/catalog/categories/{resourceId}:
+    $ref: paths/admin-catalog-category.yaml
+  /admin/catalog/products:
+    $ref: paths/admin-catalog-products.yaml
+  /admin/catalog/products/{resourceId}:
+    $ref: paths/admin-catalog-product.yaml
+  /admin/catalog/products/{resourceId}/{transition}:
+    $ref: paths/admin-catalog-product-transition.yaml
+  /admin/catalog/products/{resourceId}/variants:
+    $ref: paths/admin-catalog-product-variants.yaml
+  /admin/catalog/products/{resourceId}/variants/{variantId}:
+    $ref: paths/admin-catalog-product-variant.yaml
+  /admin/catalog/products/{resourceId}/media:
+    $ref: paths/admin-catalog-product-media.yaml
+  /admin/catalog/products/{resourceId}/media/{mediaId}:
+    $ref: paths/admin-catalog-product-media-item.yaml
+  /admin/catalog/collections:
+    $ref: paths/admin-catalog-collections.yaml
+  /admin/catalog/collections/{resourceId}:
+    $ref: paths/admin-catalog-collection.yaml
+  /admin/catalog/collections/{resourceId}/products:
+    $ref: paths/admin-catalog-collection-products.yaml
 components:
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: AMRA_SESSION
   schemas:
     ApiRoot:
       $ref: components/schemas/api-root.yaml
@@ -32,6 +71,60 @@ components:
       $ref: components/schemas/cursor-metadata.yaml
     CurrentSession:
       $ref: components/schemas/current-session.yaml
+    CatalogCategoryNode:
+      $ref: components/schemas/catalog-category-node.yaml
+    CatalogCategoryTree:
+      $ref: components/schemas/catalog-category-tree.yaml
+    CatalogCategorySummary:
+      $ref: components/schemas/catalog-category-summary.yaml
+    CatalogCollectionSummary:
+      $ref: components/schemas/catalog-collection-summary.yaml
+    CatalogMedia:
+      $ref: components/schemas/catalog-media.yaml
+    CatalogAttributeValue:
+      $ref: components/schemas/catalog-attribute-value.yaml
+    CatalogVariantOption:
+      $ref: components/schemas/catalog-variant-option.yaml
+    CatalogProductVariant:
+      $ref: components/schemas/catalog-product-variant.yaml
+    CatalogProductSummary:
+      $ref: components/schemas/catalog-product-summary.yaml
+    CatalogProductPage:
+      $ref: components/schemas/catalog-product-page.yaml
+    CatalogProductDetail:
+      $ref: components/schemas/catalog-product-detail.yaml
+    AdminCategory:
+      $ref: components/schemas/admin-category.yaml
+    CreateCategoryRequest:
+      $ref: components/schemas/create-category-request.yaml
+    UpdateCategoryRequest:
+      $ref: components/schemas/update-category-request.yaml
+    AdminProduct:
+      $ref: components/schemas/admin-product.yaml
+    CreateProductRequest:
+      $ref: components/schemas/create-product-request.yaml
+    UpdateProductRequest:
+      $ref: components/schemas/update-product-request.yaml
+    AdminVariant:
+      $ref: components/schemas/admin-variant.yaml
+    CreateVariantRequest:
+      $ref: components/schemas/create-variant-request.yaml
+    UpdateVariantRequest:
+      $ref: components/schemas/update-variant-request.yaml
+    AdminMedia:
+      $ref: components/schemas/admin-media.yaml
+    CreateMediaRequest:
+      $ref: components/schemas/create-media-request.yaml
+    UpdateMediaRequest:
+      $ref: components/schemas/update-media-request.yaml
+    AdminCollection:
+      $ref: components/schemas/admin-collection.yaml
+    CreateCollectionRequest:
+      $ref: components/schemas/create-collection-request.yaml
+    UpdateCollectionRequest:
+      $ref: components/schemas/update-collection-request.yaml
+    UpdateCollectionProductsRequest:
+      $ref: components/schemas/update-collection-products-request.yaml
   parameters:
     Page:
       $ref: components/parameters/page.yaml
@@ -45,6 +138,26 @@ components:
       $ref: components/parameters/idempotency-key.yaml
     IfMatch:
       $ref: components/parameters/if-match.yaml
+    CsrfToken:
+      $ref: components/parameters/csrf-token.yaml
+    ResourceId:
+      $ref: components/parameters/resource-id.yaml
+    CatalogPageSize:
+      $ref: components/parameters/catalog-page-size.yaml
+    CategorySlug:
+      $ref: components/parameters/category-slug.yaml
+    CollectionSlug:
+      $ref: components/parameters/collection-slug.yaml
+    CatalogQuery:
+      $ref: components/parameters/catalog-query.yaml
+    NewOnly:
+      $ref: components/parameters/new-only.yaml
+    SizeValues:
+      $ref: components/parameters/size-values.yaml
+    ColorValues:
+      $ref: components/parameters/color-values.yaml
+    CatalogSort:
+      $ref: components/parameters/catalog-sort.yaml
   headers:
     ETag:
       $ref: components/headers/etag.yaml
@@ -55,8 +168,18 @@ components:
   responses:
     BadRequest:
       $ref: components/responses/bad-request.yaml
+    Unauthorized:
+      $ref: components/responses/unauthorized.yaml
+    Forbidden:
+      $ref: components/responses/forbidden.yaml
+    NotFound:
+      $ref: components/responses/not-found.yaml
+    Conflict:
+      $ref: components/responses/conflict.yaml
     PreconditionFailed:
       $ref: components/responses/precondition-failed.yaml
+    PreconditionRequired:
+      $ref: components/responses/precondition-required.yaml
     TooManyRequests:
       $ref: components/responses/too-many-requests.yaml
     UnexpectedError:

@@ -1,0 +1,29 @@
+post:
+  tags: [Catalog administration]
+  summary: Create a draft catalog category
+  description: Requires CATALOG_MANAGER or ADMIN authority and a verified MFA claim.
+  operationId: createCatalogCategory
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/idempotency-key.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema: {$ref: ../components/schemas/create-category-request.yaml}
+  responses:
+    "201":
+      description: Category created.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        Location: {description: Administrative category URL., schema: {type: string, format: uri-reference}}
+      content:
+        application/json:
+          schema: {$ref: ../components/schemas/admin-category.yaml}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "429": {$ref: ../components/responses/too-many-requests.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

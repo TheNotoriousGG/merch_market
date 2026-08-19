@@ -1,0 +1,8 @@
+type: object
+additionalProperties: false
+minProperties: 1
+properties:
+  variantId: {type: string, format: uuid, nullable: true}
+  alt: {type: string, minLength: 1, maxLength: 300}
+  displayOrder: {type: integer, format: int32, minimum: 0}
+  primary: {type: boolean}

@@ -1,0 +1,35 @@
+type: object
+description: Compact published product representation for storefront cards.
+required:
+  - id
+  - slug
+  - name
+  - shortDescription
+  - primaryMedia
+  - publishedAt
+  - variantOptions
+properties:
+  id:
+    type: string
+    format: uuid
+  slug:
+    type: string
+    pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+    maxLength: 120
+  name:
+    type: string
+    minLength: 1
+    maxLength: 200
+  shortDescription:
+    type: string
+    minLength: 1
+    maxLength: 500
+  primaryMedia:
+    $ref: catalog-media.yaml
+  publishedAt:
+    type: string
+    format: date-time
+  variantOptions:
+    type: array
+    items:
+      $ref: catalog-variant-option.yaml

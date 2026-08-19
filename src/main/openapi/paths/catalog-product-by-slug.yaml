@@ -1,0 +1,28 @@
+get:
+  tags: [Catalog]
+  summary: Read a published product by canonical slug
+  operationId: getCatalogProduct
+  parameters:
+    - name: slug
+      in: path
+      required: true
+      schema: {type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 120}
+  responses:
+    "200":
+      description: Published product detail.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content:
+        application/json:
+          schema: {$ref: ../components/schemas/catalog-product-detail.yaml}
+    "301":
+      description: The requested historical alias permanently resolves to the canonical product URL.
+      headers:
+        Location:
+          description: Canonical product URL.
+          schema: {type: string, format: uri-reference}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "429": {$ref: ../components/responses/too-many-requests.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

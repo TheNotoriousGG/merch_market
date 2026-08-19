@@ -1,0 +1,8 @@
+type: object
+additionalProperties: false
+required: [productIds]
+properties:
+  productIds:
+    description: Product identifiers in editorial display order.
+    type: array
+    items: {type: string, format: uuid}

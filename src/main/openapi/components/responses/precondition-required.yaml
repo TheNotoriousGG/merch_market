@@ -1,0 +1,5 @@
+description: If-Match is required for this mutation.
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/problem-details.yaml

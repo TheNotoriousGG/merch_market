@@ -1,0 +1,26 @@
+put:
+  tags: [Catalog administration]
+  summary: Replace ordered collection membership
+  operationId: updateCatalogCollectionProducts
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/resource-id.yaml}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/idempotency-key.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content: {application/json: {schema: {$ref: ../components/schemas/update-collection-products-request.yaml}}}
+  responses:
+    "200":
+      description: Collection with updated membership.
+      headers: {ETag: {$ref: ../components/headers/etag.yaml}}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-collection.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "412": {$ref: ../components/responses/precondition-failed.yaml}
+    "428": {$ref: ../components/responses/precondition-required.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

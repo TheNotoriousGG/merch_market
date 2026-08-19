@@ -1,0 +1,8 @@
+name: X-AMRA-CSRF
+in: header
+required: true
+description: CSRF token copied from the non-secret AMRA_CSRF cookie.
+schema:
+  type: string
+  minLength: 16
+  maxLength: 512

@@ -1,0 +1,23 @@
+post:
+  tags: [Catalog administration]
+  summary: Create an editorial collection
+  operationId: createCatalogCollection
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/idempotency-key.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content: {application/json: {schema: {$ref: ../components/schemas/create-collection-request.yaml}}}
+  responses:
+    "201":
+      description: Collection created.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        Location: {description: Administrative collection URL., schema: {type: string, format: uri-reference}}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-collection.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

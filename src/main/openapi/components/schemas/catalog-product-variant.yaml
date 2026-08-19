@@ -1,0 +1,29 @@
+type: object
+description: Public active product variant; stock and price are composed by later modules.
+required:
+  - id
+  - sku
+  - label
+  - displayOrder
+  - attributes
+properties:
+  id:
+    type: string
+    format: uuid
+  sku:
+    type: string
+    pattern: '^[A-Z0-9]+(?:-[A-Z0-9]+)*$'
+    maxLength: 64
+  label:
+    type: string
+    minLength: 1
+    maxLength: 160
+  displayOrder:
+    type: integer
+    format: int32
+    minimum: 0
+  attributes:
+    type: array
+    minItems: 1
+    items:
+      $ref: catalog-attribute-value.yaml

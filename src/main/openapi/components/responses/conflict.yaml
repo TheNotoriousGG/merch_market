@@ -1,0 +1,5 @@
+description: The command conflicts with an existing resource or domain invariant.
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/problem-details.yaml

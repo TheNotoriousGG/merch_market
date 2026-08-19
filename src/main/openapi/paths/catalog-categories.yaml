@@ -1,0 +1,14 @@
+get:
+  tags: [Catalog]
+  summary: Read the visible storefront category tree
+  operationId: getCatalogCategories
+  responses:
+    "200":
+      description: Deterministically ordered visible category tree.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content:
+        application/json:
+          schema: {$ref: ../components/schemas/catalog-category-tree.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

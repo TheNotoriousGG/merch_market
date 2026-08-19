@@ -1,0 +1,11 @@
+name: sort
+in: query
+required: false
+description: Explicit catalog sorting strategy.
+schema:
+  type: string
+  enum:
+    - MANUAL
+    - NEWEST
+    - NAME_ASC
+  default: MANUAL

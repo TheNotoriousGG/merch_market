@@ -1,0 +1,5 @@
+description: The authenticated identity lacks a required permission or MFA assurance level.
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/problem-details.yaml

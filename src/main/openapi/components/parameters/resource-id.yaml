@@ -1,0 +1,7 @@
+name: resourceId
+in: path
+required: true
+description: UUIDv7 identifier of the administrative catalog resource.
+schema:
+  type: string
+  format: uuid

@@ -67,13 +67,15 @@
 - реальный Keycloak container прошёл health check, realm OIDC discovery вернул ожидаемые issuer/endpoints;
 - полный offline `clean qualityGate` прошёл; PIT mutation score — 93% при 97% line coverage mutated classes.
 
-## Следующий разрешённый этап после закрытия текущего
+## Текущий этап
 
 Этап 7 — `feature/catalog`:
 
-- ветка открыта для contract/invariant design;
+- блок 1/12: OpenAPI contract и архитектурные границы реализованы, проходят validation и Java/TypeScript generation;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
-- реализация не начинается до сверки и утверждения OpenAPI contract и domain invariants по этому ТЗ;
+- ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
+- `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
+- следующий блок: category domain с cycle/depth/slug/order invariants;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;

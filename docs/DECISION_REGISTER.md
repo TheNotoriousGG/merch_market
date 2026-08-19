@@ -64,6 +64,7 @@
 ## Каталог, цены и склад
 
 - Product/technical requirements and acceptance criteria для этапа каталога зафиксированы в `docs/requirements/CATALOG_VERTICAL_SLICE.md`.
+- Public/admin contract boundary, pagination, redirects, composition and concurrency semantics зафиксированы ADR-0006; компактный implementation checklist находится в `docs/catalog/CATALOG_INVARIANTS.md`.
 - Category: adjacency list (`parent_id`), recursive CTE, sibling-unique slug, order/status, cycle prevention.
 - Product lifecycle: `DRAFT → ACTIVE → ARCHIVED`; completeness validation и audit перед publish.
 - Editable slug с old aliases/redirects; без cycles/reuse.

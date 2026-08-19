@@ -1,0 +1,8 @@
+name: q
+in: query
+required: false
+description: Trimmed public catalog search query.
+schema:
+  type: string
+  minLength: 2
+  maxLength: 100

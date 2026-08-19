@@ -1,0 +1,19 @@
+type: object
+additionalProperties: false
+required: [slug, name, shortDescription, description, primaryCategoryId, categoryIds]
+properties:
+  slug: {type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 120}
+  name: {type: string, minLength: 1, maxLength: 200}
+  shortDescription: {type: string, minLength: 1, maxLength: 500}
+  description: {type: string, minLength: 1, maxLength: 10000}
+  primaryCategoryId: {type: string, format: uuid}
+  categoryIds:
+    type: array
+    minItems: 1
+    items: {type: string, format: uuid}
+  collectionIds:
+    type: array
+    items: {type: string, format: uuid}
+  characteristics:
+    type: array
+    items: {$ref: catalog-attribute-value.yaml}

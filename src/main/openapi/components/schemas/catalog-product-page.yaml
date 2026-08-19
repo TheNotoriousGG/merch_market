@@ -1,0 +1,12 @@
+type: object
+description: Exact page of published catalog products.
+required:
+  - items
+  - page
+properties:
+  items:
+    type: array
+    items:
+      $ref: catalog-product-summary.yaml
+  page:
+    $ref: page-metadata.yaml

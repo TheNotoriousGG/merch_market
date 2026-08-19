@@ -1,0 +1,35 @@
+type: object
+description: Typed public catalog attribute value.
+required:
+  - definitionCode
+  - definitionName
+  - type
+  - valueCode
+  - label
+properties:
+  definitionCode:
+    type: string
+    pattern: '^[a-z][a-z0-9_]{1,63}$'
+  definitionName:
+    type: string
+    minLength: 1
+    maxLength: 120
+  type:
+    type: string
+    enum:
+      - TEXT
+      - COLOR
+      - SIZE
+      - DIMENSION
+  valueCode:
+    type: string
+    minLength: 1
+    maxLength: 64
+  label:
+    type: string
+    minLength: 1
+    maxLength: 160
+  colorHex:
+    type: string
+    nullable: true
+    pattern: '^#[0-9A-Fa-f]{6}$'

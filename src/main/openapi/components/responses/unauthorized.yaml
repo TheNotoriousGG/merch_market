@@ -1,0 +1,5 @@
+description: Authentication is required or the browser session is no longer valid.
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/problem-details.yaml

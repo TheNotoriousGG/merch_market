@@ -1,0 +1,40 @@
+get:
+  tags: [Catalog administration]
+  summary: Read an administrative collection
+  operationId: getAdminCatalogCollection
+  security: [{SessionCookie: []}]
+  parameters: [{$ref: ../components/parameters/resource-id.yaml}]
+  responses:
+    "200":
+      description: Administrative collection.
+      headers: {ETag: {$ref: ../components/headers/etag.yaml}}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-collection.yaml}}}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}
+patch:
+  tags: [Catalog administration]
+  summary: Update an editorial collection
+  operationId: updateCatalogCollection
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/resource-id.yaml}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content: {application/json: {schema: {$ref: ../components/schemas/update-collection-request.yaml}}}
+  responses:
+    "200":
+      description: Updated collection.
+      headers: {ETag: {$ref: ../components/headers/etag.yaml}}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-collection.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "412": {$ref: ../components/responses/precondition-failed.yaml}
+    "428": {$ref: ../components/responses/precondition-required.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

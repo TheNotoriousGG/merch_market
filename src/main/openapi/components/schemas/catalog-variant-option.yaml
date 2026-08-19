@@ -1,0 +1,26 @@
+type: object
+description: Ordered variant-defining values available for presentation, without stock semantics.
+required:
+  - definitionCode
+  - definitionName
+  - type
+  - values
+properties:
+  definitionCode:
+    type: string
+    pattern: '^[a-z][a-z0-9_]{1,63}$'
+  definitionName:
+    type: string
+    minLength: 1
+    maxLength: 120
+  type:
+    type: string
+    enum:
+      - COLOR
+      - SIZE
+      - DIMENSION
+  values:
+    type: array
+    minItems: 1
+    items:
+      $ref: catalog-attribute-value.yaml
