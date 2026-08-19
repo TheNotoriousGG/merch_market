@@ -69,6 +69,32 @@ class OpenApiPolicyTests {
     }
 
     @Test
+    void inventoryContractSeparatesPublicAvailabilityFromWarehouseQuantities() throws IOException {
+        var contractRoot = CONTRACT.getParent();
+        var contract = Files.readString(CONTRACT);
+        var availability = Files.readString(contractRoot.resolve("components/schemas/inventory-availability.yaml"));
+        var balance = Files.readString(contractRoot.resolve("components/schemas/inventory-balance.yaml"));
+        var publicPath = Files.readString(contractRoot.resolve("paths/inventory-availability.yaml"));
+        var receiptPath = Files.readString(contractRoot.resolve("paths/admin-inventory-receipts.yaml"));
+        var adjustmentPath = Files.readString(contractRoot.resolve("paths/admin-inventory-adjustments.yaml"));
+
+        assertThat(contract)
+                .contains(
+                        "/inventory/availability:",
+                        "/admin/inventory/balances/{variantId}:",
+                        "/admin/inventory/balances/{variantId}/receipts:",
+                        "/admin/inventory/balances/{variantId}/adjustments:")
+                .doesNotContain("/inventory/reservations:");
+        assertThat(availability).contains("IN_STOCK", "OUT_OF_STOCK").doesNotContain("onHand", "reserved");
+        assertThat(balance).contains("onHand", "reserved", "available", "version");
+        assertThat(publicPath).doesNotContain("security: [{SessionCookie: []}]");
+        assertThat(receiptPath)
+                .contains("security: [{SessionCookie: []}]", "idempotency-key.yaml", "csrf-token.yaml", "X-Trace-Id:");
+        assertThat(adjustmentPath)
+                .contains("if-match.yaml", "idempotency-key.yaml", "csrf-token.yaml", "\"412\"", "\"428\"");
+    }
+
+    @Test
     void administrativeMutationsDeclareSessionCsrfAndConcurrencyRequirements() throws IOException {
         var contractRoot = CONTRACT.getParent();
         var mutableExistingResources = java.util.List.of(
@@ -103,7 +129,8 @@ class OpenApiPolicyTests {
 
         try (var paths = Files.list(contractRoot.resolve("paths"))) {
             for (var path : paths.toList()) {
-                if (!path.getFileName().toString().contains("catalog")) {
+                var pathName = path.getFileName().toString();
+                if (!pathName.contains("catalog") && !pathName.contains("inventory")) {
                     continue;
                 }
                 var contract = Files.readString(path);

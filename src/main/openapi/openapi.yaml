@@ -17,6 +17,10 @@ tags:
     description: Public storefront navigation and published product discovery.
   - name: Catalog administration
     description: MFA-protected catalog authoring commands for authorized employees.
+  - name: Inventory
+    description: Public batch availability without exact stock disclosure.
+  - name: Inventory administration
+    description: MFA-protected warehouse balance and stock movement commands.
 paths:
   /:
     $ref: paths/platform.yaml
@@ -52,6 +56,14 @@ paths:
     $ref: paths/admin-catalog-collection.yaml
   /admin/catalog/collections/{resourceId}/products:
     $ref: paths/admin-catalog-collection-products.yaml
+  /inventory/availability:
+    $ref: paths/inventory-availability.yaml
+  /admin/inventory/balances/{variantId}:
+    $ref: paths/admin-inventory-balance.yaml
+  /admin/inventory/balances/{variantId}/receipts:
+    $ref: paths/admin-inventory-receipts.yaml
+  /admin/inventory/balances/{variantId}/adjustments:
+    $ref: paths/admin-inventory-adjustments.yaml
 components:
   securitySchemes:
     SessionCookie:
@@ -125,6 +137,20 @@ components:
       $ref: components/schemas/update-collection-request.yaml
     UpdateCollectionProductsRequest:
       $ref: components/schemas/update-collection-products-request.yaml
+    InventoryAvailability:
+      $ref: components/schemas/inventory-availability.yaml
+    InventoryAvailabilityList:
+      $ref: components/schemas/inventory-availability-list.yaml
+    InventoryBalance:
+      $ref: components/schemas/inventory-balance.yaml
+    InventoryMovement:
+      $ref: components/schemas/inventory-movement.yaml
+    InventoryMutationResult:
+      $ref: components/schemas/inventory-mutation-result.yaml
+    ReceiveStockRequest:
+      $ref: components/schemas/receive-stock-request.yaml
+    AdjustStockRequest:
+      $ref: components/schemas/adjust-stock-request.yaml
   parameters:
     Page:
       $ref: components/parameters/page.yaml
@@ -158,6 +184,10 @@ components:
       $ref: components/parameters/color-values.yaml
     CatalogSort:
       $ref: components/parameters/catalog-sort.yaml
+    VariantIds:
+      $ref: components/parameters/variant-ids.yaml
+    VariantId:
+      $ref: components/parameters/variant-id.yaml
   headers:
     ETag:
       $ref: components/headers/etag.yaml

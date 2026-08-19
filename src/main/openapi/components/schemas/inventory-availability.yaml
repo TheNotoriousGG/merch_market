@@ -1,0 +1,6 @@
+type: object
+description: Public reservability for one catalog variant without an exact quantity.
+required: [variantId, status]
+properties:
+  variantId: {type: string, format: uuid}
+  status: {type: string, enum: [IN_STOCK, OUT_OF_STOCK]}

@@ -1,0 +1,7 @@
+type: object
+description: Reconciles exact physical on-hand quantity; it cannot be set below active reservations.
+required: [onHand, reason]
+properties:
+  onHand: {type: integer, format: int64, minimum: 0, maximum: 1000000000}
+  reason: {type: string, minLength: 3, maxLength: 500}
+  reference: {type: string, minLength: 1, maxLength: 120, nullable: true}

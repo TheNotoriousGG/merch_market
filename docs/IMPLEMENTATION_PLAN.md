@@ -120,6 +120,8 @@ Commit: `chore: initialize backend project`.
 
 Ветка: `feature/inventory`.
 
+Статус: блок 1/12 завершён, выполняется блок 2/12. Подробное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`, consistency boundary — в ADR-0007.
+
 - Balance, immutable movement ledger и atomic reservation.
 - Запрет negative stock/oversell на transaction/constraint levels.
 - TTL 15 минут, одно strict extension и idempotent expiry/release job с PostgreSQL lease.

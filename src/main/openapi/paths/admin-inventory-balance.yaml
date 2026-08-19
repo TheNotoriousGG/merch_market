@@ -1,0 +1,19 @@
+get:
+  tags: [Inventory administration]
+  summary: Read the exact warehouse balance for a catalog variant
+  description: Requires WAREHOUSE_MANAGER or ADMIN authority and verified MFA.
+  operationId: getAdminInventoryBalance
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/variant-id.yaml}
+  responses:
+    "200":
+      description: Exact current balance.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content: {application/json: {schema: {$ref: ../components/schemas/inventory-balance.yaml}}}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

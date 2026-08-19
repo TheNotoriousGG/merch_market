@@ -1,0 +1,30 @@
+post:
+  tags: [Inventory administration]
+  summary: Reconcile exact physical stock for a catalog variant
+  description: Requires WAREHOUSE_MANAGER or ADMIN authority, verified MFA, CSRF, current ETag and durable idempotency.
+  operationId: adjustInventoryStock
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/variant-id.yaml}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/idempotency-key.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content: {application/json: {schema: {$ref: ../components/schemas/adjust-stock-request.yaml}}}
+  responses:
+    "200":
+      description: Physical reconciliation applied atomically or replayed from its original result.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content: {application/json: {schema: {$ref: ../components/schemas/inventory-mutation-result.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "412": {$ref: ../components/responses/precondition-failed.yaml}
+    "428": {$ref: ../components/responses/precondition-required.yaml}
+    "429": {$ref: ../components/responses/too-many-requests.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

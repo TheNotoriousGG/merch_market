@@ -75,6 +75,7 @@
 - Media: S3-compatible object storage + CDN; PostgreSQL metadata/order/alt/object key; presigned upload, async derivatives, immutable URLs.
 - Inventory: current balance + immutable movement ledger; balance/movement atomic.
 - Reservation: PostgreSQL source of truth, atomic, TTL 15 минут configurable, максимум одно строгое extension, idempotent release/expiry worker.
+- Inventory stage 8 scope, public/admin/internal boundaries and PostgreSQL locking semantics are fixed by ADR-0007 and `docs/requirements/INVENTORY_VERTICAL_SLICE.md`; compact review guardrails live in `docs/inventory/INVENTORY_INVARIANTS.md`.
 - Cache не внедряется заранее; Redis возможен через adapter после измерения и определения invalidation.
 
 ## Customer, favorites и cart

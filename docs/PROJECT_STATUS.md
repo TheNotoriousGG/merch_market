@@ -131,7 +131,16 @@ GitLab activation остаётся обязательным deferred gate до �
 
 ## Следующий этап
 
-Этап 8 — inventory vertical slice из `docs/IMPLEMENTATION_PLAN.md`. Он начинается отдельной feature-веткой после закрытия `feature/catalog`; catalog scope больше не расширяется без нового contract change.
+Этап 8 выполняется в `feature/inventory`:
+
+- утверждён план из 12 logical blocks с отдельными gates и commits;
+- блок 1/12 завершён: ТЗ, ADR-0007, inventory invariants, public/warehouse OpenAPI и module boundaries зафиксированы;
+- OpenAPI добавляет anonymous batch availability и защищённые balance/receipt/reconciliation endpoints без browser reservation mutations;
+- generated Java/TypeScript contracts, OpenAPI compatibility, architecture tests и полный `qualityGate` проходят;
+- следующий блок 2/12: framework-free balance и immutable physical movement domain с unit/property tests;
+- модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
+- public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
+- исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.
 
 ## Отложено до production readiness
 
