@@ -25,7 +25,7 @@ class PostgreSqlFoundationTests extends PostgreSqlIntegrationTest {
     void migratesFromScratchAndRemainsIdempotent() {
         assertThat(flyway.validateWithResult().validationSuccessful).isTrue();
         var current = requireNonNull(flyway.info().current());
-        assertThat(current.getVersion().getVersion()).isEqualTo("9");
+        assertThat(current.getVersion().getVersion()).isEqualTo("10");
         assertThat(flyway.migrate().migrationsExecuted).isZero();
     }
 

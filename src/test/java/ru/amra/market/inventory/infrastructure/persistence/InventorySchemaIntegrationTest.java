@@ -39,6 +39,7 @@ class InventorySchemaIntegrationTest extends PostgreSqlIntegrationTest {
                         "inventory_command_idempotency",
                         "inventory_job_leases",
                         "inventory_movements",
+                        "inventory_reservation_command_results",
                         "inventory_reservation_events",
                         "inventory_reservation_lines",
                         "inventory_reservations",
@@ -165,6 +166,7 @@ class InventorySchemaIntegrationTest extends PostgreSqlIntegrationTest {
         for (var table : new String[] {
             "inventory_movements",
             "inventory_reservation_events",
+            "inventory_reservation_command_results",
             "inventory_audit_events",
             "inventory_stock_command_results"
         }) {
@@ -177,6 +179,10 @@ class InventorySchemaIntegrationTest extends PostgreSqlIntegrationTest {
             assertThat(runtimeJdbc.queryForObject(
                             "select has_table_privilege(current_user, ?, 'DELETE')", Boolean.class, table))
                     .isFalse();
+            assertThat(migrationJdbc.queryForObject("""
+                            select count(*) from pg_trigger
+                            where tgrelid = (?::regclass) and not tgisinternal
+                            """, Integer.class, table)).isOne();
         }
 
         var warehouseId = primaryWarehouseId(runtimeJdbc);

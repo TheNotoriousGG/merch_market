@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.amra.market.inventory.application.StaleInventoryVersionException;
@@ -14,6 +15,7 @@ import ru.amra.market.inventory.domain.CatalogVariantId;
 import ru.amra.market.inventory.domain.InventoryBalance;
 import ru.amra.market.inventory.domain.InventoryMovement;
 import ru.amra.market.inventory.domain.InventoryMutation;
+import ru.amra.market.inventory.domain.ReservationId;
 import ru.amra.market.inventory.domain.StockQuantity;
 import ru.amra.market.inventory.domain.WarehouseId;
 
@@ -59,6 +61,15 @@ class JdbcInventoryStockRepository implements InventoryStockRepository {
     }
 
     @Override
+    public List<InventoryBalance> lockAll(List<InventoryBalanceKey> keys) {
+        return keys.stream()
+                .distinct()
+                .sorted()
+                .map(key -> lock(key.warehouseId(), key.variantId()).orElseThrow())
+                .toList();
+    }
+
+    @Override
     public Optional<InventoryBalance> lock(WarehouseId warehouseId, CatalogVariantId variantId) {
         return queryOne(SELECT_BALANCE + " for update", warehouseId, variantId);
     }
@@ -72,7 +83,13 @@ class JdbcInventoryStockRepository implements InventoryStockRepository {
     public void save(InventoryMutation mutation) {
         var balance = mutation.balance();
         updateBalance(balance, mutation.movement().occurredAt());
-        insertMovement(mutation.movement());
+        insertMovement(mutation.movement(), null);
+    }
+
+    @Override
+    public void saveReservationCommit(InventoryMutation mutation, ReservationId reservationId) {
+        updateBalance(mutation.balance(), mutation.movement().occurredAt());
+        insertMovement(mutation.movement(), reservationId);
     }
 
     @Override
@@ -117,13 +134,13 @@ class JdbcInventoryStockRepository implements InventoryStockRepository {
                 .findFirst();
     }
 
-    private void insertMovement(InventoryMovement movement) {
+    private void insertMovement(InventoryMovement movement, @Nullable ReservationId reservation) {
         jdbc.update(
                 """
                 insert into inventory_movements (
                     id, warehouse_id, variant_id, movement_type, quantity_delta,
                     reason, reference, reservation_id, occurred_at
-                ) values (?, ?, ?, ?, ?, ?, ?, null, ?)
+                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 movement.id().value(),
                 movement.warehouseId().value(),
@@ -132,6 +149,7 @@ class JdbcInventoryStockRepository implements InventoryStockRepository {
                 movement.quantityDelta(),
                 movement.reason().value(),
                 movement.reference() == null ? null : movement.reference().value(),
+                reservation == null ? null : reservation.value(),
                 Timestamp.from(movement.occurredAt()));
     }
 

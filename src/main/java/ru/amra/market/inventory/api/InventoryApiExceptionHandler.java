@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.amra.market.inventory.application.InventoryBalanceNotFoundException;
 import ru.amra.market.inventory.application.InventoryIdempotencyConflictException;
 import ru.amra.market.inventory.application.InventoryVariantNotActiveException;
+import ru.amra.market.inventory.application.ReservationNotFoundException;
 import ru.amra.market.inventory.application.StaleInventoryVersionException;
 import ru.amra.market.inventory.domain.InventoryInvariantViolation;
 import ru.amra.market.platform.generated.model.ProblemDetailsDto;
@@ -32,6 +33,7 @@ public final class InventoryApiExceptionHandler {
         InventoryBalanceNotFoundException.class,
         InventoryIdempotencyConflictException.class,
         InventoryVariantNotActiveException.class,
+        ReservationNotFoundException.class,
         StaleInventoryVersionException.class,
         InventoryInvariantViolation.class
     })
@@ -52,6 +54,12 @@ public final class InventoryApiExceptionHandler {
                         "INVENTORY_BALANCE_NOT_FOUND",
                         "Inventory balance not found",
                         "Inventory balance was not found.");
+            case ReservationNotFoundException ignored ->
+                new Descriptor(
+                        HttpStatus.NOT_FOUND,
+                        "RESERVATION_NOT_FOUND",
+                        "Inventory reservation not found",
+                        "The reservation does not exist in the caller scope.");
             case InventoryVariantNotActiveException ignored ->
                 conflict("INVENTORY_VARIANT_NOT_ACTIVE", "The catalog variant is not active.");
             case InventoryIdempotencyConflictException ignored ->

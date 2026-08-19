@@ -6,6 +6,7 @@ import java.util.Optional;
 import ru.amra.market.inventory.domain.CatalogVariantId;
 import ru.amra.market.inventory.domain.InventoryBalance;
 import ru.amra.market.inventory.domain.InventoryMutation;
+import ru.amra.market.inventory.domain.ReservationId;
 import ru.amra.market.inventory.domain.WarehouseId;
 
 /** Transaction-bound persistence boundary for exact balances and physical movements. */
@@ -17,6 +18,9 @@ public interface InventoryStockRepository {
     /** Creates missing balances and locks all rows in deterministic identity order. */
     List<InventoryBalance> lockOrCreateAll(List<InventoryBalanceKey> keys);
 
+    /** Locks existing balances in deterministic identity order. */
+    List<InventoryBalance> lockAll(List<InventoryBalanceKey> keys);
+
     /** Locks an existing balance row for the current transaction. */
     Optional<InventoryBalance> lock(WarehouseId warehouseId, CatalogVariantId variantId);
 
@@ -25,6 +29,9 @@ public interface InventoryStockRepository {
 
     /** Optimistically updates a balance and appends its matching immutable movement. */
     void save(InventoryMutation mutation);
+
+    /** Persists a reservation-bound outgoing mutation and immutable movement. */
+    void saveReservationCommit(InventoryMutation mutation, ReservationId reservationId);
 
     /** Optimistically persists a reserved-only mutation without a physical movement. */
     void saveBalance(InventoryBalance balance, Instant updatedAt);

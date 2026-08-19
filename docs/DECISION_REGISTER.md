@@ -77,6 +77,7 @@
 - Reservation: PostgreSQL source of truth, atomic, TTL 15 минут configurable, максимум одно строгое extension, idempotent release/expiry worker.
 - Inventory stage 8 scope, public/admin/internal boundaries and PostgreSQL locking semantics are fixed by ADR-0007 and `docs/requirements/INVENTORY_VERTICAL_SLICE.md`; compact review guardrails live in `docs/inventory/INVENTORY_INVARIANTS.md`.
 - Warehouse mutation idempotency stores an immutable typed result keyed by movement; replay returns the original balance/movement/ETag even after later stock changes, while the canonical fingerprint is actor-scoped and length-prefixed before SHA-256.
+- Reservation command idempotency stores immutable typed results keyed by lifecycle event; create/extend/commit/release replay their original snapshot after later transitions, and V10 backfills pre-existing event history without JSON state.
 - Cache не внедряется заранее; Redis возможен через adapter после измерения и определения invalidation.
 
 ## Customer, favorites и cart
