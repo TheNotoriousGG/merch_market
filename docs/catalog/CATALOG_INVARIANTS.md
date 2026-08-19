@@ -39,6 +39,10 @@ Status: accepted implementation guardrails for stage 7. Product scope remains in
 - Existing-resource commands require `If-Match`; missing and stale preconditions map to `428` and `412`.
 - Administrative writes require CSRF, `CATALOG_MANAGER` or `ADMIN`, verified MFA, and an append-only audit event.
 - Replayed create/transition commands with the same idempotency key cannot create duplicate resources or effects.
+- An idempotency key is durable and scoped by actor plus operation. Reuse with a different request fingerprint is a conflict.
+- Category creation always starts in `HIDDEN`; visibility changes are explicit optimistic commands.
+- A partial category update distinguishes an omitted parent from an explicit move to the root through `clearParent`.
+- Every parent change is validated against one complete hierarchy snapshot before persistence; database constraints remain the race barrier.
 
 ## Public reads
 

@@ -47,6 +47,10 @@ final class RepresentationHasher {
     }
 
     String etag() {
-        return '"' + HexFormat.of().formatHex(digest.digest()) + '"';
+        return '"' + hexDigest() + '"';
+    }
+
+    String hexDigest() {
+        return HexFormat.of().formatHex(digest.digest());
     }
 }

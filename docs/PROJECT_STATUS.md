@@ -84,14 +84,19 @@
 - page query возвращает exact totals и stable UUID tie-breaker максимум за три SQL-запроса независимо от числа products/variants; public media URL строится через отдельный port без раскрытия object key;
 - блок 7/12 завершён: canonical public detail содержит visible references, characteristics, ordered media и только active variants; storage/status/version fields не покидают backend;
 - historical slug возвращает прямой `301` на `/api/v1/catalog/products/{canonical}` только для active product, а draft/archive/missing неразличимы как `404`;
+- блок 8/12 завершён: protected admin category API поддерживает создание, чтение и частичное изменение категорий через generated transport DTO;
+- create всегда начинает с `HIDDEN`, использует PostgreSQL UUIDv7 и durable caller-scoped idempotency; повтор с тем же fingerprint возвращает тот же ресурс, а несовпадающая команда отклоняется;
+- update требует strong `If-Match`, возвращает новый `ETag`, отклоняет stale write как `412` и проверяет полный hierarchy snapshot на cycle/orphan/depth/sibling-slug conflicts;
+- явный `clearParent` устраняет неоднозначность между отсутствующим nullable полем и намеренным переносом категории в корень;
+- `/api/v1/admin/catalog/**` требует `CATALOG_MANAGER` или `ADMIN`, verified email, MFA ACR и CSRF;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
-- полный `qualityGate` проходит с 94 тестами без failures/errors, включая jqwik properties, PostgreSQL persistence/search/filtering/detail composition и public API contract scenarios;
-- следующий блок 8/12: административные category use cases с generated admin API, hierarchy validation, ETag/If-Match и authorization;
+- полный `qualityGate` проходит с 99 тестами без failures/errors, включая jqwik properties, PostgreSQL persistence/search/filtering/detail composition, public API и admin category scenarios;
+- следующий блок 9/12: административные product, variant, media и collection use cases;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;

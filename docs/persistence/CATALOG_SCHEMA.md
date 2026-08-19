@@ -1,6 +1,6 @@
 # Catalog relational schema
 
-Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_schema.sql`.
+Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_schema.sql` and extended by `V4__create_catalog_command_idempotency.sql`.
 
 ## Ownership boundaries
 
@@ -9,6 +9,7 @@ Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_sch
 - `catalog_product_media` stores private object keys; public URLs are created by the media delivery adapter.
 - Attribute definitions and values remain relational because they drive validation, SKU combinations and filters.
 - Collections own ordered editorial membership without changing product lifecycle.
+- `catalog_command_idempotency` durably binds an actor-scoped command key and operation to one request fingerprint and resulting resource.
 
 ## Integrity strategy
 
@@ -19,6 +20,7 @@ Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_sch
 - A media-to-variant composite foreign key proves that the variant belongs to the same product.
 - Product publication timestamp and lifecycle status are mutually consistent.
 - Cross-row rules such as category cycles, full publishability, canonical-versus-alias namespace and primary-category assignment are validated by the domain inside the write transaction; database uniqueness and foreign keys remain the final race barrier where expressible.
+- Command idempotency claims use one unique `(actor_scope, idempotency_key, operation)` key. A completed claim stores its resource UUID; the same key with another fingerprint never executes the command.
 
 ## Query support
 
