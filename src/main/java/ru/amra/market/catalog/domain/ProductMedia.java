@@ -70,6 +70,32 @@ public final class ProductMedia {
                 id, variantId, MediaType.IMAGE, objectKey, contentType, width, height, alt, displayOrder, primary, 0);
     }
 
+    /** Restores persisted image metadata without applying a business mutation. */
+    public static ProductMedia restoreImage(
+            MediaId id,
+            @Nullable VariantId variantId,
+            String objectKey,
+            String contentType,
+            int width,
+            int height,
+            String alt,
+            int displayOrder,
+            boolean primary,
+            long version) {
+        return new ProductMedia(
+                id,
+                variantId,
+                MediaType.IMAGE,
+                objectKey,
+                contentType,
+                width,
+                height,
+                alt,
+                displayOrder,
+                primary,
+                version);
+    }
+
     public MediaId id() {
         return id;
     }

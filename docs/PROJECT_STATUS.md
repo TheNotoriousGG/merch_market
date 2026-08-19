@@ -74,16 +74,18 @@
 - блок 1/12: OpenAPI contract и архитектурные границы реализованы, проходят validation и Java/TypeScript generation;
 - блок 2/12: framework-free category domain реализован с immutable aggregate, typed values, hierarchy validation и unit/property tests;
 - блок 3/12: product aggregate, typed attributes, immutable SKU variants, media metadata, lifecycle, publication report и slug/SKU namespaces реализованы;
-- блок 4/12 выполняется: Flyway V3 relational catalog schema, constraints, FTS/trigram/filter indexes и PostgreSQL integration tests готовы;
+- блок 4/12 завершён: Flyway V3 relational catalog schema, constraints, FTS/trigram/filter indexes и PostgreSQL integration tests готовы;
 - JPA category adapter реализует application port, domain mapping, stable hierarchy snapshot и явную optimistic-version проверку со stale-write rejection;
+- product persistence реализован как транзакционная композиция JPA aggregate root и ограниченного JDBC child-store для aliases, categories, typed attributes, variants, media и collections;
+- product repository поддерживает canonical/alias lookup, полное восстановление aggregate, idempotent retry и optimistic-version rejection для stale/forged writes;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
-- полный `qualityGate` проходит с 60 тестами, включая jqwik properties для slug и SKU;
-- следующий подшаг: product aggregate JPA/JDBC child-store mapper поверх проверенной V3 schema;
+- полный `qualityGate` проходит с 73 тестами без failures/errors, включая jqwik properties и PostgreSQL persistence scenarios;
+- следующий блок 5/12: public category tree — application query, generated API adapter, cache/ETag и contract/integration tests;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;
