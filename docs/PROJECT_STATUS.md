@@ -155,9 +155,13 @@ GitLab activation остаётся обязательным deferred gate до �
 - все balance rows создаются/блокируются в едином sorted `(warehouse_id, variant_id)` order до availability check; reserved-only updates не создают physical movements;
 - PostgreSQL adapters сохраняют reservation root, normalized lines и immutable CREATED event; identical replay возвращает исходный aggregate, conflicting fingerprint ничего не меняет;
 - real concurrent tests на virtual threads доказывают одного победителя за последнюю единицу, полный rollback multi-line failure и отсутствие deadlock для reversed inputs;
+- блок 7/12 завершён: anonymous generated `GET /api/v1/inventory/availability` de-duplicates first-seen IDs и возвращает point-in-time `IN_STOCK/OUT_OF_STOCK` snapshot;
+- catalog active view и inventory availability reader выполняют два bounded batch queries без N+1; unknown/inactive/missing balance всегда выглядит как `OUT_OF_STOCK`;
+- response использует `Cache-Control: no-store`, trace header и никогда не содержит exact quantity, warehouse, reserved или on-hand fields;
+- contract integration test подтверждает anonymous access, order, de-duplication, privacy и generated DTO shape;
 - OpenAPI добавляет anonymous batch availability и защищённые balance/receipt/reconciliation endpoints без browser reservation mutations;
 - generated Java/TypeScript contracts, OpenAPI compatibility, architecture tests и полный `qualityGate` проходят;
-- следующий блок 7/12: public bounded batch availability API, privacy и query-count acceptance;
+- следующий блок 8/12: protected warehouse balance/receipt/reconciliation API, ETag и authorization;
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.

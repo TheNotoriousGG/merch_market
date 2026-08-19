@@ -60,6 +60,8 @@ public class SecurityConfiguration {
                                 "/api/v1/catalog/**",
                                 "/actuator/health/**")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/inventory/availability")
+                        .permitAll()
                         .requestMatchers("/api/v1/admin/catalog/**")
                         .access(catalogManagerWithMfa(properties))
                         .requestMatchers("/internal/api-docs/**", "/api/v1/admin/**")

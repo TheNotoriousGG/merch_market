@@ -120,7 +120,7 @@ Commit: `chore: initialize backend project`.
 
 Ветка: `feature/inventory`.
 
-Статус: блоки 1–6/12 завершены, выполняется блок 7/12. Подробное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`, consistency boundary — в ADR-0007.
+Статус: блоки 1–7/12 завершены, выполняется блок 8/12. Подробное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`, consistency boundary — в ADR-0007.
 
 - Блок 1: контракт, архитектурные границы и проверяемые invariants.
 - Блок 2: framework-free immutable balance aggregate, checked stock quantities и append-only physical movement model с unit/property tests.
@@ -129,6 +129,7 @@ Commit: `chore: initialize backend project`.
 - Блок 5: atomic balance/movement persistence, locking и ledger reconciliation.
 - Блок 6: all-or-nothing reservation application contract, deterministic locking и concurrency acceptance.
 - Блок 7: anonymous bounded batch availability API без раскрытия exact quantities.
+- Блок 8: protected warehouse balance, receipt и reconciliation API.
 
 - Balance, immutable movement ledger и atomic reservation.
 - Запрет negative stock/oversell на transaction/constraint levels.
