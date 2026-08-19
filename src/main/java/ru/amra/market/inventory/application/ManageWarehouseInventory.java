@@ -30,6 +30,7 @@ public class ManageWarehouseInventory {
     private final InventoryStockCommandResultRepository results;
     private final InventoryActorScopeProvider actors;
     private final CatalogVariantInventoryView catalog;
+    private final InventoryAuditTrail audit;
 
     public ManageWarehouseInventory(
             ManageInventoryStock stock,
@@ -37,13 +38,15 @@ public class ManageWarehouseInventory {
             InventoryIdempotencyStore idempotency,
             InventoryStockCommandResultRepository results,
             InventoryActorScopeProvider actors,
-            CatalogVariantInventoryView catalog) {
+            CatalogVariantInventoryView catalog,
+            InventoryAuditTrail audit) {
         this.stock = stock;
         this.balances = balances;
         this.idempotency = idempotency;
         this.results = results;
         this.actors = actors;
         this.catalog = catalog;
+        this.audit = audit;
     }
 
     /** Reads the exact primary-warehouse balance. */
@@ -71,6 +74,7 @@ public class ManageWarehouseInventory {
                 new StockQuantity(quantity),
                 new MovementReason(reason),
                 reference == null ? null : new MovementReference(reference)));
+        audit.record("STOCK_RECEIVED", mutation);
         results.insert(mutation, mutation.movement().occurredAt());
         idempotency.complete(actor, idempotencyKey, mutation.movement().id().value());
         return new WarehouseMutationResult(
@@ -99,6 +103,7 @@ public class ManageWarehouseInventory {
                 expectedVersion,
                 new MovementReason(reason),
                 reference == null ? null : new MovementReference(reference)));
+        audit.record("STOCK_RECONCILED", mutation);
         results.insert(mutation, mutation.movement().occurredAt());
         idempotency.complete(actor, idempotencyKey, mutation.movement().id().value());
         return new WarehouseMutationResult(

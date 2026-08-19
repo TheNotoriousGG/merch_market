@@ -177,7 +177,13 @@ GitLab activation остаётся обязательным deferred gate до �
 - integration tests подтверждают bounded `2 + 1 + 0` processing, idempotent repeat, сохранение physical `on_hand`, отсутствие movements, lease renewal и takeover по database time;
 - OpenAPI добавляет anonymous batch availability и защищённые balance/receipt/reconciliation endpoints без browser reservation mutations;
 - generated Java/TypeScript contracts, OpenAPI compatibility, architecture tests и полный `qualityGate` проходят;
-- следующий разрешённый блок 11/12: inventory audit, security/race/query-plan acceptance;
+- блок 11/12 завершён: успешные warehouse receipt/reconciliation создают append-only audit в той же транзакции с actor, movement time, warehouse/variant, reason/reference, correlation ID и allowlisted before/after quantity/version diff;
+- replay, failed и stale/no-op commands не дублируют audit; integration acceptance подтверждает точную корреляцию, отсутствие лишних ключей и позитивный доступ обеих ролей `WAREHOUSE_MANAGER`/`ADMIN` при verified identity, MFA и CSRF;
+- реальная expiry/commit гонка на virtual threads допускает один terminal outcome и сохраняет равенство `reserved` сумме active reservation lines без physical ledger drift;
+- representative PostgreSQL fixture содержит 20 000 balances, 40 000 movements и 12 000 reservations; runtime `EXPLAIN (ANALYZE, BUFFERS)` под `statement_timeout=2s` проверяет четыре critical indexes и локальный ceiling 500 ms без planner hints;
+- детали performance acceptance находятся в `docs/persistence/INVENTORY_QUERY_PLANS.md`;
+- полный `clean qualityGate` блока 11 проходит со 173 тестами без failures/errors; branch coverage — 871/1 220 (71,4%), line coverage — 3 732/3 956 (94,3%);
+- следующий разрешённый блок 12/12: generated client, container, reproducibility и documentation closeout;
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.

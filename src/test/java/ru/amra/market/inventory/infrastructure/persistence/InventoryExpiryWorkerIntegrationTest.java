@@ -7,6 +7,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +20,11 @@ import ru.amra.market.inventory.application.ManageInventoryStock;
 import ru.amra.market.inventory.application.ReceiveStockCommand;
 import ru.amra.market.inventory.application.contract.CreateInventoryReservationRequest;
 import ru.amra.market.inventory.application.contract.InventoryReservationOperations;
+import ru.amra.market.inventory.application.contract.ReservationCommandRequest;
 import ru.amra.market.inventory.application.contract.ReservationRequestLine;
 import ru.amra.market.inventory.application.port.InventoryJobLease;
 import ru.amra.market.inventory.domain.CatalogVariantId;
+import ru.amra.market.inventory.domain.InventoryInvariantViolation;
 import ru.amra.market.inventory.domain.MovementReason;
 import ru.amra.market.inventory.domain.ReservationStatus;
 import ru.amra.market.inventory.domain.StockQuantity;
@@ -100,6 +105,57 @@ class InventoryExpiryWorkerIntegrationTest extends PostgreSqlIntegrationTest {
                         warehouse.value(),
                         variant.value()))
                 .isEqualTo(10);
+        assertReservedMatchesActiveLines(jdbc, warehouse, variant);
+    }
+
+    @Test
+    void expiryAndCommitRaceProduceOneExpiredOutcomeWithoutStockDrift() throws Exception {
+        var jdbc = jdbc();
+        var warehouse = warehouse(jdbc);
+        var variant = activeVariant(jdbc, "EXPIRY-COMMIT-RACE");
+        var owner = UUID.randomUUID();
+        receive(warehouse, variant, 5);
+        var created = reservations.create(new CreateInventoryReservationRequest(
+                owner,
+                "expiry-race-create-0001",
+                List.of(new ReservationRequestLine(warehouse.value(), variant.value(), 3))));
+        age(jdbc, created.id().value());
+        var start = new CountDownLatch(1);
+
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            var expiration = executor.submit(() -> {
+                start.await();
+                return expiry.runBatch("expiry-worker-a", Duration.ofSeconds(30), 100) == 1;
+            });
+            var commit = executor.submit(() -> {
+                start.await();
+                try {
+                    reservations.commit(
+                            new ReservationCommandRequest(owner, created.id().value(), "expiry-race-commit-0001"));
+                    return true;
+                } catch (InventoryInvariantViolation exception) {
+                    return false;
+                }
+            });
+            start.countDown();
+
+            assertThat(List.of(expiration.get(5, TimeUnit.SECONDS), commit.get(5, TimeUnit.SECONDS)))
+                    .containsExactlyInAnyOrder(true, false);
+        }
+
+        assertThat(reservations.get(owner, created.id().value()).status()).isEqualTo(ReservationStatus.EXPIRED);
+        assertThat(jdbc.queryForObject(
+                        "select count(*) from inventory_movements where reservation_id = ?",
+                        Integer.class,
+                        created.id().value()))
+                .isZero();
+        assertThat(jdbc.queryForMap(
+                        "select on_hand, reserved from inventory_balances where warehouse_id = ? and variant_id = ?",
+                        warehouse.value(),
+                        variant.value()))
+                .containsEntry("on_hand", 5L)
+                .containsEntry("reserved", 0L);
+        assertReservedMatchesActiveLines(jdbc, warehouse, variant);
     }
 
     @Test
@@ -136,6 +192,22 @@ class InventoryExpiryWorkerIntegrationTest extends PostgreSqlIntegrationTest {
                     expires_at = clock_timestamp() - interval '1 second'
                 where id = ?
                 """, reservationId);
+    }
+
+    private static void assertReservedMatchesActiveLines(
+            JdbcTemplate jdbc, WarehouseId warehouse, CatalogVariantId variant) {
+        assertThat(jdbc.queryForObject("""
+                        select balance.reserved = coalesce(sum(line.quantity)
+                            filter (where reservation.status = 'ACTIVE'), 0)
+                        from inventory_balances balance
+                        left join inventory_reservation_lines line
+                          on line.warehouse_id = balance.warehouse_id
+                         and line.variant_id = balance.variant_id
+                        left join inventory_reservations reservation on reservation.id = line.reservation_id
+                        where balance.warehouse_id = ? and balance.variant_id = ?
+                        group by balance.reserved
+                        """, Boolean.class, warehouse.value(), variant.value()))
+                .isTrue();
     }
 
     private JdbcTemplate jdbc() {

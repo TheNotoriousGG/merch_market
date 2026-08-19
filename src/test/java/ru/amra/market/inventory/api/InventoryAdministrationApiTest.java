@@ -32,6 +32,7 @@ import ru.amra.market.testing.PostgreSqlIntegrationTest;
 @Transactional
 class InventoryAdministrationApiTest extends PostgreSqlIntegrationTest {
     private static final String CSRF = "inventory-csrf-token";
+    private static final String TRACE_ID = "inventory-admin-trace-0001";
 
     @Autowired
     private MockMvc mvc;
@@ -76,6 +77,47 @@ class InventoryAdministrationApiTest extends PostgreSqlIntegrationTest {
                 .andExpect(header().string("ETag", "\"v3\""))
                 .andExpect(jsonPath("$.balance.onHand").value(4))
                 .andExpect(jsonPath("$.movement.type").value("ADJUSTMENT_DECREASE"));
+
+        var jdbc = new JdbcTemplate(dataSource);
+        assertThat(jdbc.queryForObject(
+                        "select count(*) from inventory_audit_events where variant_id = ?", Integer.class, variant))
+                .isEqualTo(3);
+        assertThat(jdbc.queryForList("""
+                        select actor_scope, action, correlation_id,
+                               safe_diff ->> 'fromOnHand' as from_on_hand,
+                               safe_diff ->> 'toOnHand' as to_on_hand,
+                               safe_diff ->> 'fromVersion' as from_version,
+                               safe_diff ->> 'toVersion' as to_version
+                        from inventory_audit_events where variant_id = ? order by occurred_at, id
+                        """, variant))
+                .extracting(
+                        row -> row.get("actor_scope"),
+                        row -> row.get("action"),
+                        row -> row.get("correlation_id"),
+                        row -> row.get("from_on_hand"),
+                        row -> row.get("to_on_hand"),
+                        row -> row.get("from_version"),
+                        row -> row.get("to_version"))
+                .containsExactly(
+                        org.assertj.core.groups.Tuple.tuple(
+                                "warehouse-manager-1", "STOCK_RECEIVED", TRACE_ID, "0", "5", "0", "1"),
+                        org.assertj.core.groups.Tuple.tuple(
+                                "warehouse-manager-1", "STOCK_RECEIVED", TRACE_ID, "5", "7", "1", "2"),
+                        org.assertj.core.groups.Tuple.tuple(
+                                "warehouse-manager-1", "STOCK_RECONCILED", TRACE_ID, "7", "4", "2", "3"));
+        assertThat(jdbc.queryForList("""
+                        select distinct key from inventory_audit_events,
+                        lateral jsonb_object_keys(safe_diff) key where variant_id = ? order by key
+                        """, String.class, variant))
+                .containsExactly(
+                        "fromAvailable",
+                        "fromOnHand",
+                        "fromReserved",
+                        "fromVersion",
+                        "toAvailable",
+                        "toOnHand",
+                        "toReserved",
+                        "toVersion");
     }
 
     @Test
@@ -128,11 +170,22 @@ class InventoryAdministrationApiTest extends PostgreSqlIntegrationTest {
                         .with(warehouseManager())
                         .header("X-AMRA-CSRF", CSRF))
                 .andExpect(status().isForbidden());
+
+        var adminVariant = activeVariant(new JdbcTemplate(dataSource), "ADMIN-ROLE");
+        mvc.perform(receipt(adminVariant, "receipt-admin-role-key", 1, "Admin authorization", null)
+                        .with(admin())
+                        .with(csrf())
+                        .header("X-AMRA-CSRF", CSRF)
+                        .header("X-Trace-Id", TRACE_ID))
+                .andExpect(status().isOk());
     }
 
     private org.springframework.test.web.servlet.ResultActions unsafe(MockHttpServletRequestBuilder request)
             throws Exception {
-        return mvc.perform(request.with(warehouseManager()).with(csrf()).header("X-AMRA-CSRF", CSRF));
+        return mvc.perform(request.with(warehouseManager())
+                .with(csrf())
+                .header("X-AMRA-CSRF", CSRF)
+                .header("X-Trace-Id", TRACE_ID));
     }
 
     private static MockHttpServletRequestBuilder receipt(
@@ -158,6 +211,13 @@ class InventoryAdministrationApiTest extends PostgreSqlIntegrationTest {
                 .idToken(token -> token.subject("warehouse-manager-1")
                         .claim("email_verified", true)
                         .claim("acr", "2"));
+    }
+
+    private static RequestPostProcessor admin() {
+        return oidcLogin()
+                .authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                .idToken(token ->
+                        token.subject("admin-1").claim("email_verified", true).claim("acr", "2"));
     }
 
     private static RequestPostProcessor customer() {
