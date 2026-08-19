@@ -11,12 +11,13 @@ FROM gcr.io/distroless/java25-debian13:nonroot@sha256:54bb9e269b6f1866d91055fd55
 
 ARG BUILD_CREATED
 ARG VCS_REF
+ARG VCS_URL
 ARG VERSION
 
 LABEL org.opencontainers.image.created="${BUILD_CREATED}" \
       org.opencontainers.image.description="Production backend for Amra Shop" \
       org.opencontainers.image.revision="${VCS_REF}" \
-      org.opencontainers.image.source="https://gitlab.com/amra-shop/amra-merch-market-backend" \
+      org.opencontainers.image.source="${VCS_URL}" \
       org.opencontainers.image.title="amra-merch-market-backend" \
       org.opencontainers.image.vendor="Amra Shop" \
       org.opencontainers.image.version="${VERSION}"
@@ -28,6 +29,8 @@ COPY --from=extractor --chown=nonroot:nonroot /workspace/extracted/spring-boot-l
 COPY --from=extractor --chown=nonroot:nonroot /workspace/extracted/snapshot-dependencies/ ./
 COPY --from=extractor --chown=nonroot:nonroot /workspace/extracted/application/ ./
 
+# Distroless guarantees the named nonroot identity (UID/GID 65532) across supported architectures.
+# hadolint ignore=DL3066
 USER nonroot:nonroot
 
 EXPOSE 8080
