@@ -15,6 +15,7 @@ plugins {
     id("net.ltgt.errorprone") version "5.1.0"
     id("net.ltgt.nullaway") version "3.1.0"
     id("org.sonarqube") version "7.3.1.8318"
+    id("info.solidsoft.pitest") version "1.19.0"
 }
 
 group = "ru.amra.market"
@@ -31,6 +32,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("org.springframework.modulith:spring-modulith-api")
 
     compileOnly("org.jspecify:jspecify:1.0.1")
 
@@ -40,7 +42,22 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation(enforcedPlatform("org.junit:junit-bom:6.0.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.assertj:assertj-core")
+    testImplementation("org.mockito:mockito-junit-jupiter")
+    testImplementation("net.jqwik:jqwik:1.10.1")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.wiremock:wiremock:3.13.2")
+    testImplementation("org.springframework.modulith:spring-modulith-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.modulith:spring-modulith-bom:2.1.0")
+    }
 }
 
 checkstyle {
@@ -52,6 +69,19 @@ checkstyle {
 
 jacoco {
     toolVersion = "0.8.15"
+}
+
+pitest {
+    pitestVersion.set("1.25.9")
+    junit5PluginVersion.set("1.2.3")
+    targetClasses.set(setOf("ru.amra.market.*"))
+    excludedClasses.set(setOf("ru.amra.market.AmraMerchMarketBackendApplication"))
+    threads.set(4)
+    outputFormats.set(setOf("XML", "HTML"))
+    timestampedReports.set(false)
+    mutationThreshold.set(80)
+    coverageThreshold.set(80)
+    failWhenNoMutations.set(false)
 }
 
 nullaway {
