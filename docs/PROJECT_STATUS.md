@@ -20,23 +20,30 @@
 
 ## Текущая точка
 
-Этап 2 завершён в `feature/engineering-foundation` логическими commits:
+Этап 2 завершён и fast-forward слит в `main`:
 
 - `37f6c12 build: enforce formatting and static analysis`;
 - `b0647fd test: establish architecture and mutation testing`;
-- документация engineering foundation и templates оформляются завершающим commit этапа.
+- `d0791bf docs: document engineering quality gates`.
+
+Этап 3 реализуется в `feature/gitlab-ci`:
+
+- `87dc228 build: add hardened layered container image`;
+- `e0ad22d ci: add verified container supply chain`;
+- локально подтверждены reproducible JAR, Hadolint, digest policy, multi-stage image build и health smoke под non-root/read-only/cap-drop/no-new-privileges;
+- реальный GitLab pipeline и immutable Registry policy ожидают создания/подключения remote project и runner.
 
 ## Следующий разрешённый этап
 
-Этап 3 — `feature/gitlab-ci`:
+Завершить exit gate этапа 3:
 
-- lint/build/test/integration/security/container/smoke jobs;
-- SBOM, dependency и container scanning;
-- multi-stage container build с non-root Java 25 runtime;
-- immutable image и GitLab Container Registry flow;
-- documented protected-branch, review и fast-forward policy.
+- создать или подключить GitLab 19.x Ultimate project и Container Registry;
+- применить project settings из `docs/operations/GITLAB_DELIVERY.md`;
+- отправить feature-ветку и получить полный зелёный MR pipeline;
+- подтвердить SBOM/provenance/security reports, immutable commit tag и smoke одного digest;
+- выполнить review, rebase и fast-forward merge.
 
-Не начинать OpenAPI, PostgreSQL, security или business modules до прохождения соответствующих gates из `IMPLEMENTATION_PLAN.md`.
+Этап 4 OpenAPI не начинать до прохождения реального GitLab exit gate этапа 3.
 
 ## Отложено до production readiness
 
