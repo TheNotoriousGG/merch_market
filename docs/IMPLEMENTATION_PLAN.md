@@ -67,6 +67,8 @@ Commit: `chore: initialize backend project`.
 - Публикация frontend client в GitLab Package Registry.
 - Minimal protected documentation endpoint и end-to-end contract test.
 
+Техническое решение: OpenAPI 3.0.3, OpenAPI Generator 7.22.0 и OpenAPI Diff 2.1.7 по ADR-0003. Пока действует ADR-0002, TypeScript client генерируется и упаковывается локально, а публикация в GitLab Package Registry остаётся deferred gate.
+
 Выход: generated code не редактируется вручную; breaking change `/api/v1` блокирует merge.
 
 ## Этап 5. PostgreSQL и persistence foundation

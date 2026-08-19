@@ -30,8 +30,8 @@ Frontend `amra-merch-market-frontend` является отдельным про
 | Payment provider | Оплата и refund | В MVP controllable fake adapter; real provider позднее |
 | Delivery provider | Расчёт/создание shipment/tracking | В MVP controllable fake adapter |
 | Notification provider | Email/другие уведомления | В MVP fake adapter + fake inbox; async через outbox |
-| GitLab | CI, package registry и container registry | Build/release infrastructure |
-| Frontend npm consumer | Использует generated TypeScript client | GitLab Package Registry |
+| GitLab | CI, package registry и container registry | Build/release infrastructure; activation отложена по ADR-0002 |
+| Frontend npm consumer | Использует generated TypeScript client | Локальный package artifact; затем GitLab Package Registry |
 
 ## Контекстная схема
 
@@ -48,8 +48,9 @@ flowchart LR
     backend -->|"payment port"| payment["Payment adapter"]
     backend -->|"delivery port"| delivery["Delivery adapter"]
     backend -->|"notification port"| notification["Notification adapter"]
-    backend -->|"OpenAPI generated client"| registry["GitLab Package Registry"]
-    registry --> frontend
+    backend -->|"OpenAPI generated client"| package["Versioned npm package"]
+    package --> frontend
+    package -. "публикация после ADR-0002" .-> registry["GitLab Package Registry"]
 ```
 
 ## Trust boundaries
@@ -104,3 +105,5 @@ Backend не владеет:
 - `docs/DECISION_REGISTER.md`
 - `docs/IMPLEMENTATION_PLAN.md`
 - `docs/adr/0001-modular-monolith.md`
+- `docs/adr/0002-defer-gitlab-activation.md`
+- `docs/adr/0003-openapi-contract-toolchain.md`

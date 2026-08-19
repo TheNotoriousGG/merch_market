@@ -18,6 +18,8 @@
 4. Javadoc doclint без требования бессодержательного Javadoc для каждого очевидного public element;
 5. JUnit Platform 6.0.3 tests, включая Spring Modulith и ArchUnit verification;
 6. JaCoCo 0.8.15 report и thresholds: line ≥80%, branch ≥70%.
+7. OpenAPI semantic validation, local project-policy tests и backward-compatibility comparison с `main`;
+8. generation Java transport contracts и локальная упаковка TypeScript Fetch client.
 
 Mutation testing запускается отдельно:
 
@@ -65,6 +67,8 @@ Generated diff проверяется до commit. Blind trust-all metadata и �
 | ArchUnit layers | Domain зависит от Spring/JPA/infrastructure | architecture test падает с violating classes |
 | JaCoCo | Uncovered production class снижает threshold | `jacocoTestCoverageVerification` падает с actual ratio |
 | PIT | Выжившие mutations снижают critical-module score | `pitest` падает ниже configured threshold |
+| OpenAPI validation | Неразрешимый `$ref` или некорректная schema | `openApiValidate`/policy test падает |
+| OpenAPI compatibility | Удаление `GET /api/v1/` из candidate contract | `checkOpenApiCompatibility` падает с incompatible change log |
 
 Эта матрица повторяется при значимом изменении build logic. В CI stage соответствующие gates будут разделены на диагностируемые jobs, но локальная `qualityGate` остаётся обязательной.
 

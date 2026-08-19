@@ -20,29 +20,32 @@
 
 ## Текущая точка
 
-Этап 2 завершён и fast-forward слит в `main`:
+Этапы 2 и 3 завершены и fast-forward слиты в `main`. GitLab activation отложена по ADR-0002 без ослабления локальных gates.
 
 - `37f6c12 build: enforce formatting and static analysis`;
 - `b0647fd test: establish architecture and mutation testing`;
 - `d0791bf docs: document engineering quality gates`.
 
-Этап 3 реализуется в `feature/gitlab-ci`:
+Этап 4 завершён в `feature/openapi-foundation`:
 
-- `87dc228 build: add hardened layered container image`;
-- `e0ad22d ci: add verified container supply chain`;
-- `5b05c9d docs: define GitLab delivery controls`;
-- локально подтверждены reproducible JAR, Hadolint, digest policy, multi-stage image build и health smoke под non-root/read-only/cap-drop/no-new-privileges;
-- владелец проекта отложил подключение GitLab; границы исключения зафиксированы ADR-0002.
+- `b6355c0 build: establish OpenAPI contract toolchain`;
+- `2d8a8db feat: expose contract-driven platform API`;
+- модульная OpenAPI 3.0.3 specification для `/api/v1`;
+- RFC 9457 Problem Details и reusable pagination, cursor, idempotency, ETag, rate-limit conventions;
+- OpenAPI Generator 7.22.0 для Java API/DTO и TypeScript Fetch client;
+- OpenAPI Diff 2.1.7 для breaking-change comparison с `main`;
+- contract-driven API discovery endpoint и выключенная по умолчанию documentation endpoint;
+- ADR-0003 фиксирует выбор toolchain и границы generated code.
+- полный local `clean check` проходит offline; configuration cache повторно используется;
+- контролируемое удаление `GET /api/v1/` отклонено OpenAPI Diff как breaking change.
 
-## Следующий разрешённый этап
+## Следующий разрешённый этап после закрытия текущего
 
-Этап 4 — `feature/openapi-foundation`:
+Этап 5 — `feature/postgresql-foundation`:
 
-- модульная OpenAPI specification `/api/v1`;
-- единые API conventions и RFC 9457 Problem Details;
-- lint, validation и breaking-change gates;
-- generation Java interfaces/DTO и TypeScript client;
-- minimal contract endpoint и end-to-end contract test.
+- PostgreSQL/Testcontainers и Flyway foundation;
+- schema/role/migration conventions;
+- migration, persistence и compatibility tests.
 
 GitLab activation остаётся обязательным deferred gate до первого shared remote, release или deployment.
 

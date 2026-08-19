@@ -30,16 +30,20 @@
 
 Приложение включает virtual threads. По умолчанию наружу доступны только actuator endpoints `health` и `info`; бизнес-API добавляются OpenAPI-first вертикальными срезами.
 
+Canonical OpenAPI contract находится в `src/main/openapi`. Discovery endpoint доступен по `GET /api/v1/`. Документация выключена по умолчанию и для local/test включается свойством `amra.api-docs.enabled=true`, после чего modular YAML доступен с `/internal/api-docs/openapi.yaml`.
+
 ## Проверки качества
 
 ```shell
 ./gradlew qualityGate
 ./gradlew pitest
 ./gradlew spotlessApply
+./gradlew openApiValidate checkOpenApiCompatibility
+./gradlew generateJavaApi packageTypeScriptClient
 ```
 
 `qualityGate` запускает formatting check, Error Prone/NullAway compilation, Checkstyle, Javadoc doclint, tests, architecture verification и JaCoCo thresholds. PIT запускается отдельно для critical modules, чтобы mutation testing оставался явным и измеримым этапом.
 
-Container build и обязательные GitLab project settings описаны в [GITLAB_DELIVERY.md](docs/operations/GITLAB_DELIVERY.md). Pipeline публикует commit-addressed image с SBOM/provenance и проверяет этот же image smoke-тестом.
+Container build и обязательные GitLab project settings описаны в [GITLAB_DELIVERY.md](docs/operations/GITLAB_DELIVERY.md). Подключение GitLab remote/runner и registry временно отложено по ADR-0002; локальные gates и container checks остаются обязательными.
 
 Текущее состояние и следующий разрешённый этап находятся в [PROJECT_STATUS.md](docs/PROJECT_STATUS.md). Markdown обновляется вместе с каждым изменением решения или поведения.

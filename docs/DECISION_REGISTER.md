@@ -35,6 +35,7 @@
 ## API
 
 - OpenAPI — source of truth; lint, validation, generated-diff и breaking-change comparison с `main` обязательны.
+- OpenAPI 3.0.3 выбран до стабилизации полного toolchain для 3.1; generation и compatibility gates описаны ADR-0003.
 - Swagger UI: local/test; в production — protected admin access.
 - Errors: RFC 9457 Problem Details, stable business code, `traceId`, validation violations.
 - Пользовательские тексты локализует frontend; backend возвращает codes/parameters.
@@ -44,7 +45,7 @@
 - Catalog/admin: page/size + totals; audit/events/large mutable feeds: cursor/keyset.
 - Filtering/sorting — explicit typed allowlists без generic query language.
 - Concurrent admin edit: optimistic locking + ETag/`If-Match`; stale update — 412.
-- Frontend client публикуется versioned npm package в GitLab Package Registry и содержит версию spec.
+- Frontend client генерируется как versioned npm package и содержит версию spec. Публикация в GitLab Package Registry отложена только на срок действия ADR-0002.
 
 ## Persistence и данные
 
