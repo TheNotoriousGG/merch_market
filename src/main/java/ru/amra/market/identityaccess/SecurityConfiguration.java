@@ -53,7 +53,12 @@ public class SecurityConfiguration {
         var loginSuccess = new SavedRequestAwareAuthenticationSuccessHandler();
 
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.GET, "/api/v1/", "/api/v1/session", "/actuator/health/**")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/",
+                                "/api/v1/session",
+                                "/api/v1/catalog/**",
+                                "/actuator/health/**")
                         .permitAll()
                         .requestMatchers("/internal/api-docs/**", "/api/v1/admin/**")
                         .access(adminWithMfa(properties))

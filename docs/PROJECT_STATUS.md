@@ -78,14 +78,16 @@
 - JPA category adapter реализует application port, domain mapping, stable hierarchy snapshot и явную optimistic-version проверку со stale-write rejection;
 - product persistence реализован как транзакционная композиция JPA aggregate root и ограниченного JDBC child-store для aliases, categories, typed attributes, variants, media и collections;
 - product repository поддерживает canonical/alias lookup, полное восстановление aggregate, idempotent retry и optimistic-version rejection для stale/forged writes;
+- блок 5/12 завершён: публичное дерево категорий строится через application query и один recursive CTE без N+1;
+- anonymous `GET /api/v1/catalog/categories` реализует generated OpenAPI interface, возвращает только достижимые `ACTIVE` ветки, deterministic order, strong ETag и public cache policy;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
-- полный `qualityGate` проходит с 73 тестами без failures/errors, включая jqwik properties и PostgreSQL persistence scenarios;
-- следующий блок 5/12: public category tree — application query, generated API adapter, cache/ETag и contract/integration tests;
+- полный `qualityGate` проходит с 79 тестами без failures/errors, включая jqwik properties, PostgreSQL persistence и public API contract scenarios;
+- следующий блок 6/12: публичный список товаров — typed query, FTS/trigram search, filters, exact page totals и stable sorting;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;

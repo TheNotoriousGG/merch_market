@@ -42,6 +42,9 @@ Status: accepted implementation guardrails for stage 7. Product scope remains in
 
 ## Public reads
 
+- Category navigation starts only from active roots and follows only active children, so a hidden parent hides its complete branch.
+- Category siblings are returned in `displayOrder`, then UUID order; the complete tree uses one recursive query rather than per-node reads.
+- The category-tree ETag is derived only from its deterministic public representation; HTTP caching never becomes an application correctness dependency.
 - Only active products with active presentation data are visible.
 - Page size is `24` by default and at most `60`; filters and sorting are allowlisted.
 - Empty results are successful pages with exact zero totals.
