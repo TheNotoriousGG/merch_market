@@ -73,11 +73,15 @@
 
 - блок 1/12: OpenAPI contract и архитектурные границы реализованы, проходят validation и Java/TypeScript generation;
 - блок 2/12: framework-free category domain реализован с immutable aggregate, typed values, hierarchy validation и unit/property tests;
+- блок 3/12: product aggregate, typed attributes, immutable SKU variants, media metadata, lifecycle, publication report и slug/SKU namespaces реализованы;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
-- следующий блок: product, variant, media, slug alias и publication domain;
+- product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
+- canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
+- полный `qualityGate` проходит с 60 тестами, включая jqwik properties для slug и SKU;
+- следующий блок: Flyway catalog schema и persistence adapters;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;
