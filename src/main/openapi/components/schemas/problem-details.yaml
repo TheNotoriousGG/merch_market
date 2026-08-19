@@ -1,0 +1,44 @@
+type: object
+description: RFC 9457 problem details extended with stable machine-readable diagnostics.
+required:
+  - type
+  - title
+  - status
+  - code
+  - traceId
+properties:
+  type:
+    type: string
+    format: uri
+    description: URI identifying the problem type.
+  title:
+    type: string
+    description: Short, stable summary intended for developers.
+  status:
+    type: integer
+    format: int32
+    minimum: 400
+    maximum: 599
+  detail:
+    type: string
+    description: Non-localized diagnostic detail without sensitive data.
+  instance:
+    type: string
+    format: uri
+    description: URI identifying this occurrence.
+  code:
+    type: string
+    pattern: '^[A-Z][A-Z0-9_]*$'
+    description: Stable business error code localized by the client.
+  traceId:
+    type: string
+    description: Correlation identifier safe to expose to the caller.
+  parameters:
+    type: object
+    description: Non-sensitive structured values used for client localization.
+    additionalProperties:
+      type: string
+  violations:
+    type: array
+    items:
+      $ref: validation-violation.yaml

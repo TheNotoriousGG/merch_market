@@ -1,0 +1,5 @@
+description: The request is syntactically invalid or violates input constraints.
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/problem-details.yaml

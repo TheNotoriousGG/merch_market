@@ -1,0 +1,5 @@
+description: The supplied If-Match value does not represent the current resource version.
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/problem-details.yaml

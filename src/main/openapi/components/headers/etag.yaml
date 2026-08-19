@@ -1,0 +1,4 @@
+description: Strong entity tag used for optimistic concurrency control.
+schema:
+  type: string
+  pattern: '^"[^"\\r\\n]+"$'

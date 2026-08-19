@@ -1,9 +1,12 @@
 import net.ltgt.gradle.errorprone.errorprone
 import net.ltgt.gradle.nullaway.nullaway
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+import org.openapitools.generator.gradle.plugin.tasks.ValidateTask
 
 plugins {
     java
@@ -16,6 +19,7 @@ plugins {
     id("net.ltgt.nullaway") version "3.1.0"
     id("org.sonarqube") version "7.3.1.8318"
     id("info.solidsoft.pitest") version "1.19.0"
+    id("org.openapi.generator") version "7.22.0"
 }
 
 group = "ru.amra.market"
@@ -28,11 +32,19 @@ java {
     }
 }
 
+val openApiDiffCli =
+    configurations.create("openApiDiffCli") {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+    }
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.modulith:spring-modulith-api")
+
+    compileOnly("jakarta.annotation:jakarta.annotation-api")
 
     compileOnly("org.jspecify:jspecify:1.0.1")
 
@@ -52,6 +64,8 @@ dependencies {
     testImplementation("org.wiremock:wiremock:3.13.2")
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    openApiDiffCli("org.openapitools.openapidiff:openapi-diff-cli:2.1.7")
 }
 
 dependencyManagement {
@@ -75,7 +89,12 @@ pitest {
     pitestVersion.set("1.25.9")
     junit5PluginVersion.set("1.2.3")
     targetClasses.set(setOf("ru.amra.market.*"))
-    excludedClasses.set(setOf("ru.amra.market.AmraMerchMarketBackendApplication"))
+    excludedClasses.set(
+        setOf(
+            "ru.amra.market.AmraMerchMarketBackendApplication",
+            "ru.amra.market.platform.generated.*",
+        ),
+    )
     threads.set(4)
     outputFormats.set(setOf("XML", "HTML"))
     timestampedReports.set(false)
@@ -140,10 +159,152 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.withType<Javadoc>().configureEach {
+    exclude("ru/amra/market/platform/generated/**")
     val standardOptions = options as StandardJavadocDocletOptions
     standardOptions.encoding = "UTF-8"
     standardOptions.charSet = "UTF-8"
     standardOptions.addBooleanOption("Xdoclint:all,-missing", true)
+}
+
+val openApiSpec = layout.projectDirectory.file("src/main/openapi/openapi.yaml")
+val generatedJavaDirectory = layout.buildDirectory.dir("generated/openapi/java")
+val generatedTypeScriptDirectory = layout.buildDirectory.dir("generated/openapi/typescript")
+val openApiContractTree = layout.projectDirectory.dir("src/main/openapi")
+
+sourceSets.main {
+    java.srcDir(generatedJavaDirectory.map { it.dir("src/main/java") })
+    resources.srcDir("src/main/openapi")
+}
+
+val generateJavaApi =
+    tasks.register<GenerateTask>("generateJavaApi") {
+        group = "openapi tools"
+        description = "Generates Spring API interfaces and transport models from the canonical OpenAPI contract."
+        generatorName.set("spring")
+        library.set("spring-boot")
+        inputSpec.set(openApiSpec.asFile.absolutePath)
+        inputs.dir(openApiContractTree)
+        outputDir.set(generatedJavaDirectory.get().asFile.absolutePath)
+        apiPackage.set("ru.amra.market.platform.generated.api")
+        modelPackage.set("ru.amra.market.platform.generated.model")
+        modelNameSuffix.set("Dto")
+        globalProperties.set(
+            mapOf(
+                "apis" to "",
+                "models" to "",
+                "supportingFiles" to "ApiUtil.java",
+            ),
+        )
+        configOptions.set(
+            mapOf(
+                "annotationLibrary" to "none",
+                "documentationProvider" to "none",
+                "interfaceOnly" to "true",
+                "openApiNullable" to "false",
+                "requestMappingMode" to "api_interface",
+                "skipDefaultInterface" to "true",
+                "useBeanValidation" to "true",
+                "useJakartaEe" to "true",
+                "useSpringBoot4" to "true",
+                "useSpringBuiltInValidation" to "true",
+                "useTags" to "true",
+            ),
+        )
+        typeMappings.set(mapOf("OffsetDateTime" to "java.time.Instant"))
+    }
+
+val generateTypeScriptClient =
+    tasks.register<GenerateTask>("generateTypeScriptClient") {
+        group = "openapi tools"
+        description = "Generates the frontend TypeScript Fetch client from the canonical OpenAPI contract."
+        generatorName.set("typescript-fetch")
+        inputSpec.set(openApiSpec.asFile.absolutePath)
+        inputs.dir(openApiContractTree)
+        outputDir.set(generatedTypeScriptDirectory.get().asFile.absolutePath)
+        packageName.set("@amra-shop/api-client")
+        configOptions.set(
+            mapOf(
+                "enumPropertyNaming" to "UPPERCASE",
+                "npmName" to "@amra-shop/api-client",
+                "npmVersion" to project.version.toString().removeSuffix("-SNAPSHOT"),
+                "supportsES6" to "true",
+                "typescriptThreePlus" to "true",
+                "withInterfaces" to "true",
+            ),
+        )
+    }
+
+tasks.named<ValidateTask>("openApiValidate") {
+    group = "verification"
+    description = "Validates the canonical OpenAPI contract."
+    inputSpec.set(openApiSpec.asFile.absolutePath)
+    inputs.dir(openApiContractTree)
+    recommend.set(false)
+    treatWarningsAsErrors.set(false)
+}
+
+val openApiBaselineDirectory = layout.buildDirectory.dir("openapi-baseline")
+val openApiBaselineSpec = openApiBaselineDirectory.map { it.file("src/main/openapi/openapi.yaml") }
+val openApiCandidateSpec =
+    providers.gradleProperty("openapiCandidate").orElse(openApiSpec.asFile.absolutePath)
+
+val prepareOpenApiBaseline =
+    tasks.register<Exec>("prepareOpenApiBaseline") {
+        group = "verification"
+        description = "Extracts the canonical OpenAPI contract from the local main branch when available."
+        outputs.dir(openApiBaselineDirectory)
+        inputs.dir(openApiContractTree)
+        inputs.property(
+            "mainCommit",
+            providers
+                .exec {
+                    commandLine("git", "rev-parse", "main")
+                    isIgnoreExitValue = true
+                }.standardOutput.asText
+                .map(String::trim),
+        )
+        commandLine(
+            "ci/prepare-openapi-baseline.sh",
+            openApiBaselineDirectory.get().asFile.absolutePath,
+        )
+    }
+
+val checkOpenApiCompatibility =
+    tasks.register<JavaExec>("checkOpenApiCompatibility") {
+        group = "verification"
+        description = "Fails when the candidate contract breaks the OpenAPI contract on main."
+        dependsOn(prepareOpenApiBaseline)
+        classpath = openApiDiffCli
+        mainClass.set("org.openapitools.openapidiff.cli.Main")
+        args(
+            openApiBaselineSpec.get().asFile.absolutePath,
+            openApiCandidateSpec.get(),
+            "--fail-on-incompatible",
+        )
+        inputs.file(openApiCandidateSpec)
+    }
+
+val packageTypeScriptClient =
+    tasks.register<Zip>("packageTypeScriptClient") {
+        group = "build"
+        description = "Packages the generated TypeScript client as a local immutable build artifact."
+        dependsOn(generateTypeScriptClient)
+        from(generatedTypeScriptDirectory)
+        exclude(".openapi-generator/**", ".openapi-generator-ignore")
+        archiveBaseName.set("amra-shop-api-client")
+        archiveVersion.set(project.version.toString().removeSuffix("-SNAPSHOT"))
+    }
+
+tasks.compileJava {
+    dependsOn(generateJavaApi)
+}
+
+tasks.processResources {
+    dependsOn(tasks.named("openApiValidate"))
+}
+
+tasks.checkstyleMain {
+    exclude("**/generated/**")
 }
 
 val coverageClasses =
@@ -181,6 +342,9 @@ tasks.jacocoTestCoverageVerification {
 }
 
 tasks.check {
+    dependsOn(checkOpenApiCompatibility)
+    dependsOn(tasks.named("openApiValidate"))
+    dependsOn(packageTypeScriptClient)
     dependsOn(tasks.javadoc)
     dependsOn(tasks.jacocoTestReport)
     dependsOn(tasks.jacocoTestCoverageVerification)

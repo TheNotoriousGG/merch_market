@@ -1,0 +1,57 @@
+openapi: 3.0.3
+info:
+  title: Amra Merch Market API
+  version: 1.0.0
+  description: Contract-first API for Amra Shop.
+  contact:
+    name: Amra Shop engineering
+servers:
+  - url: /api/v1
+    description: Version 1 API
+tags:
+  - name: Platform
+    description: API discovery and platform metadata.
+paths:
+  /:
+    $ref: paths/platform.yaml
+components:
+  schemas:
+    ApiRoot:
+      $ref: components/schemas/api-root.yaml
+    ProblemDetails:
+      $ref: components/schemas/problem-details.yaml
+    ValidationViolation:
+      $ref: components/schemas/validation-violation.yaml
+    PageMetadata:
+      $ref: components/schemas/page-metadata.yaml
+    CursorMetadata:
+      $ref: components/schemas/cursor-metadata.yaml
+  parameters:
+    Page:
+      $ref: components/parameters/page.yaml
+    PageSize:
+      $ref: components/parameters/page-size.yaml
+    Sort:
+      $ref: components/parameters/sort.yaml
+    Cursor:
+      $ref: components/parameters/cursor.yaml
+    IdempotencyKey:
+      $ref: components/parameters/idempotency-key.yaml
+    IfMatch:
+      $ref: components/parameters/if-match.yaml
+  headers:
+    ETag:
+      $ref: components/headers/etag.yaml
+    RetryAfter:
+      $ref: components/headers/retry-after.yaml
+    TraceId:
+      $ref: components/headers/trace-id.yaml
+  responses:
+    BadRequest:
+      $ref: components/responses/bad-request.yaml
+    PreconditionFailed:
+      $ref: components/responses/precondition-failed.yaml
+    TooManyRequests:
+      $ref: components/responses/too-many-requests.yaml
+    UnexpectedError:
+      $ref: components/responses/unexpected-error.yaml
