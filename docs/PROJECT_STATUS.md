@@ -51,13 +51,30 @@
 - ADR-0004, database conventions и recovery assumptions поддерживают межсессионный контекст;
 - local Compose config, shell syntax и полный offline `qualityGate` проходят успешно.
 
+Этап 6 завершён в `feature/identity-access`:
+
+- `46498f3 build: provision identity and session infrastructure`;
+- `39f6d63 feat: enforce backend-managed browser security`;
+- Keycloak 26.7.0 закреплён immutable multi-platform digest и использует отдельную PostgreSQL;
+- local realm импортируется с client secret только из environment и содержит allowlist ролей без тестовых пользователей;
+- OIDC Authorization Code + PKCE оставляет tokens в backend-managed JDBC session;
+- `AMRA_SESSION` — Secure/HttpOnly/SameSite, unsafe requests защищены CSRF, credentialed CORS ограничен exact-origin allowlist;
+- customer/admin inactivity и absolute lifetime реализованы раздельно;
+- admin API и internal docs требуют `ROLE_ADMIN` вместе с MFA ACR `2`;
+- verified email обязателен для protected customer API, а `GET /api/v1/session` возвращает только безопасные metadata;
+- PostgreSQL-backed bulk revocation индексируется immutable OIDC `sub`;
+- security integration tests доказывают denial, CSRF, CORS, MFA, role-escalation, expiry и revocation;
+- реальный Keycloak container прошёл health check, realm OIDC discovery вернул ожидаемые issuer/endpoints;
+- полный offline `clean qualityGate` прошёл; PIT mutation score — 93% при 97% line coverage mutated classes.
+
 ## Следующий разрешённый этап после закрытия текущего
 
-Этап 6 — `feature/identity-access`:
+Этап 7 — `feature/catalog`:
 
-- Keycloak OIDC integration;
-- backend-managed HttpOnly session, CSRF и CORS;
-- permissions, MFA claims и security integration tests.
+- OpenAPI categories/products/variants и typed filtering;
+- category/product/SKU domain invariants;
+- PostgreSQL catalog model, FTS/search port и admin ETag contract;
+- unit/property/persistence/contract/N+1 tests.
 
 GitLab activation остаётся обязательным deferred gate до первого shared remote, release или deployment.
 

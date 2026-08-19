@@ -107,6 +107,9 @@
 - Roles из permissions: `CUSTOMER`, `CATALOG_MANAGER`, `ORDER_MANAGER`, `WAREHOUSE_MANAGER`, `SUPPORT`, `ADMIN`.
 - `/api/v1/admin/**`: separate DTO/permissions/rate limits/audit; MFA claim обязателен; direct DB access запрещён.
 - Keycloak — отдельный infrastructure component, минимум два production instances, own DB, backup и health checks.
+- Identity foundation использует Keycloak 26.7.0, Spring Security OIDC Authorization Code + PKCE и Spring Session JDBC; детали и upgrade boundary зафиксированы ADR-0005.
+- Backend principal и ключ отзыва сессий — immutable OIDC `sub`; неизвестные realm roles отбрасываются allowlist mapping.
+- Admin MFA доказывается одновременно `ROLE_ADMIN` и разрешённым `acr`; начальный уровень — `2`, выдаваемый только MFA flow Keycloak.
 - Secrets — external Secret Manager; provider выбирается вместе с production platform.
 - TLS обязателен для external/inter-service/PostgreSQL traffic; disks/backups/object storage encrypted.
 - PII classified; retention/anonymization; нет PII в logs/metrics/traces/URLs/idempotency payloads.

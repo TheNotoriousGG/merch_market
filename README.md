@@ -28,7 +28,7 @@
 ./gradlew bootRun
 ```
 
-Приложение включает virtual threads. По умолчанию наружу доступны только actuator endpoints `health` и `info`; бизнес-API добавляются OpenAPI-first вертикальными срезами.
+Приложение включает virtual threads. Публичный API добавляется OpenAPI-first вертикальными срезами.
 
 Canonical OpenAPI contract находится в `src/main/openapi`. Discovery endpoint доступен по `GET /api/v1/`. Документация выключена по умолчанию и для local/test включается свойством `amra.api-docs.enabled=true`, после чего modular YAML доступен с `/internal/api-docs/openapi.yaml`.
 
@@ -50,13 +50,15 @@ Integration tests используют PostgreSQL 18.4 через Testcontainers
 
 ```shell
 cp .env.example .env
-# Заменить все три local password.
-docker compose up -d postgres
+# Заменить все local passwords и OIDC client secret.
+docker compose up -d postgres keycloak-postgres keycloak
 set -a && . ./.env && set +a
 ./gradlew bootRun
 ```
 
 `amra_owner` используется только bootstrap-контейнером, `amra_migrator` — Flyway, `amra_runtime` — приложением. Соглашения описаны в [DATABASE_CONVENTIONS.md](docs/persistence/DATABASE_CONVENTIONS.md), recovery assumptions — в [DATABASE_RECOVERY.md](docs/operations/DATABASE_RECOVERY.md).
+
+Локальный Keycloak доступен на `http://localhost:8081`, использует отдельную PostgreSQL и импортирует realm `amra-shop` без тестовых пользователей. Авторизация начинается с `/oauth2/authorization/keycloak`; состояние браузерной сессии доступно по `GET /api/v1/session`. Контракт ролей, MFA, CSRF, CORS и отзыва сессий описан в [IDENTITY_ACCESS.md](docs/security/IDENTITY_ACCESS.md).
 
 Container build и обязательные GitLab project settings описаны в [GITLAB_DELIVERY.md](docs/operations/GITLAB_DELIVERY.md). Подключение GitLab remote/runner и registry временно отложено по ADR-0002; локальные gates и container checks остаются обязательными.
 

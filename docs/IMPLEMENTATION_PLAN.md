@@ -96,6 +96,8 @@ Commit: `chore: initialize backend project`.
 - Session lifetime/revocation и verified-email contracts.
 - Security slice/integration tests: denial, expiry и role escalation attempts.
 
+Техническое решение: Keycloak 26.7.0, Spring Security 7.1 OIDC Authorization Code + PKCE, Spring Session JDBC и application allowlist ролей по ADR-0005. Principal/revocation key — OIDC `sub`; admin gate требует `ROLE_ADMIN` и ACR level `2`.
+
 Выход: customer/admin security paths доказаны тестами; secrets отсутствуют в repository.
 
 ## Этап 7. Catalog vertical slice

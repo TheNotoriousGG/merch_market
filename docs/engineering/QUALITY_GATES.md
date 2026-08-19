@@ -29,7 +29,7 @@ Mutation testing запускается отдельно:
 ./gradlew pitest
 ```
 
-PIT использует version 1.25.9 и JUnit Platform plugin 1.2.3. В foundation `failWhenNoMutations=false`, потому что business code ещё отсутствует. Для critical domain modules отсутствие mutations и mutation score ниже 80% становятся blocking condition в той же feature-ветке, где появляется module code.
+PIT использует version 1.25.9 и JUnit Platform plugin 1.2.3. В foundation `failWhenNoMutations=false`, потому что business code ещё отсутствует. Для critical domain modules отсутствие mutations и mutation score ниже 80% становятся blocking condition в той же feature-ветке, где появляется module code. Чистые Spring `@Configuration` wiring-классы исключаются из mutation scope и проверяются context/integration tests; security policies, claims mapping, filters и application behaviour из PIT не исключаются.
 
 ## Исправление formatting
 
