@@ -22,6 +22,13 @@
 | Mutation | Способность tests обнаруживать изменение critical domain logic | PIT 1.25.9 |
 | Performance | Latency, throughput, query plans и saturation | Добавляется перед production readiness |
 
+## PostgreSQL integration
+
+- Integration tests используют PostgreSQL 18.4 Testcontainer с теми же owner/migrator/runtime boundaries, что local environment.
+- H2 и другие in-memory substitutes не применяются для persistence behaviour.
+- Fresh-container test проверяет Flyway from scratch, повторный no-op migrate, runtime privileges/timeouts, PostgreSQL major и UUIDv7.
+- Controlled checksum mismatch доказывает отказ migration/startup gate при несовместимой истории.
+
 ## Правила doubles
 
 - Не mock-ать value objects, aggregates и pure domain services.

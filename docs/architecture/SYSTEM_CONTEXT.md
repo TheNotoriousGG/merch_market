@@ -25,7 +25,7 @@ Frontend `amra-merch-market-frontend` является отдельным про
 | Система | Назначение | Интеграционный контракт |
 | --- | --- | --- |
 | Keycloak | OIDC identity, MFA и authentication claims | OIDC; отдельная DB и lifecycle |
-| PostgreSQL | Source of truth для business state, sessions и outbox | JDBC/TLS; Flyway migrations |
+| PostgreSQL | Source of truth для business state, sessions и outbox | Managed PostgreSQL; JDBC/TLS; owner/migrator/runtime roles; Flyway migrations |
 | S3-compatible storage + CDN | Product media и производные размеры | Port/adapter; presigned upload |
 | Payment provider | Оплата и refund | В MVP controllable fake adapter; real provider позднее |
 | Delivery provider | Расчёт/создание shipment/tracking | В MVP controllable fake adapter |
@@ -62,6 +62,7 @@ flowchart LR
 5. Webhooks недоверены до проверки signature, timestamp и replay protection.
 6. PostgreSQL является source of truth; caches, outbox consumers и providers не могут самостоятельно определять stock/order state.
 7. PII, session identifiers и secrets не пересекают telemetry boundary.
+8. Database owner и migrator credentials не передаются runtime application; runtime не имеет DDL privileges.
 
 ## System boundary и ownership
 

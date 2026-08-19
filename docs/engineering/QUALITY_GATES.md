@@ -21,6 +21,8 @@
 7. OpenAPI semantic validation, local project-policy tests и backward-compatibility comparison с `main`;
 8. generation Java transport contracts и локальная упаковка TypeScript Fetch client.
 
+После появления persistence foundation test gate требует работающий Docker daemon и запускает PostgreSQL 18.4 Testcontainer. Замена реальной базы на H2 для обхода этого требования запрещена.
+
 Mutation testing запускается отдельно:
 
 ```shell

@@ -82,6 +82,8 @@ Commit: `chore: initialize backend project`.
 - Migration tests from scratch и expand/contract template.
 - PITR/backup/restore assumptions и explain-plan review rules.
 
+Техническое решение: PostgreSQL 18.4, Flyway 12.4.0 из Spring Boot BOM, Hibernate 7.4.1 и Testcontainers 2.0.5. Role/schema/bootstrap boundaries описаны ADR-0004.
+
 Выход: schema создаётся только migrations; application не стартует при incompatible schema.
 
 ## Этап 6. Identity, sessions и authorization

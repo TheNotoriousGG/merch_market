@@ -20,13 +20,13 @@
 
 ## Текущая точка
 
-Этапы 2 и 3 завершены и fast-forward слиты в `main`. GitLab activation отложена по ADR-0002 без ослабления локальных gates.
+Этапы 2–4 завершены и fast-forward слиты в `main`. GitLab activation отложена по ADR-0002 без ослабления локальных gates.
 
 - `37f6c12 build: enforce formatting and static analysis`;
 - `b0647fd test: establish architecture and mutation testing`;
 - `d0791bf docs: document engineering quality gates`.
 
-Этап 4 завершён в `feature/openapi-foundation`:
+Этап 4 завершён и fast-forward слит в `main`:
 
 - `b6355c0 build: establish OpenAPI contract toolchain`;
 - `2d8a8db feat: expose contract-driven platform API`;
@@ -35,17 +35,29 @@
 - OpenAPI Generator 7.22.0 для Java API/DTO и TypeScript Fetch client;
 - OpenAPI Diff 2.1.7 для breaking-change comparison с `main`;
 - contract-driven API discovery endpoint и выключенная по умолчанию documentation endpoint;
-- ADR-0003 фиксирует выбор toolchain и границы generated code.
+- ADR-0003 фиксирует выбор toolchain и границы generated code;
 - полный local `clean check` проходит offline; configuration cache повторно используется;
 - контролируемое удаление `GET /api/v1/` отклонено OpenAPI Diff как breaking change.
 
+Этап 5 завершён в `feature/postgresql-foundation`:
+
+- `ed66702 build: establish PostgreSQL persistence runtime`;
+- `74319d0 test: verify PostgreSQL migration boundaries`;
+- PostgreSQL 18.4 Compose/Testcontainers image закреплён digest;
+- `amra_owner`, `amra_migrator` и `amra_runtime` разделены;
+- schema `amra_shop`, Flyway-only migrations, Hibernate validate и OSIV off;
+- runtime DDL запрещён, Hikari pool и statement/lock timeouts ограничены;
+- integration tests подтверждают fresh migration, idempotency, checksum failure, permissions и UUIDv7;
+- ADR-0004, database conventions и recovery assumptions поддерживают межсессионный контекст;
+- local Compose config, shell syntax и полный offline `qualityGate` проходят успешно.
+
 ## Следующий разрешённый этап после закрытия текущего
 
-Этап 5 — `feature/postgresql-foundation`:
+Этап 6 — `feature/identity-access`:
 
-- PostgreSQL/Testcontainers и Flyway foundation;
-- schema/role/migration conventions;
-- migration, persistence и compatibility tests.
+- Keycloak OIDC integration;
+- backend-managed HttpOnly session, CSRF и CORS;
+- permissions, MFA claims и security integration tests.
 
 GitLab activation остаётся обязательным deferred gate до первого shared remote, release или deployment.
 

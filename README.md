@@ -44,6 +44,20 @@ Canonical OpenAPI contract находится в `src/main/openapi`. Discovery e
 
 `qualityGate` запускает formatting check, Error Prone/NullAway compilation, Checkstyle, Javadoc doclint, tests, architecture verification и JaCoCo thresholds. PIT запускается отдельно для critical modules, чтобы mutation testing оставался явным и измеримым этапом.
 
+Integration tests используют PostgreSQL 18.4 через Testcontainers, поэтому для полного `qualityGate` нужен работающий Docker daemon. In-memory database намеренно не используется.
+
+## Локальная PostgreSQL
+
+```shell
+cp .env.example .env
+# Заменить все три local password.
+docker compose up -d postgres
+set -a && . ./.env && set +a
+./gradlew bootRun
+```
+
+`amra_owner` используется только bootstrap-контейнером, `amra_migrator` — Flyway, `amra_runtime` — приложением. Соглашения описаны в [DATABASE_CONVENTIONS.md](docs/persistence/DATABASE_CONVENTIONS.md), recovery assumptions — в [DATABASE_RECOVERY.md](docs/operations/DATABASE_RECOVERY.md).
+
 Container build и обязательные GitLab project settings описаны в [GITLAB_DELIVERY.md](docs/operations/GITLAB_DELIVERY.md). Подключение GitLab remote/runner и registry временно отложено по ADR-0002; локальные gates и container checks остаются обязательными.
 
 Текущее состояние и следующий разрешённый этап находятся в [PROJECT_STATUS.md](docs/PROJECT_STATUS.md). Markdown обновляется вместе с каждым изменением решения или поведения.

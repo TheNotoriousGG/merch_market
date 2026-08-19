@@ -51,6 +51,7 @@
 
 - Spring Data JPA/Hibernate; OSIV off; bounded aggregates, explicit fetch/projections и N+1 tests. jOOQ — только после измерений.
 - Flyway manual SQL migrations; Hibernate schema validation only.
+- PostgreSQL foundation, three-role privilege model и граница infrastructure/Flyway bootstrap зафиксированы ADR-0004.
 - PostgreSQL: plural `snake_case`, meaningful explicit constraint/index names, без reserved words.
 - UTC + `timestamptz`; `created_at`, `updated_at`, `version`; admin actions — отдельный append-only audit trail.
 - UUIDv7 для internal/external IDs; order дополнительно имеет читаемый непредсказуемый public number без PII.
