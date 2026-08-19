@@ -30,20 +30,21 @@
 
 - `87dc228 build: add hardened layered container image`;
 - `e0ad22d ci: add verified container supply chain`;
+- `5b05c9d docs: define GitLab delivery controls`;
 - локально подтверждены reproducible JAR, Hadolint, digest policy, multi-stage image build и health smoke под non-root/read-only/cap-drop/no-new-privileges;
-- реальный GitLab pipeline и immutable Registry policy ожидают создания/подключения remote project и runner.
+- владелец проекта отложил подключение GitLab; границы исключения зафиксированы ADR-0002.
 
 ## Следующий разрешённый этап
 
-Завершить exit gate этапа 3:
+Этап 4 — `feature/openapi-foundation`:
 
-- создать или подключить GitLab 19.x Ultimate project и Container Registry;
-- применить project settings из `docs/operations/GITLAB_DELIVERY.md`;
-- отправить feature-ветку и получить полный зелёный MR pipeline;
-- подтвердить SBOM/provenance/security reports, immutable commit tag и smoke одного digest;
-- выполнить review, rebase и fast-forward merge.
+- модульная OpenAPI specification `/api/v1`;
+- единые API conventions и RFC 9457 Problem Details;
+- lint, validation и breaking-change gates;
+- generation Java interfaces/DTO и TypeScript client;
+- minimal contract endpoint и end-to-end contract test.
 
-Этап 4 OpenAPI не начинать до прохождения реального GitLab exit gate этапа 3.
+GitLab activation остаётся обязательным deferred gate до первого shared remote, release или deployment.
 
 ## Отложено до production readiness
 

@@ -124,7 +124,7 @@
 - Static analysis: Spotless, Checkstyle, Error Prone/NullAway, SonarQube после Java 25 compatibility check.
 - Javadoc: public contracts, invariants, concurrency/transaction semantics; doclint в CI.
 - Lombok whitelist: `@Slf4j`, `@RequiredArgsConstructor`, targeted `@Getter`, `@Builder`; `@Data` и entity-generated identity methods запрещены.
-- GitLab CI/Registry; protected `main`; merge requests; immutable promoted image.
+- GitLab CI/Registry; protected `main`; merge requests; immutable promoted image. Активация remote/runner временно отложена по ADR-0002, пока repository остаётся local-only без release/deployment.
 - Custom multi-stage Dockerfile + non-root distroless Java 25, pinned digests, SBOM/scanning.
 - Environments: local, test, staging, production. Expand migration до app deploy; contract migration после удаления old code.
 - SemVer, Conventional Commits, logical reversible commits.
@@ -145,6 +145,7 @@
 | Preorder/negative stock | Preorder — отдельная будущая feature; negative stock запрещён. |
 | Multi-shipment | Отложено; MVP — одна shipment. |
 | Multi-tenancy | Не применяется; отдельное решение при нескольких storefronts. |
+| GitLab remote/runner activation | Отложено владельцем 19.08.2026; обязательно до первого shared remote, release или deployment, см. ADR-0002. |
 
 ## Правило изменения
 

@@ -4,7 +4,7 @@
 
 Обновлено: 19 августа 2026 года.
 
-План состоит из последовательных gates. Следующий этап не начинается, пока критерии выхода предыдущего не выполнены. Каждый этап после initial commit выполняется в отдельной short-lived feature-ветке и завершается документацией, проверками и logical Conventional Commits.
+План состоит из последовательных gates. Следующий этап не начинается, пока критерии выхода предыдущего не выполнены. Временное исключение local-only GitLab activation описано ADR-0002 и не распространяется на release/deployment. Каждый этап после initial commit выполняется в отдельной short-lived feature-ветке и завершается документацией, проверками и logical Conventional Commits.
 
 ## Этап 0. Architecture baseline — до Git init
 
@@ -54,7 +54,7 @@ Commit: `chore: initialize backend project`.
 - Публикация image в GitLab Container Registry.
 - Protected `main`, required pipeline/review и rebase + fast-forward policy.
 
-Выход: один immutable image проходит pipeline; local и CI builds воспроизводимы.
+Выход: локально подтверждены pipeline configuration, reproducible JAR, hardened image и smoke. По ADR-0002 запуск в GitLab Registry/runner временно отложен, но обязателен до первого shared remote, release или deployment.
 
 ## Этап 4. OpenAPI contract foundation
 
@@ -210,7 +210,7 @@ Commit: `chore: initialize backend project`.
 5. Обновить документацию в той же branch.
 6. Пройти local gates и проверить generated/migration diff.
 7. Создать logical Conventional Commits.
-8. Пройти GitLab CI/review, выполнить rebase + fast-forward merge.
+8. Пройти GitLab CI/review, выполнить rebase + fast-forward merge. Пока действует local-only исключение ADR-0002 — пройти все доступные local gates и выполнить локальный fast-forward без публикации.
 9. Проверить green `main`, reproducible artifacts и актуальность docs.
 
 ## Сопровождение Markdown

@@ -85,7 +85,7 @@ Coverage — risk-based: ≥80% line и ≥70% branch overall; critical domain i
 - После него вся реализация идёт в short-lived `feature/<name>` branches.
 - Conventional Commits; один commit — один законченный logical block.
 - Formatting, refactoring и behaviour change не смешиваются без необходимости.
-- Перед commit выполняются применимые local gates; merge возможен только через зелёный GitLab pipeline и review.
+- Перед commit выполняются применимые local gates. После подключения shared GitLab remote merge возможен только через зелёный pipeline и review; временный local-only bootstrap регулируется ADR-0002 и не разрешает release/deployment.
 - Strategy — rebase + fast-forward; history должна объяснять путь разработки и поддерживать safe rollback.
 - Нельзя коммитить generated drift, secrets, local data и unrelated changes.
 
