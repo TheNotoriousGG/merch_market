@@ -16,6 +16,9 @@ The storefront needs stable category and product contracts before catalog persis
 - Public product representations contain catalog-owned structure only. Pricing is composed in stage 10 and availability in stage 8 through their own contracts.
 - Administrative create commands use durable actor-and-operation-scoped idempotency keys bound to a request fingerprint. Mutating commands use CSRF protection; commands against existing aggregates additionally require `If-Match` and return `428` when absent or `412` when stale.
 - Nullable partial updates use explicit intent fields when omission and clearing have different meanings. Category parent removal is represented by `clearParent`, never inferred from an omitted `parentId`.
+- Optional partial arrays are nullable in the contract so omission does not become an accidental empty replacement in generated Java DTOs. Media variant removal uses `clearVariant` for the same reason.
+- Attribute transport keeps stable value code, localized label and optional color swatch distinct through domain and relational persistence.
+- Collection membership is one relation visible from both administrative collection and product representations; either write path advances all affected optimistic versions.
 - Administrative catalog operations require a backend session, `CATALOG_MANAGER` or `ADMIN`, and verified MFA. OpenAPI documents this policy; Spring Security and application authorization enforce it.
 - Generated Java API interfaces/DTOs and the TypeScript Fetch client are transport artifacts. Domain and persistence models remain handwritten.
 - Collection/category/product identifiers transported as arrays are de-duplicated at the application boundary. OpenAPI `uniqueItems` is intentionally omitted because OpenAPI Generator 7.22 otherwise emits Jackson 2 annotations incompatible with Spring Boot 4's Jackson 3 runtime.
@@ -26,6 +29,7 @@ The storefront needs stable category and product contracts before catalog persis
 - Price and stock cannot accidentally become catalog source-of-truth fields.
 - Every concurrent authoring flow has explicit optimistic-lock semantics.
 - A transport retry can safely recover the original create result, while accidental idempotency-key reuse with different content fails closed.
+- Product/variant/media/collection commands remain aggregate-driven; generated DTOs are mapped only in the HTTP adapter.
 - Array uniqueness must have dedicated application/domain tests rather than relying on JSON deserialization.
 - Adding price sorting or availability filters is a later contract change owned by the corresponding module.
 

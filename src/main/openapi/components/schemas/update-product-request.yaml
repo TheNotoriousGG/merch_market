@@ -10,11 +10,14 @@ properties:
   primaryCategoryId: {type: string, format: uuid}
   categoryIds:
     type: array
+    nullable: true
     minItems: 1
     items: {type: string, format: uuid}
   collectionIds:
     type: array
+    nullable: true
     items: {type: string, format: uuid}
   characteristics:
     type: array
+    nullable: true
     items: {$ref: catalog-attribute-value.yaml}

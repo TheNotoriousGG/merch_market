@@ -96,6 +96,29 @@ public final class ProductMedia {
                 version);
     }
 
+    /** Changes only presentation metadata; storage identity and dimensions remain immutable. */
+    public ProductMedia revise(
+            @Nullable VariantId newVariantId, String newAlt, int newDisplayOrder, boolean newPrimary) {
+        if (java.util.Objects.equals(variantId, newVariantId)
+                && alt.equals(newAlt)
+                && displayOrder == newDisplayOrder
+                && primary == newPrimary) {
+            return this;
+        }
+        return new ProductMedia(
+                id,
+                newVariantId,
+                type,
+                objectKey,
+                contentType,
+                width,
+                height,
+                newAlt,
+                newDisplayOrder,
+                newPrimary,
+                version + 1);
+    }
+
     public MediaId id() {
         return id;
     }

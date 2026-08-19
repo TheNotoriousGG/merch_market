@@ -113,7 +113,7 @@ public class GetCatalogProduct {
 
     private static CatalogProductPage.AttributeValue attribute(AttributeValue value) {
         return new CatalogProductPage.AttributeValue(
-                value.code(), value.displayName(), value.type(), value.value(), value.value(), null);
+                value.code(), value.displayName(), value.type(), value.value(), value.label(), value.colorHex());
     }
 
     private static String etag(CatalogProductDetail detail) {

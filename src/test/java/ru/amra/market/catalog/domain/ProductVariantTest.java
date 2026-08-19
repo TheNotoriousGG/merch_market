@@ -30,6 +30,19 @@ class ProductVariantTest {
     }
 
     @Test
+    void revisesPresentationButNeverReactivatesAnArchivedVariant() {
+        var variant = ProductFixtures.variant(1, "AMR-TS01-BLK-M", "BLACK", "M");
+        var revised = variant.revise("Графит / M", VariantStatus.ACTIVE, 2, variant.attributes());
+
+        assertThat(revised.sku()).isEqualTo(variant.sku());
+        assertThat(revised.label()).isEqualTo("Графит / M");
+        assertThat(revised.version()).isEqualTo(1);
+        assertThatThrownBy(() -> revised.archive()
+                        .revise(revised.label(), VariantStatus.ACTIVE, revised.displayOrder(), revised.attributes()))
+                .isInstanceOf(ProductInvariantViolation.class);
+    }
+
+    @Test
     void rejectsDuplicateAttributeCodesAndMissingDefiningAttributes() {
         var color = new AttributeValue("color", "Цвет", AttributeType.COLOR, "BLACK", true, 0);
         var duplicate = new AttributeValue("color", "Другой цвет", AttributeType.COLOR, "WHITE", true, 1);

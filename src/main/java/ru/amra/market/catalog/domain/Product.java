@@ -152,7 +152,57 @@ public final class Product {
         }
         var newAliases = new HashSet<>(aliases);
         newAliases.add(slug);
-        return copy(newSlug, newAliases, content, status, variants, media, publishedAt);
+        return copy(
+                newSlug,
+                newAliases,
+                content,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                media,
+                publishedAt);
+    }
+
+    /** Revises editable content and assignments as one aggregate version change. */
+    public Product revise(
+            ProductSlug newSlug,
+            ProductContent newContent,
+            CategoryId newPrimaryCategoryId,
+            Set<CategoryId> newCategoryIds,
+            Set<CollectionId> newCollectionIds,
+            List<AttributeValue> newCharacteristics) {
+        requireMutable();
+        var newAliases = new HashSet<>(aliases);
+        if (!slug.equals(newSlug)) {
+            if (aliases.contains(newSlug)) {
+                throw new ProductInvariantViolation(
+                        ProductInvariant.SLUG_REUSE, "Historical product slug cannot be reused");
+            }
+            newAliases.add(slug);
+        }
+        if (slug.equals(newSlug)
+                && content.equals(newContent)
+                && primaryCategoryId.equals(newPrimaryCategoryId)
+                && categoryIds.equals(newCategoryIds)
+                && collectionIds.equals(newCollectionIds)
+                && characteristics.equals(newCharacteristics)) {
+            return this;
+        }
+        return copy(
+                newSlug,
+                newAliases,
+                newContent,
+                status,
+                newPrimaryCategoryId,
+                newCategoryIds,
+                newCollectionIds,
+                newCharacteristics,
+                variants,
+                media,
+                publishedAt);
     }
 
     /** Adds a variant after checking immutable SKU and defining-combination uniqueness. */
@@ -160,7 +210,18 @@ public final class Product {
         requireMutable();
         var updated = new ArrayList<>(variants);
         updated.add(variant);
-        return copy(slug, aliases, content, status, updated, media, publishedAt);
+        return copy(
+                slug,
+                aliases,
+                content,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                updated,
+                media,
+                publishedAt);
     }
 
     /** Adds ordered media metadata and protects the single-primary-image invariant. */
@@ -168,7 +229,94 @@ public final class Product {
         requireMutable();
         var updated = new ArrayList<>(media);
         updated.add(item);
-        return copy(slug, aliases, content, status, variants, updated, publishedAt);
+        return copy(
+                slug,
+                aliases,
+                content,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                updated,
+                publishedAt);
+    }
+
+    /** Replaces one owned variant while preserving aggregate-level combination and lifecycle rules. */
+    public Product updateVariant(ProductVariant replacement) {
+        requireMutable();
+        var found = false;
+        var updated = new ArrayList<ProductVariant>();
+        for (var variant : variants) {
+            if (variant.id().equals(replacement.id())) {
+                if (!variant.sku().equals(replacement.sku())) {
+                    throw new ProductInvariantViolation(ProductInvariant.INVALID_SKU, "Variant SKU is immutable");
+                }
+                updated.add(replacement);
+                found = true;
+            } else {
+                updated.add(variant);
+            }
+        }
+        if (!found) {
+            throw new ProductInvariantViolation(ProductInvariant.INVALID_ID, "Variant does not belong to product");
+        }
+        if (status == ProductStatus.ACTIVE
+                && updated.stream().noneMatch(variant -> variant.status() == VariantStatus.ACTIVE)) {
+            throw new ProductInvariantViolation(
+                    ProductInvariant.PRODUCT_NOT_PUBLISHABLE, "Active product must retain at least one active variant");
+        }
+        return copy(
+                slug,
+                aliases,
+                content,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                updated,
+                media,
+                publishedAt);
+    }
+
+    /** Replaces one owned media item and preserves primary/ownership rules. */
+    public Product updateMedia(ProductMedia replacement) {
+        requireMutable();
+        var found = false;
+        var updated = new ArrayList<ProductMedia>();
+        for (var item : media) {
+            if (item.id().equals(replacement.id())) {
+                if (!item.objectKey().equals(replacement.objectKey())) {
+                    throw new ProductInvariantViolation(
+                            ProductInvariant.INVALID_MEDIA, "Media storage identity is immutable");
+                }
+                updated.add(replacement);
+                found = true;
+            } else {
+                updated.add(item);
+            }
+        }
+        if (!found) {
+            throw new ProductInvariantViolation(ProductInvariant.INVALID_ID, "Media does not belong to product");
+        }
+        if (status == ProductStatus.ACTIVE && updated.stream().noneMatch(ProductMedia::primary)) {
+            throw new ProductInvariantViolation(
+                    ProductInvariant.PRODUCT_NOT_PUBLISHABLE, "Active product must retain one primary image");
+        }
+        return copy(
+                slug,
+                aliases,
+                content,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                updated,
+                publishedAt);
     }
 
     /** Archives a variant without releasing its immutable SKU or defining combination. */
@@ -192,7 +340,18 @@ public final class Product {
             throw new ProductInvariantViolation(
                     ProductInvariant.PRODUCT_NOT_PUBLISHABLE, "Active product must retain at least one active variant");
         }
-        return copy(slug, aliases, content, status, updated, media, publishedAt);
+        return copy(
+                slug,
+                aliases,
+                content,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                updated,
+                media,
+                publishedAt);
     }
 
     /** Publishes a complete draft at the supplied application clock instant. */
@@ -205,7 +364,18 @@ public final class Product {
             throw new ProductInvariantViolation(ProductInvariant.PRODUCT_NOT_PUBLISHABLE, violations);
         }
         Objects.requireNonNull(publicationTime, "publicationTime");
-        return copy(slug, aliases, content, ProductStatus.ACTIVE, variants, media, publicationTime);
+        return copy(
+                slug,
+                aliases,
+                content,
+                ProductStatus.ACTIVE,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                media,
+                publicationTime);
     }
 
     /** Archives an active product. Archived state is terminal. */
@@ -213,7 +383,18 @@ public final class Product {
         if (status != ProductStatus.ACTIVE) {
             throw invalidTransition("Only an active product can be archived");
         }
-        return copy(slug, aliases, content, ProductStatus.ARCHIVED, variants, media, publishedAt);
+        return copy(
+                slug,
+                aliases,
+                content,
+                ProductStatus.ARCHIVED,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                media,
+                publishedAt);
     }
 
     /** Returns all failures that currently prevent publication. */
@@ -288,6 +469,10 @@ public final class Product {
             Set<ProductSlug> newAliases,
             ProductContent newContent,
             ProductStatus newStatus,
+            CategoryId newPrimaryCategoryId,
+            Set<CategoryId> newCategoryIds,
+            Set<CollectionId> newCollectionIds,
+            List<AttributeValue> newCharacteristics,
             List<ProductVariant> newVariants,
             List<ProductMedia> newMedia,
             @Nullable Instant newPublishedAt) {
@@ -297,10 +482,10 @@ public final class Product {
                 newAliases,
                 newContent,
                 newStatus,
-                primaryCategoryId,
-                categoryIds,
-                collectionIds,
-                characteristics,
+                newPrimaryCategoryId,
+                newCategoryIds,
+                newCollectionIds,
+                newCharacteristics,
                 newVariants,
                 newMedia,
                 newPublishedAt,

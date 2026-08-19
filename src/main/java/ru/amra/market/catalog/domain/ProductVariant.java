@@ -3,6 +3,7 @@ package ru.amra.market.catalog.domain;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 /** Immutable-SKU product variant. */
 public final class ProductVariant {
@@ -68,6 +69,29 @@ public final class ProductVariant {
             return this;
         }
         return new ProductVariant(id, sku, label, VariantStatus.ARCHIVED, displayOrder, attributes, version + 1);
+    }
+
+    /** Changes presentation and defining attributes without allowing the SKU identity to change. */
+    public ProductVariant revise(
+            String newLabel, VariantStatus newStatus, int newDisplayOrder, List<AttributeValue> newAttributes) {
+        if (label.equals(newLabel)
+                && status == newStatus
+                && displayOrder == newDisplayOrder
+                && attributes.equals(newAttributes)) {
+            return this;
+        }
+        if (status == VariantStatus.ARCHIVED && newStatus != VariantStatus.ARCHIVED) {
+            throw new ProductInvariantViolation(
+                    ProductInvariant.INVALID_LIFECYCLE_TRANSITION, "Archived variant cannot be reactivated");
+        }
+        return new ProductVariant(
+                id,
+                sku,
+                Objects.requireNonNull(newLabel),
+                Objects.requireNonNull(newStatus),
+                newDisplayOrder,
+                newAttributes,
+                version + 1);
     }
 
     /** Returns the normalized defining combination independent of input ordering. */

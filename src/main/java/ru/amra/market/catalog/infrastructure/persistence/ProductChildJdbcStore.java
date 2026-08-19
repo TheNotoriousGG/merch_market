@@ -86,7 +86,7 @@ class ProductChildJdbcStore {
                 id);
         var characteristics = jdbc.query("""
                 select d.code, d.display_name, d.attribute_type, d.variant_defining,
-                       c.attribute_value, c.display_order
+                       c.attribute_value, c.value_label, c.color_hex, c.display_order
                 from catalog_product_characteristics c
                 join catalog_attribute_definitions d on d.id = c.attribute_definition_id
                 where c.product_id = ?
@@ -156,11 +156,19 @@ class ProductChildJdbcStore {
                 product.id().value());
         for (var attribute : product.characteristics()) {
             var definitionId = definitionId(attribute);
-            jdbc.update("""
+            jdbc.update(
+                    """
                     insert into catalog_product_characteristics (
-                        product_id, attribute_definition_id, attribute_value, display_order
-                    ) values (?, ?, ?, ?)
-                    """, product.id().value(), definitionId, attribute.value(), attribute.displayOrder());
+                        product_id, attribute_definition_id, attribute_value,
+                        value_label, color_hex, display_order
+                    ) values (?, ?, ?, ?, ?, ?)
+                    """,
+                    product.id().value(),
+                    definitionId,
+                    attribute.value(),
+                    attribute.label(),
+                    attribute.colorHex(),
+                    attribute.displayOrder());
         }
     }
 
@@ -224,9 +232,16 @@ class ProductChildJdbcStore {
             jdbc.update(
                     """
                     insert into catalog_variant_attribute_values (
-                        variant_id, attribute_definition_id, attribute_value, display_order
-                    ) values (?, ?, ?, ?)
-                    """, variant.id().value(), definitionId(attribute), attribute.value(), attribute.displayOrder());
+                        variant_id, attribute_definition_id, attribute_value,
+                        value_label, color_hex, display_order
+                    ) values (?, ?, ?, ?, ?, ?)
+                    """,
+                    variant.id().value(),
+                    definitionId(attribute),
+                    attribute.value(),
+                    attribute.label(),
+                    attribute.colorHex(),
+                    attribute.displayOrder());
         }
     }
 
@@ -252,13 +267,40 @@ class ProductChildJdbcStore {
                         media.displayOrder(),
                         media.primary(),
                         media.version());
-            } else if (!stored.orElseThrow().matches(product.id(), media)) {
-                throw stale(
-                        "Media",
-                        media.id().value(),
-                        media.version(),
-                        stored.orElseThrow().version());
+            } else {
+                updateMedia(product.id(), media, stored.orElseThrow());
             }
+        }
+    }
+
+    private void updateMedia(ProductId productId, ProductMedia media, StoredMedia stored) {
+        if (stored.matches(productId, media)) {
+            return;
+        }
+        if (media.version() != stored.version() + 1) {
+            throw stale("Media", media.id().value(), media.version(), stored.version());
+        }
+        var updated = jdbc.update(
+                """
+                update catalog_product_media
+                set variant_id = ?, alt_text = ?, display_order = ?, is_primary = ?,
+                    updated_at = CURRENT_TIMESTAMP, version = version + 1
+                where id = ? and product_id = ? and version = ?
+                  and object_key = ? and content_type = ? and width = ? and height = ?
+                """,
+                media.variantId().map(VariantId::value).orElse(null),
+                media.alt(),
+                media.displayOrder(),
+                media.primary(),
+                media.id().value(),
+                productId.value(),
+                stored.version(),
+                media.objectKey(),
+                media.contentType(),
+                media.width(),
+                media.height());
+        if (updated != 1) {
+            throw stale("Media", media.id().value(), media.version(), stored.version());
         }
     }
 
@@ -273,6 +315,7 @@ class ProductChildJdbcStore {
                         "delete from catalog_collection_products where collection_id = ? and product_id = ?",
                         removed.value(),
                         product.id().value());
+                touchCollection(removed);
             }
         }
         for (var added : product.collectionIds()) {
@@ -284,8 +327,17 @@ class ProductChildJdbcStore {
                         select ?, ?, coalesce(max(display_order), -1) + 1
                         from catalog_collection_products where collection_id = ?
                         """, added.value(), product.id().value(), added.value());
+                touchCollection(added);
             }
         }
+    }
+
+    private void touchCollection(CollectionId collectionId) {
+        jdbc.update("""
+                update catalog_collections
+                set updated_at = current_timestamp, version = version + 1
+                where id = ?
+                """, collectionId.value());
     }
 
     private UUID definitionId(AttributeValue attribute) {
@@ -332,7 +384,8 @@ class ProductChildJdbcStore {
         jdbc.query(
                 """
                 select v.id as variant_id, d.code, d.display_name, d.attribute_type,
-                       d.variant_defining, a.attribute_value, a.display_order
+                       d.variant_defining, a.attribute_value, a.value_label,
+                       a.color_hex, a.display_order
                 from catalog_variant_attribute_values a
                 join catalog_product_variants v on v.id = a.variant_id
                 join catalog_attribute_definitions d on d.id = a.attribute_definition_id
@@ -387,6 +440,8 @@ class ProductChildJdbcStore {
                 result.getString("display_name"),
                 AttributeType.valueOf(result.getString("attribute_type")),
                 result.getString("attribute_value"),
+                result.getString("value_label"),
+                result.getString("color_hex"),
                 result.getBoolean("variant_defining"),
                 result.getInt("display_order"));
     }

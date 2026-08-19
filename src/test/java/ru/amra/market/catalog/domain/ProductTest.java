@@ -107,6 +107,29 @@ class ProductTest {
     }
 
     @Test
+    void revisesRootVariantAndMediaAsSingleAggregateMutations() {
+        var original = ProductFixtures.completeDraft(1, "futbolka", "AMR-TS01-BLK-M");
+        var category = original.primaryCategoryId();
+        var revised = original.revise(
+                new ProductSlug("futbolka-new"),
+                new ProductContent("Новая футболка", "Коротко", "Подробно"),
+                category,
+                Set.of(category),
+                Set.of(),
+                original.characteristics());
+        var variant = revised.variants().getFirst();
+        var withVariant =
+                revised.updateVariant(variant.revise("Графит / M", variant.status(), 3, variant.attributes()));
+        var media = withVariant.media().getFirst();
+        var withMedia = withVariant.updateMedia(media.revise(null, "Новая футболка", 2, true));
+
+        assertThat(revised.version()).isEqualTo(original.version() + 1);
+        assertThat(revised.aliases()).contains(new ProductSlug("futbolka"));
+        assertThat(withVariant.variants().getFirst().version()).isEqualTo(1);
+        assertThat(withMedia.media().getFirst().version()).isEqualTo(1);
+    }
+
+    @Test
     void requiresPrimaryCategoryInAssignmentsAndUniqueCharacteristics() {
         var primary = ProductFixtures.categoryId(1);
         var duplicateMaterial = new AttributeValue("material", "Состав", AttributeType.TEXT, "Лён", false, 1);

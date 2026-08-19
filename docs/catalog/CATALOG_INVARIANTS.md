@@ -32,6 +32,9 @@ Status: accepted implementation guardrails for stage 7. Product scope remains in
 - Externally referenced variants are archived, not deleted.
 - Public media contains a delivery URL, never an object key.
 - Visible media requires nonblank alt text; exactly one product presentation image is primary.
+- Attribute value code, localized label and optional color hex are separate values and must survive an administrative round trip.
+- Variant label/order/attributes may change, but an archived variant cannot be reactivated.
+- Media object key, content type and dimensions are immutable after attachment; only variant scope, alt text, order and primary state are editable.
 
 ## Concurrency and authorization
 
@@ -42,7 +45,15 @@ Status: accepted implementation guardrails for stage 7. Product scope remains in
 - An idempotency key is durable and scoped by actor plus operation. Reuse with a different request fingerprint is a conflict.
 - Category creation always starts in `HIDDEN`; visibility changes are explicit optimistic commands.
 - A partial category update distinguishes an omitted parent from an explicit move to the root through `clearParent`.
+- Partial list fields preserve omitted versus explicit empty semantics; optional media variant scope uses `clearVariant` for intentional removal.
 - Every parent change is validated against one complete hierarchy snapshot before persistence; database constraints remain the race barrier.
+
+## Editorial collections
+
+- A new collection is `HIDDEN`; activation is an explicit optimistic command.
+- Collection owns deterministic product order and never changes product lifecycle.
+- Duplicate product identifiers are removed at the application boundary while the domain rejects duplicate stored membership.
+- Membership changes invalidate both the collection ETag and every affected administrative product ETag, regardless of which side initiated the command.
 
 ## Public reads
 

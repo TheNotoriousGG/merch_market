@@ -2,14 +2,34 @@ package ru.amra.market.catalog.domain;
 
 import java.util.Locale;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 /** Validated display/filter value attached to a product or variant. */
 public record AttributeValue(
-        String code, String displayName, AttributeType type, String value, boolean variantDefining, int displayOrder) {
+        String code,
+        String displayName,
+        AttributeType type,
+        String value,
+        String label,
+        @Nullable String colorHex,
+        boolean variantDefining,
+        int displayOrder) {
 
     private static final Pattern CODE = Pattern.compile("[a-z][a-z0-9_]{0,63}");
     private static final Pattern ENUM_VALUE = Pattern.compile("[A-Z0-9]+(?:[_-][A-Z0-9]+)*");
     private static final Pattern DIMENSION = Pattern.compile("[0-9]+(?:[.,][0-9]+)? ?(?:mm|cm|m)");
+    private static final Pattern COLOR_HEX = Pattern.compile("#[0-9A-Fa-f]{6}");
+
+    /** Convenience constructor for values whose stable code and customer label are identical. */
+    public AttributeValue(
+            String code,
+            String displayName,
+            AttributeType type,
+            String value,
+            boolean variantDefining,
+            int displayOrder) {
+        this(code, displayName, type, value, value, null, variantDefining, displayOrder);
+    }
 
     public AttributeValue {
         code = normalizeCode(code);
@@ -18,6 +38,11 @@ public record AttributeValue(
             throw invalid("Attribute type must not be null");
         }
         value = normalizeValue(type, value);
+        label = required(label, 160, "label");
+        if (colorHex != null
+                && (type != AttributeType.COLOR || !COLOR_HEX.matcher(colorHex).matches())) {
+            throw invalid("Attribute color hex must be a #RRGGBB value used only for COLOR");
+        }
         if (displayOrder < 0) {
             throw invalid("Attribute display order must not be negative");
         }

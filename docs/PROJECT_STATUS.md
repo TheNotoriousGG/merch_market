@@ -89,14 +89,22 @@
 - update требует strong `If-Match`, возвращает новый `ETag`, отклоняет stale write как `412` и проверяет полный hierarchy snapshot на cycle/orphan/depth/sibling-slug conflicts;
 - явный `clearParent` устраняет неоднозначность между отсутствующим nullable полем и намеренным переносом категории в корень;
 - `/api/v1/admin/catalog/**` требует `CATALOG_MANAGER` или `ADMIN`, verified email, MFA ACR и CSRF;
+- блок 9/12 завершён: все generated admin operations для products, variants, media и collections реализованы вместо временных `501`;
+- product root поддерживает draft creation, atomic partial revision, direct slug history, publish/archive transitions и strong root ETag;
+- variant сохраняет immutable SKU, допускает presentation/attribute update и terminal archive; media сохраняет immutable storage identity и меняет только owner/presentation metadata;
+- публикация получает active categories set-based запросом и повторно проверяет aggregate completeness; active product нельзя оставить без active variant или primary media;
+- `AttributeValue` хранит stable `valueCode`, локализованный `label` и optional `colorHex` раздельно; Flyway V5 сохраняет эти данные без JSON и без потери round trip;
+- editorial collection реализована отдельным aggregate с ordered membership, optimistic versioning и caller-scoped idempotency;
+- изменение membership через product или collection command симметрично повышает версии затронутых representations, поэтому ETag не остаётся ложноположительно свежим;
+- nullable partial arrays и explicit `clearVariant` сохраняют различие между omitted, empty и intentional null в generated DTO;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
-- полный `qualityGate` проходит с 99 тестами без failures/errors, включая jqwik properties, PostgreSQL persistence/search/filtering/detail composition, public API и admin category scenarios;
-- следующий блок 9/12: административные product, variant, media и collection use cases;
+- полный `qualityGate` проходит со 107 тестами без failures/errors; branch coverage — 605/849 (71,3%) при обязательном пороге 70%;
+- следующий блок 10/12: append-only audit, централизованное RFC 9457 error mapping и завершение security/precondition semantics;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;
