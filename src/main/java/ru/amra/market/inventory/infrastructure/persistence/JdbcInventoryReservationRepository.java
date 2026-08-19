@@ -1,6 +1,8 @@
 package ru.amra.market.inventory.infrastructure.persistence;
 
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -25,6 +27,11 @@ class JdbcInventoryReservationRepository implements InventoryReservationReposito
 
     JdbcInventoryReservationRepository(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
+    }
+
+    @Override
+    public Instant databaseTime() {
+        return java.util.Objects.requireNonNull(jdbc.queryForObject("select clock_timestamp()", Instant.class));
     }
 
     @Override
@@ -65,6 +72,32 @@ class JdbcInventoryReservationRepository implements InventoryReservationReposito
     @Override
     public Optional<InventoryReservation> lock(ReservationId id) {
         return find(id, " for update");
+    }
+
+    @Override
+    public List<InventoryReservation> lockExpiredBatch(Instant databaseNow, int limit) {
+        return jdbc.query(
+                """
+                select id, owner_reference, status, expires_at, extension_count, version
+                from inventory_reservations
+                where status = 'ACTIVE' and expires_at <= ?
+                order by expires_at, id
+                limit ?
+                for update skip locked
+                """,
+                (result, row) -> {
+                    var id = new ReservationId(result.getObject("id", java.util.UUID.class));
+                    return InventoryReservation.restore(
+                            id,
+                            new ReservationOwnerReference(result.getObject("owner_reference", java.util.UUID.class)),
+                            lines(id),
+                            ReservationStatus.valueOf(result.getString("status")),
+                            result.getTimestamp("expires_at").toInstant(),
+                            result.getInt("extension_count"),
+                            result.getLong("version"));
+                },
+                Timestamp.from(databaseNow),
+                limit);
     }
 
     @Override

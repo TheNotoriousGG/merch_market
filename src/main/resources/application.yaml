@@ -68,6 +68,13 @@ server:
         same-site: lax
 
 amra:
+  inventory:
+    expiry:
+      enabled: ${AMRA_INVENTORY_EXPIRY_ENABLED:true}
+      scan-interval: ${AMRA_INVENTORY_EXPIRY_SCAN_INTERVAL:5s}
+      lease-duration: ${AMRA_INVENTORY_EXPIRY_LEASE_DURATION:30s}
+      batch-size: ${AMRA_INVENTORY_EXPIRY_BATCH_SIZE:100}
+      instance-id: ${AMRA_INSTANCE_ID:${random.uuid}}
   catalog:
     media:
       public-base-url: ${AMRA_CATALOG_MEDIA_BASE_URL:https://cdn.amra-shop.invalid/media/}

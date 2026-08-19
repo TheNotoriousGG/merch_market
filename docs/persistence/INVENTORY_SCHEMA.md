@@ -28,6 +28,7 @@ Runtime may update balances, reservations, idempotency records and leases, but c
 - `inventory_command_idempotency` binds actor scope and key to operation, canonical SHA-256 fingerprint and completed resource.
 - Warehouse command fingerprints use length-prefixed nullable components before SHA-256, so separators and the literal string `null` cannot produce ambiguous commands.
 - `inventory_job_leases` stores the stable job name, instance owner, database deadline and optimistic version; it is the only cross-instance expiry-worker coordination state.
+- Lease acquisition/renewal/takeover is one PostgreSQL statement based on `clock_timestamp()`; expiry candidates use `FOR UPDATE SKIP LOCKED` in `(expires_at, id)` order and never depend on an application-node clock.
 
 ## Critical access paths
 

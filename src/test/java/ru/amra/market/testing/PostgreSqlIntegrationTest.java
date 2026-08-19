@@ -11,5 +11,6 @@ public abstract class PostgreSqlIntegrationTest {
         PostgreSqlTestDatabase.registerProperties(registry);
         registry.add("spring.security.oauth2.client.registration.keycloak.client-secret", () -> "test-only-secret");
         registry.add("server.servlet.session.cookie.secure", () -> "false");
+        registry.add("amra.inventory.expiry.enabled", () -> "false");
     }
 }

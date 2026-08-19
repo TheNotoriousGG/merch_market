@@ -120,7 +120,7 @@ Commit: `chore: initialize backend project`.
 
 Ветка: `feature/inventory`.
 
-Статус: блоки 1–9/12 завершены, следующим разрешён блок 10/12. Подробное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`, consistency boundary — в ADR-0007.
+Статус: блоки 1–10/12 завершены, следующим разрешён блок 11/12. Подробное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`, consistency boundary — в ADR-0007.
 
 - Блок 1: контракт, архитектурные границы и проверяемые invariants.
 - Блок 2: framework-free immutable balance aggregate, checked stock quantities и append-only physical movement model с unit/property tests.

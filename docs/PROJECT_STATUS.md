@@ -170,9 +170,14 @@ GitLab activation остаётся обязательным deferred gate до �
 - commit одновременно уменьшает `on_hand` и `reserved` каждой line и добавляет reservation-bound physical movements; release уменьшает только `reserved` без искажения physical ledger;
 - Flyway V10 хранит immutable typed reservation command snapshots и backfill-ит существующие events/idempotency links, поэтому replay create/extend/commit/release возвращает исходный versioned result даже после следующего transition;
 - integration tests подтверждают exact replay, extension limit, owner isolation, expired rejection, conflicting key, multi-line release и реальную commit/release race на virtual threads;
+- блок 10/12 завершён: configurable scheduler вызывает bounded expiry use case, не сохраняя coordination state в памяти процесса;
+- PostgreSQL lease использует `clock_timestamp()`, atomic insert/renew/expired-owner takeover и запрещает параллельному instance начинать batch до окончания lease;
+- due reservations выбираются по partial expiry index в deterministic order через `FOR UPDATE SKIP LOCKED`; один transaction освобождает все line balances и добавляет `EXPIRED` event/result;
+- scan interval, lease duration, batch size и instance identity задаются deployment properties с fail-fast bounds; lease обязан быть длиннее scan interval, batch ограничен 1–1000;
+- integration tests подтверждают bounded `2 + 1 + 0` processing, idempotent repeat, сохранение physical `on_hand`, отсутствие movements, lease renewal и takeover по database time;
 - OpenAPI добавляет anonymous batch availability и защищённые balance/receipt/reconciliation endpoints без browser reservation mutations;
 - generated Java/TypeScript contracts, OpenAPI compatibility, architecture tests и полный `qualityGate` проходят;
-- следующий разрешённый блок 10/12: bounded expiry worker с PostgreSQL lease;
+- следующий разрешённый блок 11/12: inventory audit, security/race/query-plan acceptance;
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.
