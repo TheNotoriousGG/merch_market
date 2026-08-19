@@ -19,6 +19,10 @@ for entry in \
   src/index.ts \
   src/apis/CatalogApi.ts \
   src/apis/CatalogAdministrationApi.ts \
+  src/apis/InventoryApi.ts \
+  src/apis/InventoryAdministrationApi.ts \
+  src/models/InventoryAvailabilityList.ts \
+  src/models/InventoryMutationResult.ts \
   src/models/ProblemDetails.ts; do
   require_entry "${entry}"
 done
@@ -51,6 +55,14 @@ for operation in \
   transitionCatalogProduct \
   updateCatalogCollectionProducts; do
   grep -Fq "${operation}" <<<"${ADMINISTRATION_API}"
+done
+
+readonly INVENTORY_API="$(unzip -p "${ARCHIVE_PATH}" src/apis/InventoryApi.ts)"
+grep -Fq 'getInventoryAvailability' <<<"${INVENTORY_API}"
+
+readonly INVENTORY_ADMINISTRATION_API="$(unzip -p "${ARCHIVE_PATH}" src/apis/InventoryAdministrationApi.ts)"
+for operation in adjustInventoryStock getAdminInventoryBalance receiveInventoryStock; do
+  grep -Fq "${operation}" <<<"${INVENTORY_ADMINISTRATION_API}"
 done
 
 echo "Verified TypeScript client artifact ${ARCHIVE_PATH}"

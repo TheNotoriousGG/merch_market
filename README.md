@@ -2,7 +2,7 @@
 
 Отдельный production-oriented backend проекта «Амра Шоп».
 
-Проект инициализирован и развивается последовательными short-lived feature-ветками. Принятые решения находятся в [реестре решений](docs/DECISION_REGISTER.md), инженерные правила — в [ENGINEERING_CHARTER.md](docs/ENGINEERING_CHARTER.md), системный контекст — в [SYSTEM_CONTEXT.md](docs/architecture/SYSTEM_CONTEXT.md), последовательность этапов и gates — в [IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+Проект инициализирован и развивается последовательными short-lived feature-ветками. Новый разработчик начинает с полного [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md). Принятые решения находятся в [реестре решений](docs/DECISION_REGISTER.md), инженерные правила — в [ENGINEERING_CHARTER.md](docs/ENGINEERING_CHARTER.md), системный контекст — в [SYSTEM_CONTEXT.md](docs/architecture/SYSTEM_CONTEXT.md), последовательность этапов и gates — в [IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
 
 ## Зафиксированная база
 
@@ -44,7 +44,7 @@ Canonical OpenAPI contract находится в `src/main/openapi`. Discovery e
 
 `qualityGate` запускает formatting check, Error Prone/NullAway compilation, Checkstyle, Javadoc doclint, tests, architecture verification и JaCoCo thresholds. PIT запускается отдельно для critical modules, чтобы mutation testing оставался явным и измеримым этапом.
 
-`packageTypeScriptClient` создаёт воспроизводимый versioned source ZIP в `build/distributions`, а `verifyTypeScriptClientArtifact` проверяет его metadata и обязательную public/admin catalog surface. До активации package registry это локальный source artifact, не опубликованный npm package. Порядок frontend-интеграции и browser security requirements описаны в [FRONTEND_CATALOG_CLIENT.md](docs/api/FRONTEND_CATALOG_CLIENT.md).
+`packageTypeScriptClient` создаёт воспроизводимый versioned source ZIP в `build/distributions`, а `verifyTypeScriptClientArtifact` проверяет его metadata и обязательную public/admin catalog/inventory surface. До активации package registry это локальный source artifact, не опубликованный npm package. Порядок frontend-интеграции и browser security requirements описаны в [FRONTEND_CATALOG_CLIENT.md](docs/api/FRONTEND_CATALOG_CLIENT.md) и [FRONTEND_INVENTORY_CLIENT.md](docs/api/FRONTEND_INVENTORY_CLIENT.md).
 
 Integration tests используют PostgreSQL 18.4 через Testcontainers, поэтому для полного `qualityGate` нужен работающий Docker daemon. In-memory database намеренно не используется.
 

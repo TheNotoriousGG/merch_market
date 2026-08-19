@@ -183,7 +183,13 @@ GitLab activation остаётся обязательным deferred gate до �
 - representative PostgreSQL fixture содержит 20 000 balances, 40 000 movements и 12 000 reservations; runtime `EXPLAIN (ANALYZE, BUFFERS)` под `statement_timeout=2s` проверяет четыре critical indexes и локальный ceiling 500 ms без planner hints;
 - детали performance acceptance находятся в `docs/persistence/INVENTORY_QUERY_PLANS.md`;
 - полный `clean qualityGate` блока 11 проходит со 173 тестами без failures/errors; branch coverage — 871/1 220 (71,4%), line coverage — 3 732/3 956 (94,3%);
-- следующий разрешённый блок 12/12: generated client, container, reproducibility и documentation closeout;
+- блок 12/12 завершён: artifact policy проверяет обе generated inventory API-группы, четыре operation ID и transport models;
+- две clean-сборки TypeScript source ZIP дали одинаковый SHA-256 `4a6c77a3b9833eb630502cf69041700a5996b2916043c6ba96e0ac73a21909c1`; generated sources компилируются TypeScript 5.9.3;
+- supply-chain policy и Hadolint проходят; pinned production image запускается как `nonroot:nonroot`;
+- изолированный container smoke применил Flyway V1–V10 к PostgreSQL 18.4, создал 27 application tables, вернул health `UP` и privacy-safe `OUT_OF_STOCK`; временные resources удалены;
+- frontend handoff находится в `docs/api/FRONTEND_INVENTORY_CLIENT.md`, полный acceptance — в `docs/inventory/INVENTORY_RELEASE_CHECKLIST.md`;
+- `docs/DEVELOPER_GUIDE.md` является полным onboarding/development guide по runtime chains, решениям, классам, тестам, persistence и workflow;
+- inventory vertical slice завершён 12/12; после финального commit/fast-forward следующим разрешён этап 9 — Customer, favorites и cart в отдельной `feature/customer-cart`;
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.

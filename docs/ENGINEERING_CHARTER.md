@@ -46,6 +46,7 @@
 - Lombok ограничен whitelist из реестра; entity identity и string representation реализуются осознанно.
 - Javadoc описывает contract, invariant, thread/transaction semantics и причины нетривиального решения, а не пересказывает реализацию.
 - Документы обновляются в той же feature-ветке, где меняется соответствующее решение или поведение.
+- `docs/DEVELOPER_GUIDE.md` является основным onboarding-маршрутом и обновляется при изменении структуры, transaction flow, локального workflow или module ownership.
 - Полная конфигурация и команды локальных gates описаны в `docs/engineering/QUALITY_GATES.md`.
 
 ## Тестовая стратегия
