@@ -39,10 +39,12 @@ Canonical OpenAPI contract находится в `src/main/openapi`. Discovery e
 ./gradlew pitest
 ./gradlew spotlessApply
 ./gradlew openApiValidate checkOpenApiCompatibility
-./gradlew generateJavaApi packageTypeScriptClient
+./gradlew generateJavaApi packageTypeScriptClient verifyTypeScriptClientArtifact
 ```
 
 `qualityGate` запускает formatting check, Error Prone/NullAway compilation, Checkstyle, Javadoc doclint, tests, architecture verification и JaCoCo thresholds. PIT запускается отдельно для critical modules, чтобы mutation testing оставался явным и измеримым этапом.
+
+`packageTypeScriptClient` создаёт воспроизводимый versioned source ZIP в `build/distributions`, а `verifyTypeScriptClientArtifact` проверяет его metadata и обязательную public/admin catalog surface. До активации package registry это локальный source artifact, не опубликованный npm package. Порядок frontend-интеграции и browser security requirements описаны в [FRONTEND_CATALOG_CLIENT.md](docs/api/FRONTEND_CATALOG_CLIENT.md).
 
 Integration tests используют PostgreSQL 18.4 через Testcontainers, поэтому для полного `qualityGate` нужен работающий Docker daemon. In-memory database намеренно не используется.
 

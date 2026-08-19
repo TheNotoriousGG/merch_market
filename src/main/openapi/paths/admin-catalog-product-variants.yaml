@@ -14,7 +14,9 @@ post:
   responses:
     "201":
       description: Variant created.
-      headers: {ETag: {$ref: ../components/headers/etag.yaml}}
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
       content: {application/json: {schema: {$ref: ../components/schemas/admin-variant.yaml}}}
     "400": {$ref: ../components/responses/bad-request.yaml}
     "401": {$ref: ../components/responses/unauthorized.yaml}

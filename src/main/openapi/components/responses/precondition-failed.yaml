@@ -1,4 +1,7 @@
 description: The supplied If-Match value does not represent the current resource version.
+headers:
+  X-Trace-Id:
+    $ref: ../headers/trace-id.yaml
 content:
   application/problem+json:
     schema:

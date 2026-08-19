@@ -1,4 +1,7 @@
 description: The command conflicts with an existing resource or domain invariant.
+headers:
+  X-Trace-Id:
+    $ref: ../headers/trace-id.yaml
 content:
   application/problem+json:
     schema:

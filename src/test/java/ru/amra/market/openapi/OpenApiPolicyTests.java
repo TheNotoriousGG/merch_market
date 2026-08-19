@@ -96,6 +96,40 @@ class OpenApiPolicyTests {
     }
 
     @Test
+    void everyCatalogResponseDocumentsItsTraceIdentifier() throws IOException {
+        var contractRoot = CONTRACT.getParent();
+        var successfulResponsePattern =
+                Pattern.compile("(?ms)^    \"(?:2|3)\\d{2}\":.*?(?=^    \"\\d{3}\":|^[a-z]+:|\\z)");
+
+        try (var paths = Files.list(contractRoot.resolve("paths"))) {
+            for (var path : paths.toList()) {
+                if (!path.getFileName().toString().contains("catalog")) {
+                    continue;
+                }
+                var contract = Files.readString(path);
+                var responses =
+                        successfulResponsePattern.matcher(contract).results().toList();
+                assertThat(responses)
+                        .as("success responses in %s", path.getFileName())
+                        .isNotEmpty();
+                for (var response : responses) {
+                    assertThat(response.group())
+                            .as("success response trace header in %s", path.getFileName())
+                            .contains("X-Trace-Id:", "../components/headers/trace-id.yaml");
+                }
+            }
+        }
+
+        try (var responses = Files.list(contractRoot.resolve("components/responses"))) {
+            for (var response : responses.toList()) {
+                assertThat(Files.readString(response))
+                        .as("error response trace header in %s", response.getFileName())
+                        .contains("X-Trace-Id:", "../headers/trace-id.yaml");
+            }
+        }
+    }
+
+    @Test
     void everyExternalReferenceResolvesInsideTheContractTree() throws IOException {
         var referencePattern = Pattern.compile("\\$ref: ([^#\\s}\\],]+)");
 

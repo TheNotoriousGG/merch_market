@@ -184,6 +184,8 @@ val openApiSpec = layout.projectDirectory.file("src/main/openapi/openapi.yaml")
 val generatedJavaDirectory = layout.buildDirectory.dir("generated/openapi/java")
 val generatedTypeScriptDirectory = layout.buildDirectory.dir("generated/openapi/typescript")
 val openApiContractTree = layout.projectDirectory.dir("src/main/openapi")
+val typeScriptTemplateDirectory = layout.projectDirectory.dir("config/openapi/typescript-fetch")
+val generatedClientVersion = project.version.toString().removeSuffix("-SNAPSHOT")
 
 sourceSets.main {
     java.srcDir(generatedJavaDirectory.map { it.dir("src/main/java") })
@@ -234,13 +236,15 @@ val generateTypeScriptClient =
         generatorName.set("typescript-fetch")
         inputSpec.set(openApiSpec.asFile.absolutePath)
         inputs.dir(openApiContractTree)
+        inputs.dir(typeScriptTemplateDirectory)
         outputDir.set(generatedTypeScriptDirectory.get().asFile.absolutePath)
+        templateDir.set(typeScriptTemplateDirectory.asFile.absolutePath)
         packageName.set("@amra-shop/api-client")
         configOptions.set(
             mapOf(
                 "enumPropertyNaming" to "UPPERCASE",
                 "npmName" to "@amra-shop/api-client",
-                "npmVersion" to project.version.toString().removeSuffix("-SNAPSHOT"),
+                "npmVersion" to generatedClientVersion,
                 "supportsES6" to "true",
                 "typescriptThreePlus" to "true",
                 "withInterfaces" to "true",
@@ -301,12 +305,31 @@ val checkOpenApiCompatibility =
 val packageTypeScriptClient =
     tasks.register<Zip>("packageTypeScriptClient") {
         group = "build"
-        description = "Packages the generated TypeScript client as a local immutable build artifact."
+        description = "Packages the generated TypeScript client as a local immutable source artifact."
         dependsOn(generateTypeScriptClient)
         from(generatedTypeScriptDirectory)
         exclude(".openapi-generator/**", ".openapi-generator-ignore")
         archiveBaseName.set("amra-shop-api-client")
-        archiveVersion.set(project.version.toString().removeSuffix("-SNAPSHOT"))
+        archiveVersion.set(generatedClientVersion)
+    }
+
+val verifyTypeScriptClientArtifact =
+    tasks.register<Exec>("verifyTypeScriptClientArtifact") {
+        group = "verification"
+        description = "Verifies the packaged TypeScript client surface and release metadata."
+        dependsOn(packageTypeScriptClient)
+        inputs.file(packageTypeScriptClient.flatMap { it.archiveFile })
+        inputs.file("ci/verify-typescript-client.sh")
+        commandLine(
+            "bash",
+            "ci/verify-typescript-client.sh",
+            packageTypeScriptClient
+                .get()
+                .archiveFile
+                .get()
+                .asFile.absolutePath,
+            generatedClientVersion,
+        )
     }
 
 tasks.compileJava {
@@ -362,7 +385,7 @@ tasks.jacocoTestCoverageVerification {
 tasks.check {
     dependsOn(checkOpenApiCompatibility)
     dependsOn(tasks.named("openApiValidate"))
-    dependsOn(packageTypeScriptClient)
+    dependsOn(verifyTypeScriptClientArtifact)
     dependsOn(tasks.javadoc)
     dependsOn(tasks.jacocoTestReport)
     dependsOn(tasks.jacocoTestCoverageVerification)

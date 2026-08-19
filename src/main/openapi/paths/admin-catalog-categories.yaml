@@ -18,6 +18,7 @@ post:
       headers:
         ETag: {$ref: ../components/headers/etag.yaml}
         Location: {description: Administrative category URL., schema: {type: string, format: uri-reference}}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
       content:
         application/json:
           schema: {$ref: ../components/schemas/admin-category.yaml}

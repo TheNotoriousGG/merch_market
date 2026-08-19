@@ -16,7 +16,9 @@ post:
   responses:
     "200":
       description: Product after the lifecycle transition.
-      headers: {ETag: {$ref: ../components/headers/etag.yaml}}
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
       content: {application/json: {schema: {$ref: ../components/schemas/admin-product.yaml}}}
     "400": {$ref: ../components/responses/bad-request.yaml}
     "401": {$ref: ../components/responses/unauthorized.yaml}

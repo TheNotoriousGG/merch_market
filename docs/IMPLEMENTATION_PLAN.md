@@ -104,6 +104,8 @@ Commit: `chore: initialize backend project`.
 
 Ветка: `feature/catalog`.
 
+Статус: завершён 19 августа 2026 года; acceptance evidence находится в `docs/catalog/CATALOG_RELEASE_CHECKLIST.md`.
+
 Подробное продуктовое и техническое ТЗ: `docs/requirements/CATALOG_VERTICAL_SLICE.md`.
 
 - OpenAPI: categories, products, variants, attributes, media metadata и search/filtering.

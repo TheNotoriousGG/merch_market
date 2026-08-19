@@ -2,6 +2,8 @@ description: A request or business rate limit was exceeded.
 headers:
   Retry-After:
     $ref: ../headers/retry-after.yaml
+  X-Trace-Id:
+    $ref: ../headers/trace-id.yaml
 content:
   application/problem+json:
     schema:

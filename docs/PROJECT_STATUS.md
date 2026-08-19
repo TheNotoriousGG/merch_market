@@ -67,7 +67,7 @@
 - реальный Keycloak container прошёл health check, realm OIDC discovery вернул ожидаемые issuer/endpoints;
 - полный offline `clean qualityGate` прошёл; PIT mutation score — 93% при 97% line coverage mutated classes.
 
-## Текущий этап
+## Завершённый этап 7
 
 Этап 7 — `feature/catalog`:
 
@@ -110,21 +110,28 @@
 - category/search на этом объёме допускают cost-based sequential/hash plan только при строгом локальном ceiling; planner hints и искусственное отключение seq scan не используются;
 - canonical repository query явно применяет `lower(canonicalSlug)`, устраняя расхождение между Spring Data ignore-case expression и PostgreSQL index;
 - fixture является только test infrastructure, очищается после acceptance и никогда не попадает в Flyway/production seed; детали зафиксированы в `docs/persistence/CATALOG_QUERY_PLANS.md`;
+- блок 12/12 завершён: финальный contract/client/container acceptance закрывает catalog vertical slice;
+- все success и reusable RFC 9457 error responses каталога документируют `X-Trace-Id`; policy test не допускает drift относительно runtime filter;
+- TypeScript Fetch source ZIP имеет собственный package template без generator repository placeholders и обязательный Gradle artifact gate;
+- два clean build дали одинаковый SHA-256 `6143a4c2869263e8e69374028df3155b1ab990a28878bd18840aa66cbf62a9c2`; generated sources прошли `tsc --noEmit` frontend compiler;
+- frontend handoff, browser session, CSRF, ETag/idempotency и fixture replacement описаны в `docs/api/FRONTEND_CATALOG_CLIENT.md`;
+- supply-chain script и Hadolint прошли; pinned-digest distroless image работает как `nonroot:nonroot`;
+- изолированный container smoke применил Flyway V1–V6, создал 16 tables, вернул health `UP` и успешные empty catalog representations; временный stack удалён;
+- финальный `clean qualityGate` проходит со 116 тестами без failures/errors; branch coverage — 652/907 (71,9%), line coverage — 2 802/2 962 (94,6%);
+- полный acceptance checklist находится в `docs/catalog/CATALOG_RELEASE_CHECKLIST.md`;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
-- полный `qualityGate` проходит со 115 тестами без failures/errors; branch coverage — 652/907 (71,9%) при обязательном пороге 70%;
-- следующий блок 12/12: финальный catalog client/artifact audit, container smoke, документация и закрытие feature-ветки;
-
-- OpenAPI categories/products/variants и typed filtering;
-- category/product/SKU domain invariants;
-- PostgreSQL catalog model, FTS/search port и admin ETag contract;
-- unit/property/persistence/contract/N+1 tests.
+- каталог готов к fast-forward закрытию `feature/catalog`; production-only deferred gates не блокируют следующий локальный vertical slice;
 
 GitLab activation остаётся обязательным deferred gate до первого shared remote, release или deployment.
+
+## Следующий этап
+
+Этап 8 — inventory vertical slice из `docs/IMPLEMENTATION_PLAN.md`. Он начинается отдельной feature-веткой после закрытия `feature/catalog`; catalog scope больше не расширяется без нового contract change.
 
 ## Отложено до production readiness
 

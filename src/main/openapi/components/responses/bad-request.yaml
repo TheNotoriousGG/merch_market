@@ -1,4 +1,7 @@
 description: The request is syntactically invalid or violates input constraints.
+headers:
+  X-Trace-Id:
+    $ref: ../headers/trace-id.yaml
 content:
   application/problem+json:
     schema:

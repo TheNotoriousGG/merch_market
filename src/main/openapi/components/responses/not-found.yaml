@@ -1,4 +1,7 @@
 description: The requested public or administrative resource does not exist.
+headers:
+  X-Trace-Id:
+    $ref: ../headers/trace-id.yaml
 content:
   application/problem+json:
     schema:

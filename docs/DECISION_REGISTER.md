@@ -45,7 +45,7 @@
 - Catalog/admin: page/size + totals; audit/events/large mutable feeds: cursor/keyset.
 - Filtering/sorting — explicit typed allowlists без generic query language.
 - Concurrent admin edit: optimistic locking + ETag/`If-Match`; stale update — 412.
-- Frontend client генерируется как versioned npm package и содержит версию spec. Публикация в GitLab Package Registry отложена только на срок действия ADR-0002.
+- Frontend client содержит версию spec и предназначен для публикации как versioned npm package. Пока действует ADR-0002, backend выпускает проверяемый reproducible source ZIP; Node build/pack и публикация включаются вместе с GitLab Package Registry.
 
 ## Persistence и данные
 
