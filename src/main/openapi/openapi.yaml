@@ -11,9 +11,13 @@ servers:
 tags:
   - name: Platform
     description: API discovery and platform metadata.
+  - name: Identity
+    description: Browser session and authenticated identity metadata.
 paths:
   /:
     $ref: paths/platform.yaml
+  /session:
+    $ref: paths/session.yaml
 components:
   schemas:
     ApiRoot:
@@ -26,6 +30,8 @@ components:
       $ref: components/schemas/page-metadata.yaml
     CursorMetadata:
       $ref: components/schemas/cursor-metadata.yaml
+    CurrentSession:
+      $ref: components/schemas/current-session.yaml
   parameters:
     Page:
       $ref: components/parameters/page.yaml

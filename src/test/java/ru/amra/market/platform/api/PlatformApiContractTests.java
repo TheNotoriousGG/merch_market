@@ -1,11 +1,14 @@
 package ru.amra.market.platform.api;
 
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,18 +36,25 @@ class PlatformApiContractTests extends PostgreSqlIntegrationTest {
 
     @Test
     void servesCanonicalContractWhenDocumentationIsExplicitlyEnabled() throws Exception {
-        mockMvc.perform(get("/internal/api-docs/openapi.yaml"))
+        var adminWithMfa = oidcLogin()
+                .authorities(() -> "ROLE_ADMIN")
+                .idToken(token -> token.claim("acr", "2").claim("realm_access", Map.of("roles", List.of("ADMIN"))));
+
+        mockMvc.perform(get("/internal/api-docs/openapi.yaml").with(adminWithMfa))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/yaml"))
                 .andExpect(content().string(matchesPattern("(?s).*openapi: 3\\.0\\.3.*")));
 
-        mockMvc.perform(get("/internal/api-docs/components/schemas/problem-details.yaml"))
+        mockMvc.perform(get("/internal/api-docs/components/schemas/problem-details.yaml")
+                        .with(adminWithMfa))
                 .andExpect(status().isOk())
                 .andExpect(content().string(matchesPattern("(?s).*RFC 9457 problem details.*")));
 
-        mockMvc.perform(get("/internal/api-docs/components/schemas/missing.yaml"))
+        mockMvc.perform(get("/internal/api-docs/components/schemas/missing.yaml")
+                        .with(adminWithMfa))
                 .andExpect(status().isNotFound());
-        mockMvc.perform(get("/internal/api-docs/components/schemas/INVALID.yaml"))
+        mockMvc.perform(get("/internal/api-docs/components/schemas/INVALID.yaml")
+                        .with(adminWithMfa))
                 .andExpect(status().isNotFound());
     }
 }

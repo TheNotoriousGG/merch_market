@@ -9,5 +9,7 @@ public abstract class PostgreSqlIntegrationTest {
     @DynamicPropertySource
     protected static void databaseProperties(DynamicPropertyRegistry registry) {
         PostgreSqlTestDatabase.registerProperties(registry);
+        registry.add("spring.security.oauth2.client.registration.keycloak.client-secret", () -> "test-only-secret");
+        registry.add("server.servlet.session.cookie.secure", () -> "false");
     }
 }

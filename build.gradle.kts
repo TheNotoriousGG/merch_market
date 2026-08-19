@@ -44,6 +44,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-session-jdbc")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.springframework.modulith:spring-modulith-api")
 
@@ -57,6 +60,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-security-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-security-oauth2-client-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-session-jdbc-test")
     testImplementation(enforcedPlatform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
@@ -98,6 +104,8 @@ pitest {
     excludedClasses.set(
         setOf(
             "ru.amra.market.AmraMerchMarketBackendApplication",
+            "ru.amra.market.platform.PlatformConfiguration",
+            "ru.amra.market.identityaccess.SecurityConfiguration",
             "ru.amra.market.platform.generated.*",
         ),
     )

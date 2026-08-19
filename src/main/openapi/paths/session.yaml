@@ -1,0 +1,20 @@
+get:
+  tags:
+    - Identity
+  summary: Inspect the current browser session
+  description: >-
+    Returns only identity metadata required by the frontend. OIDC tokens are retained
+    by the backend and are never exposed by this contract.
+  operationId: getCurrentSession
+  responses:
+    "200":
+      description: Current authenticated or anonymous browser session.
+      headers:
+        X-Trace-Id:
+          $ref: ../components/headers/trace-id.yaml
+      content:
+        application/json:
+          schema:
+            $ref: ../openapi.yaml#/components/schemas/CurrentSession
+    "500":
+      $ref: ../components/responses/unexpected-error.yaml
