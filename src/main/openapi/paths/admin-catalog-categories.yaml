@@ -1,6 +1,6 @@
 post:
   tags: [Catalog administration]
-  summary: Create a draft catalog category
+  summary: Create a hidden catalog category
   description: Requires CATALOG_MANAGER or ADMIN authority and a verified MFA claim.
   operationId: createCatalogCategory
   security: [{SessionCookie: []}]

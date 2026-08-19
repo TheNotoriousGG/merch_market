@@ -72,10 +72,12 @@
 Этап 7 — `feature/catalog`:
 
 - блок 1/12: OpenAPI contract и архитектурные границы реализованы, проходят validation и Java/TypeScript generation;
+- блок 2/12: framework-free category domain реализован с immutable aggregate, typed values, hierarchy validation и unit/property tests;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
-- следующий блок: category domain с cycle/depth/slug/order invariants;
+- category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
+- следующий блок: product, variant, media, slug alias и publication domain;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;

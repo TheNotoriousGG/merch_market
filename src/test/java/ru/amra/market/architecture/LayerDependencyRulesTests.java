@@ -3,11 +3,12 @@ package ru.amra.market.architecture;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
+import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
-@AnalyzeClasses(packages = "ru.amra.market")
+@AnalyzeClasses(packages = "ru.amra.market", importOptions = ImportOption.DoNotIncludeTests.class)
 class LayerDependencyRulesTests {
 
     @ArchTest
