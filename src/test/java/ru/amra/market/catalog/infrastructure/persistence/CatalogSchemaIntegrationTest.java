@@ -1,5 +1,6 @@
 package ru.amra.market.catalog.infrastructure.persistence;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -93,20 +94,20 @@ class CatalogSchemaIntegrationTest extends PostgreSqlIntegrationTest {
     }
 
     private UUID insertCategory(String slug, String name) {
-        return jdbc.queryForObject("""
+        return requireNonNull(jdbc.queryForObject("""
                 insert into catalog_categories (id, slug, name, display_order, status)
                 values (uuidv7(), ?, ?, 0, 'ACTIVE')
                 returning id
-                """, UUID.class, slug, name);
+                """, UUID.class, slug, name));
     }
 
     private UUID insertDraftProduct(UUID categoryId, String slug) {
-        return jdbc.queryForObject("""
+        return requireNonNull(jdbc.queryForObject("""
                 insert into catalog_products (
                     id, canonical_slug, name, short_description, description, status, primary_category_id
                 ) values (uuidv7(), ?, 'Графитовая футболка', 'Короткое описание', 'Полное описание', 'DRAFT', ?)
                 returning id
-                """, UUID.class, slug, categoryId);
+                """, UUID.class, slug, categoryId));
     }
 
     private void insertVariant(UUID productId, String sku, String signature) {

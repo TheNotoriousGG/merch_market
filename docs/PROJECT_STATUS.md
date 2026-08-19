@@ -74,7 +74,8 @@
 - блок 1/12: OpenAPI contract и архитектурные границы реализованы, проходят validation и Java/TypeScript generation;
 - блок 2/12: framework-free category domain реализован с immutable aggregate, typed values, hierarchy validation и unit/property tests;
 - блок 3/12: product aggregate, typed attributes, immutable SKU variants, media metadata, lifecycle, publication report и slug/SKU namespaces реализованы;
-- блок 4/12 выполняется: Flyway V3 relational catalog schema, constraints, FTS/trigram/filter indexes и PostgreSQL integration tests готовы; persistence adapters остаются следующим подшагом;
+- блок 4/12 выполняется: Flyway V3 relational catalog schema, constraints, FTS/trigram/filter indexes и PostgreSQL integration tests готовы;
+- JPA category adapter реализует application port, domain mapping, stable hierarchy snapshot и явную optimistic-version проверку со stale-write rejection;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
@@ -82,7 +83,7 @@
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
 - полный `qualityGate` проходит с 60 тестами, включая jqwik properties для slug и SKU;
-- следующий подшаг: JPA persistence entities/repositories и domain mappers поверх проверенной V3 schema;
+- следующий подшаг: product aggregate JPA/JDBC child-store mapper поверх проверенной V3 schema;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;
