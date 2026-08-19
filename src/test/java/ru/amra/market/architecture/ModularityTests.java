@@ -32,6 +32,7 @@ class ModularityTests {
                         "inventory",
                         "ordering",
                         "outbox",
+                        "platform",
                         "pricing");
     }
 }
