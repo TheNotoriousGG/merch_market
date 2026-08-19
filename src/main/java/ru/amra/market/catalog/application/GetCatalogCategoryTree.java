@@ -1,13 +1,8 @@
 package ru.amra.market.catalog.application;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -62,36 +57,16 @@ public class GetCatalogCategoryTree {
     }
 
     private static String etag(List<CatalogCategoryTree.Node> categories) {
-        try {
-            var digest = MessageDigest.getInstance("SHA-256");
-            update(digest, categories);
-            return '"' + HexFormat.of().formatHex(digest.digest()) + '"';
-        } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("SHA-256 must be available in every supported Java runtime", exception);
-        }
+        var hash = new RepresentationHasher();
+        update(hash, categories);
+        return hash.etag();
     }
 
-    private static void update(MessageDigest digest, List<CatalogCategoryTree.Node> nodes) {
-        digest.update(ByteBuffer.allocate(Integer.BYTES).putInt(nodes.size()).array());
+    private static void update(RepresentationHasher hash, List<CatalogCategoryTree.Node> nodes) {
+        hash.add(nodes.size());
         for (var node : nodes) {
-            digest.update(ByteBuffer.allocate(Long.BYTES)
-                    .putLong(node.id().getMostSignificantBits())
-                    .array());
-            digest.update(ByteBuffer.allocate(Long.BYTES)
-                    .putLong(node.id().getLeastSignificantBits())
-                    .array());
-            update(digest, node.slug());
-            update(digest, node.name());
-            digest.update(ByteBuffer.allocate(Integer.BYTES)
-                    .putInt(node.displayOrder())
-                    .array());
-            update(digest, node.children());
+            hash.add(node.id()).add(node.slug()).add(node.name()).add(node.displayOrder());
+            update(hash, node.children());
         }
-    }
-
-    private static void update(MessageDigest digest, String value) {
-        var bytes = value.getBytes(StandardCharsets.UTF_8);
-        digest.update(ByteBuffer.allocate(Integer.BYTES).putInt(bytes.length).array());
-        digest.update(bytes);
     }
 }

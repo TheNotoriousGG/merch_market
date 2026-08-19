@@ -80,14 +80,16 @@
 - product repository поддерживает canonical/alias lookup, полное восстановление aggregate, idempotent retry и optimistic-version rejection для stale/forged writes;
 - блок 5/12 завершён: публичное дерево категорий строится через application query и один recursive CTE без N+1;
 - anonymous `GET /api/v1/catalog/categories` реализует generated OpenAPI interface, возвращает только достижимые `ACTIVE` ветки, deterministic order, strong ETag и public cache policy;
+- блок 6/12 завершён: anonymous product list поддерживает category descendants, active collection, 30-day `new`, same-variant size/color filters, FTS/trigram search и allowlisted sorting;
+- page query возвращает exact totals и stable UUID tie-breaker максимум за три SQL-запроса независимо от числа products/variants; public media URL строится через отдельный port без раскрытия object key;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
-- полный `qualityGate` проходит с 79 тестами без failures/errors, включая jqwik properties, PostgreSQL persistence и public API contract scenarios;
-- следующий блок 6/12: публичный список товаров — typed query, FTS/trigram search, filters, exact page totals и stable sorting;
+- полный `qualityGate` проходит с 89 тестами без failures/errors, включая jqwik properties, PostgreSQL persistence/search/filtering и public API contract scenarios;
+- следующий блок 7/12: публичная подробная карточка, batch composition, media delivery и permanent canonical redirect для slug aliases;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;

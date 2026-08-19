@@ -68,6 +68,9 @@ server:
         same-site: lax
 
 amra:
+  catalog:
+    media:
+      public-base-url: ${AMRA_CATALOG_MEDIA_BASE_URL:https://cdn.amra-shop.invalid/media/}
   security:
     allowed-origins: ${AMRA_CORS_ALLOWED_ORIGINS:http://localhost:3001}
     customer-idle-timeout: 30m

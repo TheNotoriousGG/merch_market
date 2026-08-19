@@ -47,5 +47,8 @@ Status: accepted implementation guardrails for stage 7. Product scope remains in
 - The category-tree ETag is derived only from its deterministic public representation; HTTP caching never becomes an application correctness dependency.
 - Only active products with active presentation data are visible.
 - Page size is `24` by default and at most `60`; filters and sorting are allowlisted.
+- Category filtering includes only reachable active descendants; size and color predicates must match the same active variant.
+- Product pages use exact totals and at most three database queries: count, page projection and one variant-option batch.
+- `MANUAL` uses collection membership order when a collection is selected, search rank for search results, and newest-first as the deterministic general fallback.
 - Empty results are successful pages with exact zero totals.
 - Catalog responses contain no price, availability, stock, internal notes, audit data or object-storage keys.

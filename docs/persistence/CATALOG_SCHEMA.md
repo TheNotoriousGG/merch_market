@@ -25,6 +25,7 @@ Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_sch
 - Category navigation uses `(parent_id, display_order, id)` and one recursive CTE rooted only at visible roots; hidden branches are not reachable and node count never creates N+1 queries.
 - Active product pages use partial newest/name indexes with stable `id` tie-breakers.
 - Search uses a stored weighted Russian `tsvector` with GIN plus a partial `pg_trgm` name index.
+- Runtime SQL schema-qualifies the `public` pg_trgm operator/function because the application `search_path` intentionally contains only `amra_shop`.
 - Category, collection and typed attribute join tables have reverse indexes matching storefront filters.
 - Media and variants are fetched by product in deterministic display order.
 
