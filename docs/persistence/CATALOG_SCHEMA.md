@@ -28,6 +28,7 @@ Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_sch
 - Runtime SQL schema-qualifies the `public` pg_trgm operator/function because the application `search_path` intentionally contains only `amra_shop`.
 - Category, collection and typed attribute join tables have reverse indexes matching storefront filters.
 - Media and variants are fetched by product in deterministic display order.
+- Public detail composes the aggregate with one visible-category and one active-collection batch projection; reference counts never create per-row queries.
 
 ## Persistence mapping
 

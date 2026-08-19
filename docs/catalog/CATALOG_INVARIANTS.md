@@ -51,4 +51,6 @@ Status: accepted implementation guardrails for stage 7. Product scope remains in
 - Product pages use exact totals and at most three database queries: count, page projection and one variant-option batch.
 - `MANUAL` uses collection membership order when a collection is selected, search rank for search results, and newest-first as the deterministic general fallback.
 - Empty results are successful pages with exact zero totals.
+- Product detail resolves one aggregate plus two batch reference projections; archived variants and media scoped to them are absent.
+- An alias redirects directly to the current canonical API path only after the target is proven active; all other lifecycle states return the same public absence response.
 - Catalog responses contain no price, availability, stock, internal notes, audit data or object-storage keys.
