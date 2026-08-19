@@ -147,9 +147,13 @@ GitLab activation остаётся обязательным deferred gate до �
 - movements, reservation events и inventory audit защищены runtime privileges и append-only triggers; balances/reservations/idempotency/leases изменяемы без runtime delete;
 - inventory не имеет FK/JPA relation к catalog tables: UUIDv7 variant reference валидируется через named application boundary; schema rationale зафиксирован в `docs/persistence/INVENTORY_SCHEMA.md`;
 - migration integration tests доказывают fresh V7, seeded warehouse, critical indexes, constraints, отсутствие cross-module FK и append-only barriers;
+- блок 5/12 завершён: transactional stock facade и JDBC port атомарно lock/create balance, применяют domain mutation, optimistically обновляют snapshot и добавляют physical movement;
+- receipt создаёт отсутствующий zero balance, reconciliation требует существующий balance и current version; оба пути проверяют signed ledger total до commit;
+- интеграционные тесты доказывают atomic rollback при rejected movement, отсутствие side effects при stale version и равенство `on_hand` сумме immutable movements;
+- обнаруженная SQL three-valued logic для UUID без RFC version закрыта отдельной Flyway V8 без изменения применённой V7: все inventory UUIDv7 checks требуют explicit `IS TRUE`;
 - OpenAPI добавляет anonymous batch availability и защищённые balance/receipt/reconciliation endpoints без browser reservation mutations;
 - generated Java/TypeScript contracts, OpenAPI compatibility, architecture tests и полный `qualityGate` проходят;
-- следующий блок 5/12: atomic balance/movement persistence, deterministic locking и ledger reconciliation;
+- следующий блок 6/12: all-or-nothing reservation persistence/application contract, deterministic locking и concurrency acceptance;
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.

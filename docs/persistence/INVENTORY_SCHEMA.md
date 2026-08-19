@@ -1,10 +1,12 @@
 # Inventory persistence model
 
-Status: Flyway V7 baseline accepted for stage 8.
+Status: Flyway V7 baseline accepted for stage 8; V8 hardens UUIDv7 checks against PostgreSQL `UNKNOWN` semantics.
 
 ## Ownership boundary
 
 Inventory owns nine relational tables in `amra_shop`. Catalog variant UUIDs are external references, not database foreign keys: the inventory application layer validates active variants through `CatalogVariantInventoryView`. This prevents a hidden cross-module persistence dependency while keeping UUIDv7 validation at the inventory boundary.
+
+UUIDv7 constraints use `(uuid_extract_version(value) = 7) IS TRUE`. The explicit truth test is required because a UUID without an encoded RFC version yields `NULL`, and a plain SQL `CHECK (... = 7)` would otherwise accept the `UNKNOWN` result.
 
 `inventory_warehouses` contains one migration-seeded `PRIMARY` warehouse. Warehouse identity remains present in every balance, movement and reservation line so adding warehouses does not require reshaping ledger history.
 
