@@ -151,9 +151,13 @@ GitLab activation остаётся обязательным deferred gate до �
 - receipt создаёт отсутствующий zero balance, reconciliation требует существующий balance и current version; оба пути проверяют signed ledger total до commit;
 - интеграционные тесты доказывают atomic rollback при rejected movement, отсутствие side effects при stale version и равенство `on_hand` сумме immutable movements;
 - обнаруженная SQL three-valued logic для UUID без RFC version закрыта отдельной Flyway V8 без изменения применённой V7: все inventory UUIDv7 checks требуют explicit `IS TRUE`;
+- блок 6/12 завершён: named internal reservation contract нормализует lines, durable claim-ит owner-scoped idempotency key, batch-проверяет active catalog variants и создаёт reserve/event atomically;
+- все balance rows создаются/блокируются в едином sorted `(warehouse_id, variant_id)` order до availability check; reserved-only updates не создают physical movements;
+- PostgreSQL adapters сохраняют reservation root, normalized lines и immutable CREATED event; identical replay возвращает исходный aggregate, conflicting fingerprint ничего не меняет;
+- real concurrent tests на virtual threads доказывают одного победителя за последнюю единицу, полный rollback multi-line failure и отсутствие deadlock для reversed inputs;
 - OpenAPI добавляет anonymous batch availability и защищённые balance/receipt/reconciliation endpoints без browser reservation mutations;
 - generated Java/TypeScript contracts, OpenAPI compatibility, architecture tests и полный `qualityGate` проходят;
-- следующий блок 6/12: all-or-nothing reservation persistence/application contract, deterministic locking и concurrency acceptance;
+- следующий блок 7/12: public bounded batch availability API, privacy и query-count acceptance;
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.

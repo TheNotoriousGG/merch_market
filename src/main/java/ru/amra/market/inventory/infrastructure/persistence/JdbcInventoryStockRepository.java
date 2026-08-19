@@ -3,11 +3,13 @@ package ru.amra.market.inventory.infrastructure.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.amra.market.inventory.application.StaleInventoryVersionException;
 import ru.amra.market.inventory.application.port.InventoryStockRepository;
+import ru.amra.market.inventory.application.port.InventoryStockRepository.InventoryBalanceKey;
 import ru.amra.market.inventory.domain.CatalogVariantId;
 import ru.amra.market.inventory.domain.InventoryBalance;
 import ru.amra.market.inventory.domain.InventoryMovement;
@@ -42,6 +44,21 @@ class JdbcInventoryStockRepository implements InventoryStockRepository {
     }
 
     @Override
+    public List<InventoryBalance> lockOrCreateAll(List<InventoryBalanceKey> keys) {
+        var ordered = keys.stream().distinct().sorted().toList();
+        for (var key : ordered) {
+            jdbc.update("""
+                    insert into inventory_balances (warehouse_id, variant_id, on_hand, reserved, version)
+                    values (?, ?, 0, 0, 0)
+                    on conflict (warehouse_id, variant_id) do nothing
+                    """, key.warehouseId().value(), key.variantId().value());
+        }
+        return ordered.stream()
+                .map(key -> lock(key.warehouseId(), key.variantId()).orElseThrow())
+                .toList();
+    }
+
+    @Override
     public Optional<InventoryBalance> lock(WarehouseId warehouseId, CatalogVariantId variantId) {
         return queryOne(SELECT_BALANCE + " for update", warehouseId, variantId);
     }
@@ -54,6 +71,16 @@ class JdbcInventoryStockRepository implements InventoryStockRepository {
     @Override
     public void save(InventoryMutation mutation) {
         var balance = mutation.balance();
+        updateBalance(balance, mutation.movement().occurredAt());
+        insertMovement(mutation.movement());
+    }
+
+    @Override
+    public void saveBalance(InventoryBalance balance, java.time.Instant updatedAt) {
+        updateBalance(balance, updatedAt);
+    }
+
+    private void updateBalance(InventoryBalance balance, java.time.Instant updatedAt) {
         var expectedVersion = balance.version() - 1;
         var updated = jdbc.update(
                 """
@@ -64,14 +91,13 @@ class JdbcInventoryStockRepository implements InventoryStockRepository {
                 balance.onHand().value(),
                 balance.reserved().value(),
                 balance.version(),
-                Timestamp.from(mutation.movement().occurredAt()),
+                Timestamp.from(updatedAt),
                 balance.warehouseId().value(),
                 balance.variantId().value(),
                 expectedVersion);
         if (updated != 1) {
             throw new StaleInventoryVersionException();
         }
-        insertMovement(mutation.movement());
     }
 
     @Override
