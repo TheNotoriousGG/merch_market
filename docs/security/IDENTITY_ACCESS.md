@@ -26,6 +26,8 @@
 - Current accepted admin ACR is configured by `amra.security.admin-mfa-acr-values`; local/default value is `2`.
 - API documentation follows the same admin + MFA policy when it is enabled.
 - Denial is fail-closed: unauthenticated API access returns 401, insufficient permission or MFA returns 403.
+- API denial responses use RFC 9457 `application/problem+json`: `AUTHENTICATION_REQUIRED`, `ACCESS_DENIED` and `CSRF_INVALID` are distinct stable codes.
+- Every request receives a bounded `X-Trace-Id`; a syntactically safe caller value may be propagated, otherwise the backend generates one. The same value appears in problem bodies and catalog audit correlation.
 
 ## Session lifecycle
 
@@ -51,5 +53,6 @@ Production additionally sets issuer/endpoints to the externally verified Keycloa
 ## Verification
 
 - Security integration tests cover anonymous bootstrap, verified email, CSRF logout, allowed/disallowed CORS, MFA denial and forged role escalation.
+- Problem contract tests additionally assert content type, trace propagation and separate 401/authorization/CSRF codes.
 - Session tests cover customer/admin lifetimes, absolute expiry and PostgreSQL-backed bulk revocation.
 - Migration tests create session tables from scratch and validate Flyway history on PostgreSQL 18.4.

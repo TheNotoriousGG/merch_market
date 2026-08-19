@@ -41,6 +41,9 @@ Status: accepted implementation guardrails for stage 7. Product scope remains in
 - Aggregate business changes increment `version` and produce a new strong `ETag`.
 - Existing-resource commands require `If-Match`; missing and stale preconditions map to `428` and `412`.
 - Administrative writes require CSRF, `CATALOG_MANAGER` or `ADMIN`, verified MFA, and an append-only audit event.
+- One request-scoped `X-Trace-Id` correlates the HTTP response, RFC 9457 failure and successful administrative audit event.
+- A missing `If-Match` is `428 PRECONDITION_REQUIRED`; a stale or concurrently superseded version is `412 STALE_RESOURCE_VERSION`.
+- Security and catalog failures use `application/problem+json` with a stable uppercase code and safe detail; database diagnostics never cross the HTTP boundary.
 - Replayed create/transition commands with the same idempotency key cannot create duplicate resources or effects.
 - An idempotency key is durable and scoped by actor plus operation. Reuse with a different request fingerprint is a conflict.
 - Category creation always starts in `HIDDEN`; visibility changes are explicit optimistic commands.
@@ -54,6 +57,14 @@ Status: accepted implementation guardrails for stage 7. Product scope remains in
 - Collection owns deterministic product order and never changes product lifecycle.
 - Duplicate product identifiers are removed at the application boundary while the domain rejects duplicate stored membership.
 - Membership changes invalidate both the collection ETag and every affected administrative product ETag, regardless of which side initiated the command.
+
+## Administrative audit
+
+- Category, product, variant, media and collection mutations append an audit event inside the same database transaction as the state change.
+- Failed commands and idempotent replays append nothing; a committed mutation cannot exist without its corresponding event.
+- Audit data contains actor scope, timestamp, entity identity/type, action, reason, request correlation and bounded safe diff.
+- Safe diff contains lifecycle/version/presentation metadata only. It excludes object-storage keys, credentials, tokens and customer PII.
+- Runtime may select and insert audit rows but cannot update, delete or truncate them; a PostgreSQL trigger adds an owner-level append-only barrier.
 
 ## Public reads
 

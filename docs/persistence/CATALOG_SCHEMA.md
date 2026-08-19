@@ -1,6 +1,6 @@
 # Catalog relational schema
 
-Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_schema.sql` and extended by V4 command idempotency plus V5 attribute presentation preservation.
+Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_schema.sql` and extended by V4 command idempotency, V5 attribute presentation preservation and V6 append-only audit.
 
 ## Ownership boundaries
 
@@ -11,6 +11,7 @@ Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_sch
 - Collections own ordered editorial membership without changing product lifecycle.
 - `catalog_command_idempotency` durably binds an actor-scoped command key and operation to one request fingerprint and resulting resource.
 - Product and variant attribute rows keep stable filter value, localized label and optional color hex in separate constrained columns.
+- `catalog_audit_events` stores non-sensitive administrative change evidence independently of mutable aggregate tables.
 
 ## Integrity strategy
 
@@ -22,6 +23,8 @@ Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_sch
 - Product publication timestamp and lifecycle status are mutually consistent.
 - Cross-row rules such as category cycles, full publishability, canonical-versus-alias namespace and primary-category assignment are validated by the domain inside the write transaction; database uniqueness and foreign keys remain the final race barrier where expressible.
 - Command idempotency claims use one unique `(actor_scope, idempotency_key)` key and bind the operation plus fingerprint as immutable claim data. A completed claim stores its resource UUID; the same key with another operation or fingerprint never executes the command.
+- Audit identifiers and entity identifiers are UUIDv7. Entity/action formats, bounded correlation identifiers and JSON-object safe diffs are checked in PostgreSQL.
+- Runtime receives only `SELECT` and `INSERT` on the audit table. Explicit privilege revocation plus a `BEFORE UPDATE OR DELETE` rejection trigger make the history append-only even for elevated maintenance paths.
 
 ## Query support
 
@@ -41,5 +44,6 @@ Status: stage 7 persistence design, introduced by Flyway `V3__create_catalog_sch
 - Ordered collection membership is synchronized transactionally. Membership changes bump the collection version and affected product root versions so both administrative ETags cover their complete representations.
 - Canonical and historical alias lookups both restore the same current aggregate; the lookup result records whether the requested slug was an alias so a later HTTP adapter can issue the approved redirect.
 - JDBC synchronization never bypasses domain invariants. It persists only an already validated aggregate, while database constraints remain the final concurrent-write barrier.
+- Audit insertion uses the same Spring transaction and runtime connection as the aggregate mutation. Rollback removes both; successful idempotency replay returns before audit insertion.
 
 Production query acceptance still requires realistic data and `EXPLAIN (ANALYZE, BUFFERS)` before release. Indexes in V3 correspond only to approved stage 7 access paths.

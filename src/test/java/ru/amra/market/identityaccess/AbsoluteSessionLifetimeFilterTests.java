@@ -16,6 +16,8 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import ru.amra.market.platform.web.ApiProblemFactory;
+import tools.jackson.databind.ObjectMapper;
 
 class AbsoluteSessionLifetimeFilterTests {
 
@@ -37,7 +39,9 @@ class AbsoluteSessionLifetimeFilterTests {
         var session = new MockHttpSession();
         var deadline = Instant.ofEpochMilli(session.getCreationTime()).plus(Duration.ofHours(8));
         var filter = new AbsoluteSessionLifetimeFilter(
-                Clock.fixed(deadline, ZoneOffset.UTC), new SessionLifetimePolicy(properties));
+                Clock.fixed(deadline, ZoneOffset.UTC),
+                new SessionLifetimePolicy(properties),
+                new SecurityProblemWriter(new ApiProblemFactory(), new ObjectMapper()));
         var request = new MockHttpServletRequest();
         request.setSession(session);
         var response = new MockHttpServletResponse();
@@ -49,6 +53,8 @@ class AbsoluteSessionLifetimeFilterTests {
         filter.doFilter(request, response, new MockFilterChain());
 
         assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentType()).isEqualTo("application/problem+json");
+        assertThat(response.getContentAsString()).contains("\"code\":\"AUTHENTICATION_REQUIRED\"");
         assertThat(session.isInvalid()).isTrue();
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }

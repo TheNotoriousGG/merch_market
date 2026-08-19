@@ -20,7 +20,6 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -40,7 +39,8 @@ public class SecurityConfiguration {
             ClientRegistrationRepository clients,
             SecurityProperties properties,
             SessionLifetimePolicy lifetimePolicy,
-            AbsoluteSessionLifetimeFilter absoluteLifetimeFilter)
+            AbsoluteSessionLifetimeFilter absoluteLifetimeFilter,
+            SecurityProblemWriter problemWriter)
             throws Exception {
         var requestResolver = new DefaultOAuth2AuthorizationRequestResolver(clients, "/oauth2/authorization");
         requestResolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce());
@@ -92,10 +92,9 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionFixation(fixation -> fixation.changeSessionId()))
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
-                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                                problemWriter,
                                 request -> request.getRequestURI().startsWith("/api/"))
-                        .accessDeniedHandler(
-                                (request, response, exception) -> response.sendError(HttpStatus.FORBIDDEN.value())))
+                        .accessDeniedHandler(problemWriter))
                 .addFilterAfter(absoluteLifetimeFilter, BasicAuthenticationFilter.class)
                 .addFilterAfter(new CsrfCookieExposureFilter(), CsrfFilter.class)
                 .headers(Customizer.withDefaults());
@@ -108,8 +107,9 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    AbsoluteSessionLifetimeFilter absoluteSessionLifetimeFilter(Clock clock, SessionLifetimePolicy policy) {
-        return new AbsoluteSessionLifetimeFilter(clock, policy);
+    AbsoluteSessionLifetimeFilter absoluteSessionLifetimeFilter(
+            Clock clock, SessionLifetimePolicy policy, SecurityProblemWriter problemWriter) {
+        return new AbsoluteSessionLifetimeFilter(clock, policy, problemWriter);
     }
 
     @Bean

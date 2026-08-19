@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Clock;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,10 +15,13 @@ final class AbsoluteSessionLifetimeFilter extends OncePerRequestFilter {
 
     private final Clock clock;
     private final SessionLifetimePolicy lifetimePolicy;
+    private final SecurityProblemWriter problemWriter;
 
-    AbsoluteSessionLifetimeFilter(Clock clock, SessionLifetimePolicy lifetimePolicy) {
+    AbsoluteSessionLifetimeFilter(
+            Clock clock, SessionLifetimePolicy lifetimePolicy, SecurityProblemWriter problemWriter) {
         this.clock = clock;
         this.lifetimePolicy = lifetimePolicy;
+        this.problemWriter = problemWriter;
     }
 
     @Override
@@ -31,7 +34,10 @@ final class AbsoluteSessionLifetimeFilter extends OncePerRequestFilter {
             if (ageMillis >= lifetimePolicy.absoluteTimeout(authentication).toMillis()) {
                 session.invalidate();
                 SecurityContextHolder.clearContext();
-                response.sendError(HttpStatus.UNAUTHORIZED.value());
+                problemWriter.commence(
+                        request,
+                        response,
+                        new InsufficientAuthenticationException("The absolute session lifetime has elapsed"));
                 return;
             }
         }

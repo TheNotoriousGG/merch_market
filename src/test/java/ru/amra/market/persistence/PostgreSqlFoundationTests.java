@@ -25,7 +25,7 @@ class PostgreSqlFoundationTests extends PostgreSqlIntegrationTest {
     void migratesFromScratchAndRemainsIdempotent() {
         assertThat(flyway.validateWithResult().validationSuccessful).isTrue();
         var current = requireNonNull(flyway.info().current());
-        assertThat(current.getVersion().getVersion()).isEqualTo("5");
+        assertThat(current.getVersion().getVersion()).isEqualTo("6");
         assertThat(flyway.migrate().migrationsExecuted).isZero();
     }
 
@@ -74,5 +74,30 @@ class PostgreSqlFoundationTests extends PostgreSqlIntegrationTest {
                 .isGreaterThanOrEqualTo(180000);
         assertThat(jdbc.queryForObject("select uuid_extract_version(uuidv7())", Integer.class))
                 .isEqualTo(7);
+    }
+
+    @Test
+    void grantsRuntimeAppendOnlyAccessToCatalogAuditTrail() {
+        var runtimeJdbc = new JdbcTemplate(dataSource);
+        var migrationJdbc = new JdbcTemplate(flyway.getConfiguration().getDataSource());
+
+        assertThat(runtimeJdbc.queryForObject(
+                        "select has_table_privilege(current_user, 'catalog_audit_events', 'SELECT')", Boolean.class))
+                .isTrue();
+        assertThat(runtimeJdbc.queryForObject(
+                        "select has_table_privilege(current_user, 'catalog_audit_events', 'INSERT')", Boolean.class))
+                .isTrue();
+        assertThat(runtimeJdbc.queryForObject(
+                        "select has_table_privilege(current_user, 'catalog_audit_events', 'UPDATE')", Boolean.class))
+                .isFalse();
+        assertThat(runtimeJdbc.queryForObject(
+                        "select has_table_privilege(current_user, 'catalog_audit_events', 'DELETE')", Boolean.class))
+                .isFalse();
+        assertThat(migrationJdbc.queryForObject("""
+                        select count(*) from pg_trigger
+                        where tgrelid = 'amra_shop.catalog_audit_events'::regclass
+                          and tgname = 'trg_catalog_audit_events__append_only'
+                          and not tgisinternal
+                        """, Integer.class)).isEqualTo(1);
     }
 }

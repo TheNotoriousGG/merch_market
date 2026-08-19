@@ -97,14 +97,21 @@
 - editorial collection реализована отдельным aggregate с ordered membership, optimistic versioning и caller-scoped idempotency;
 - изменение membership через product или collection command симметрично повышает версии затронутых representations, поэтому ETag не остаётся ложноположительно свежим;
 - nullable partial arrays и explicit `clearVariant` сохраняют различие между omitted, empty и intentional null в generated DTO;
+- блок 10/12 завершён: каждая успешная административная мутация каталога записывает append-only audit event в той же транзакции;
+- Flyway V6 хранит actor, time, entity/action, reason, correlation ID и ограниченный safe diff; runtime имеет только `SELECT`/`INSERT`, а trigger запрещает `UPDATE`/`DELETE` даже владельцу;
+- idempotent replay не дублирует audit event, failed command не оставляет audit data, а object-storage key и клиентские данные не включаются в diff;
+- каждый HTTP-запрос получает проверенный или сгенерированный `X-Trace-Id`; тот же идентификатор возвращается клиенту, попадает в RFC 9457 body и связывает административный audit;
+- MVC и Spring Security возвращают единый `application/problem+json`: stable code, status, safe detail, instance, trace ID и structured violations;
+- отсутствие `If-Match` возвращает `428 PRECONDITION_REQUIRED`, stale version — `412 STALE_RESOURCE_VERSION`; 401, authorization 403 и CSRF 403 имеют отдельные стабильные коды;
+- platform web utilities опубликованы как явный Spring Modulith named interface; architecture tests подтверждают отсутствие нового module cycle;
 - исходное ТЗ зафиксировано в `docs/requirements/CATALOG_VERTICAL_SLICE.md`;
 - ADR-0006 фиксирует public/admin split, composition boundaries, pagination, redirect и concurrency semantics;
 - `docs/catalog/CATALOG_INVARIANTS.md` является компактным checklist для домена и review;
 - category rules покрывают safe `HIDDEN` creation, versioning, cycle/orphan/depth/sibling-slug checks и stable navigation order;
 - product rules покрывают `DRAFT → ACTIVE → ARCHIVED`, terminal archive, active-category/variant/primary-media completeness и запрет архивировать последний active variant;
 - canonical slug history разрешается сразу в текущий slug; canonical/alias и SKU namespaces защищены от глобального повторного использования;
-- полный `qualityGate` проходит со 107 тестами без failures/errors; branch coverage — 605/849 (71,3%) при обязательном пороге 70%;
-- следующий блок 10/12: append-only audit, централизованное RFC 9457 error mapping и завершение security/precondition semantics;
+- полный `qualityGate` проходит со 114 тестами без failures/errors; branch coverage — 651/907 (71,8%) при обязательном пороге 70%;
+- следующий блок 11/12: realistic catalog fixtures, измерение critical SQL plans и performance/query-count acceptance;
 
 - OpenAPI categories/products/variants и typed filtering;
 - category/product/SKU domain invariants;

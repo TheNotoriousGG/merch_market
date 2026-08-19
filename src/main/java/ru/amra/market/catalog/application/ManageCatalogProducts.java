@@ -3,6 +3,7 @@ package ru.amra.market.catalog.application;
 import java.time.Clock;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,7 @@ public class ManageCatalogProducts {
     private final CatalogIdGenerator ids;
     private final CatalogIdempotencyStore idempotency;
     private final Clock clock;
+    private final CatalogAuditTrail audit;
 
     public ManageCatalogProducts(
             ProductRepository products,
@@ -51,13 +53,15 @@ public class ManageCatalogProducts {
             ActiveCategoryReader activeCategories,
             CatalogIdGenerator ids,
             CatalogIdempotencyStore idempotency,
-            Clock clock) {
+            Clock clock,
+            CatalogAuditTrail audit) {
         this.products = products;
         this.adminReader = adminReader;
         this.activeCategories = activeCategories;
         this.ids = ids;
         this.idempotency = idempotency;
         this.clock = clock;
+        this.audit = audit;
     }
 
     /** Creates a draft product or replays the caller's identical create command. */
@@ -80,6 +84,13 @@ public class ManageCatalogProducts {
                 command.collectionIds(),
                 command.characteristics());
         var saved = products.save(product);
+        audit.record(
+                "PRODUCT",
+                saved.id().value(),
+                "CREATED",
+                null,
+                saved.version(),
+                Map.of("slug", saved.slug().value(), "status", saved.status().name()));
         idempotency.complete(
                 command.actorScope(), command.idempotencyKey(), saved.id().value());
         return view(saved);
@@ -107,7 +118,19 @@ public class ManageCatalogProducts {
                 command.collectionIds() == null ? current.collectionIds() : command.collectionIds(),
                 command.characteristics() == null ? current.characteristics() : command.characteristics());
         ensureActiveProductRemainsPublishable(changed);
-        return view(products.save(changed));
+        var saved = products.save(changed);
+        audit.record(
+                "PRODUCT",
+                saved.id().value(),
+                "UPDATED",
+                current.version(),
+                saved.version(),
+                Map.of(
+                        "statusFrom",
+                        current.status().name(),
+                        "statusTo",
+                        saved.status().name()));
+        return view(saved);
     }
 
     /** Publishes or archives a product once and safely deduplicates transport retries. */
@@ -129,6 +152,17 @@ public class ManageCatalogProducts {
                     case ARCHIVE -> current.archive();
                 };
         var saved = products.save(changed);
+        audit.record(
+                "PRODUCT",
+                saved.id().value(),
+                command.transition() == Transition.PUBLISH ? "PUBLISHED" : "ARCHIVED",
+                current.version(),
+                saved.version(),
+                Map.of(
+                        "statusFrom",
+                        current.status().name(),
+                        "statusTo",
+                        saved.status().name()));
         idempotency.complete(
                 command.actorScope(), command.idempotencyKey(), saved.id().value());
         return view(saved);
@@ -154,6 +188,20 @@ public class ManageCatalogProducts {
                 command.displayOrder(),
                 command.attributes());
         var saved = products.save(current.addVariant(variant));
+        var storedVariant = saved.variants().stream()
+                .filter(candidate -> candidate.id().equals(variant.id()))
+                .findFirst()
+                .orElseThrow(CatalogProductChildNotFoundException::new);
+        audit.record(
+                "PRODUCT_VARIANT",
+                storedVariant.id().value(),
+                "CREATED",
+                null,
+                storedVariant.version(),
+                Map.of(
+                        "productId", saved.id().value().toString(),
+                        "productVersion", Long.toString(saved.version()),
+                        "status", storedVariant.status().name()));
         idempotency.complete(
                 command.actorScope(), command.idempotencyKey(), variant.id().value());
         return variantView(saved, variant.id());
@@ -173,6 +221,21 @@ public class ManageCatalogProducts {
                 command.displayOrder() == null ? variant.displayOrder() : command.displayOrder(),
                 command.attributes() == null ? variant.attributes() : command.attributes());
         var saved = products.save(current.updateVariant(replacement));
+        var storedVariant = saved.variants().stream()
+                .filter(candidate -> candidate.id().equals(replacement.id()))
+                .findFirst()
+                .orElseThrow(CatalogProductChildNotFoundException::new);
+        audit.record(
+                "PRODUCT_VARIANT",
+                storedVariant.id().value(),
+                "UPDATED",
+                variant.version(),
+                storedVariant.version(),
+                Map.of(
+                        "productId", saved.id().value().toString(),
+                        "productVersion", Long.toString(saved.version()),
+                        "statusFrom", variant.status().name(),
+                        "statusTo", storedVariant.status().name()));
         return variantView(saved, replacement.id());
     }
 
@@ -200,6 +263,20 @@ public class ManageCatalogProducts {
                 command.displayOrder(),
                 command.primary());
         var saved = products.save(current.addMedia(media));
+        var storedMedia = saved.media().stream()
+                .filter(candidate -> candidate.id().equals(media.id()))
+                .findFirst()
+                .orElseThrow(CatalogProductChildNotFoundException::new);
+        audit.record(
+                "PRODUCT_MEDIA",
+                storedMedia.id().value(),
+                "CREATED",
+                null,
+                storedMedia.version(),
+                Map.of(
+                        "productId", saved.id().value().toString(),
+                        "productVersion", Long.toString(saved.version()),
+                        "mediaType", storedMedia.type().name()));
         idempotency.complete(
                 command.actorScope(), command.idempotencyKey(), media.id().value());
         return mediaView(saved, media.id());
@@ -222,6 +299,20 @@ public class ManageCatalogProducts {
                 command.displayOrder() == null ? media.displayOrder() : command.displayOrder(),
                 command.primary() == null ? media.primary() : command.primary());
         var saved = products.save(current.updateMedia(replacement));
+        var storedMedia = saved.media().stream()
+                .filter(candidate -> candidate.id().equals(replacement.id()))
+                .findFirst()
+                .orElseThrow(CatalogProductChildNotFoundException::new);
+        audit.record(
+                "PRODUCT_MEDIA",
+                storedMedia.id().value(),
+                "UPDATED",
+                media.version(),
+                storedMedia.version(),
+                Map.of(
+                        "productId", saved.id().value().toString(),
+                        "productVersion", Long.toString(saved.version()),
+                        "mediaType", storedMedia.type().name()));
         return mediaView(saved, replacement.id());
     }
 

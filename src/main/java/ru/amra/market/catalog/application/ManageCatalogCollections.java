@@ -3,6 +3,7 @@ package ru.amra.market.catalog.application;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,12 +26,17 @@ public class ManageCatalogCollections {
     private final EditorialCollectionRepository collections;
     private final CatalogIdGenerator ids;
     private final CatalogIdempotencyStore idempotency;
+    private final CatalogAuditTrail audit;
 
     public ManageCatalogCollections(
-            EditorialCollectionRepository collections, CatalogIdGenerator ids, CatalogIdempotencyStore idempotency) {
+            EditorialCollectionRepository collections,
+            CatalogIdGenerator ids,
+            CatalogIdempotencyStore idempotency,
+            CatalogAuditTrail audit) {
         this.collections = collections;
         this.ids = ids;
         this.idempotency = idempotency;
+        this.audit = audit;
     }
 
     /** Creates a hidden collection or replays the identical caller-scoped command. */
@@ -50,6 +56,13 @@ public class ManageCatalogCollections {
                 command.name(),
                 command.description(),
                 command.displayOrder()));
+        audit.record(
+                "COLLECTION",
+                saved.id().value(),
+                "CREATED",
+                null,
+                saved.version(),
+                Map.of("slug", saved.slug().value(), "status", saved.status().name()));
         idempotency.complete(
                 command.actorScope(), command.idempotencyKey(), saved.id().value());
         return view(saved);
@@ -65,12 +78,24 @@ public class ManageCatalogCollections {
     @Transactional
     public AdminCollectionView update(UpdateCommand command) {
         var current = loadExpected(command.collectionId(), command.expectedVersion());
-        return view(collections.save(current.revise(
+        var saved = collections.save(current.revise(
                 command.slug() == null ? current.slug() : command.slug(),
                 command.name() == null ? current.name() : command.name(),
                 command.description() == null ? current.description() : command.description(),
                 command.status() == null ? current.status() : command.status(),
-                command.displayOrder() == null ? current.displayOrder() : command.displayOrder())));
+                command.displayOrder() == null ? current.displayOrder() : command.displayOrder()));
+        audit.record(
+                "COLLECTION",
+                saved.id().value(),
+                "UPDATED",
+                current.version(),
+                saved.version(),
+                Map.of(
+                        "statusFrom",
+                        current.status().name(),
+                        "statusTo",
+                        saved.status().name()));
+        return view(saved);
     }
 
     /** Atomically replaces ordered membership and deduplicates repeated identifiers. */
@@ -87,6 +112,16 @@ public class ManageCatalogCollections {
         }
         var current = loadExpected(command.collectionId(), command.expectedVersion());
         var saved = collections.save(current.replaceProducts(productIds));
+        audit.record(
+                "COLLECTION",
+                saved.id().value(),
+                "PRODUCTS_REPLACED",
+                current.version(),
+                saved.version(),
+                Map.of(
+                        "previousProductCount",
+                                Integer.toString(current.productIds().size()),
+                        "productCount", Integer.toString(saved.productIds().size())));
         idempotency.complete(
                 command.actorScope(), command.idempotencyKey(), saved.id().value());
         return view(saved);

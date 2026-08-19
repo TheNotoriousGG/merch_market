@@ -1,6 +1,7 @@
 package ru.amra.market.catalog.api;
 
 import static java.util.Objects.requireNonNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -32,9 +34,13 @@ import ru.amra.market.testing.PostgreSqlIntegrationTest;
 class CatalogAdministrationProductApiTests extends PostgreSqlIntegrationTest {
 
     private static final String CSRF_HEADER = "test-csrf-token-123456";
+    private static final String TRACE_ID = "catalog-admin-test-0001";
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JdbcTemplate jdbc;
 
     @Test
     void administersProductVariantMediaAndLifecycleWithRootConcurrency() throws Exception {
@@ -133,6 +139,30 @@ class CatalogAdministrationProductApiTests extends PostgreSqlIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(header().string("ETag", "\"v6\""))
                 .andExpect(jsonPath("$.publishedAt").exists());
+
+        var audit = jdbc.queryForList("""
+                select entity_type, action, actor_scope, safe_diff::text as safe_diff
+                from catalog_audit_events
+                where correlation_id = ?
+                order by occurred_at, id
+                """, TRACE_ID);
+        assertThat(audit).hasSize(9);
+        assertThat(audit)
+                .extracting(row -> row.get("action"))
+                .containsExactly(
+                        "CREATED",
+                        "UPDATED",
+                        "CREATED",
+                        "UPDATED",
+                        "CREATED",
+                        "UPDATED",
+                        "CREATED",
+                        "UPDATED",
+                        "PUBLISHED");
+        assertThat(audit).allSatisfy(row -> {
+            assertThat(row.get("actor_scope")).isEqualTo("catalog-manager-products");
+            assertThat(requireNonNull(row.get("safe_diff")).toString()).doesNotContain("objectKey", "primary.webp");
+        });
     }
 
     @Test
@@ -240,7 +270,10 @@ class CatalogAdministrationProductApiTests extends PostgreSqlIntegrationTest {
 
     private ResultActions unsafe(org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request)
             throws Exception {
-        return mockMvc.perform(request.with(catalogManager()).with(csrf()).header("X-AMRA-CSRF", CSRF_HEADER));
+        return mockMvc.perform(request.with(catalogManager())
+                .with(csrf())
+                .header("X-AMRA-CSRF", CSRF_HEADER)
+                .header("X-Trace-Id", TRACE_ID));
     }
 
     private static UUID idFromLocation(String location) {

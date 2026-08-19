@@ -28,6 +28,13 @@
 - H2 и другие in-memory substitutes не применяются для persistence behaviour.
 - Fresh-container test проверяет Flyway from scratch, повторный no-op migrate, runtime privileges/timeouts, PostgreSQL major и UUIDv7.
 - Controlled checksum mismatch доказывает отказ migration/startup gate при несовместимой истории.
+- Migration tests verify that the catalog audit table grants runtime `SELECT`/`INSERT`, denies `UPDATE`/`DELETE`, and retains its append-only trigger.
+
+## API errors and audit
+
+- Contract tests assert RFC 9457 media type, stable codes, safe details and correlation identifiers for validation, missing/stale preconditions, absence, authentication, authorization and CSRF.
+- Administrative end-to-end tests assert one audit event per committed mutation, no duplicate event on idempotent replay and no object-storage identity in safe diffs.
+- Audit assertions execute against PostgreSQL in the same transaction as MockMvc commands; repository mocks are not accepted evidence for transactional atomicity.
 
 ## Правила doubles
 

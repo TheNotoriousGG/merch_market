@@ -1,6 +1,7 @@
 package ru.amra.market.catalog.application;
 
 import java.util.ArrayList;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.amra.market.catalog.application.port.AdminCategoryReader;
@@ -23,16 +24,19 @@ public class ManageCatalogCategories {
     private final AdminCategoryReader adminReader;
     private final CatalogIdGenerator ids;
     private final CatalogIdempotencyStore idempotency;
+    private final CatalogAuditTrail audit;
 
     public ManageCatalogCategories(
             CategoryRepository categories,
             AdminCategoryReader adminReader,
             CatalogIdGenerator ids,
-            CatalogIdempotencyStore idempotency) {
+            CatalogIdempotencyStore idempotency,
+            CatalogAuditTrail audit) {
         this.categories = categories;
         this.adminReader = adminReader;
         this.ids = ids;
         this.idempotency = idempotency;
+        this.audit = audit;
     }
 
     /** Creates a hidden category or replays an identical caller-scoped command. */
@@ -58,6 +62,13 @@ public class ManageCatalogCategories {
         prospective.add(category);
         new CategoryHierarchy(prospective);
         var saved = categories.save(category);
+        audit.record(
+                "CATEGORY",
+                saved.id().value(),
+                "CREATED",
+                null,
+                saved.version(),
+                Map.of("slug", saved.slug().value(), "status", saved.status().name()));
         idempotency.complete(
                 command.actorScope(), command.idempotencyKey(), saved.id().value());
         return get(saved.id());
@@ -92,7 +103,19 @@ public class ManageCatalogCategories {
         prospective.removeIf(category -> category.id().equals(current.id()));
         prospective.add(changed);
         new CategoryHierarchy(prospective);
-        return get(categories.save(changed).id());
+        var saved = categories.save(changed);
+        audit.record(
+                "CATEGORY",
+                saved.id().value(),
+                "UPDATED",
+                current.version(),
+                saved.version(),
+                Map.of(
+                        "statusFrom",
+                        current.status().name(),
+                        "statusTo",
+                        saved.status().name()));
+        return get(saved.id());
     }
 
     private static AdminCategoryView view(AdminCategoryReader.Snapshot category) {
