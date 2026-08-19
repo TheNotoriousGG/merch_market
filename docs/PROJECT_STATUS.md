@@ -2,6 +2,17 @@
 
 Обновлено: 19 августа 2026 года.
 
+## Короткий ответ
+
+| Область | Состояние |
+| --- | --- |
+| Backend stages 0–8 | Завершены локально и находятся в `main`; GitLab/package publication exceptions перечислены отдельно |
+| Реализованные product slices | Catalog и Inventory |
+| Последний закрытый acceptance | 173 tests, Inventory 12/12, container/client/reproducibility checks |
+| Следующий разрешённый product stage | этап 9 — Customer, favorites и cart |
+| Frontend/backend integration | спроектирована, но frontend всё ещё использует fixtures/`localStorage`; план ожидает утверждения |
+| Production-only решения | platform, Secret Manager, real providers и GitLab activation отложены |
+
 ## Завершено
 
 - Архитектурный опрос и 120 решений.
@@ -20,7 +31,7 @@
 
 ## Текущая точка
 
-Этапы 2–4 завершены и fast-forward слиты в `main`. GitLab activation отложена по ADR-0002 без ослабления локальных gates.
+Этапы 0–8 завершены в локальном workflow и fast-forward слиты в `main`. GitLab activation и package publication отложены по ADR-0002 без ослабления локальных gates; это исключение не разрешает release или deployment.
 
 - `37f6c12 build: enforce formatting and static analysis`;
 - `b0647fd test: establish architecture and mutation testing`;
@@ -39,7 +50,7 @@
 - полный local `clean check` проходит offline; configuration cache повторно используется;
 - контролируемое удаление `GET /api/v1/` отклонено OpenAPI Diff как breaking change.
 
-Этап 5 завершён в `feature/postgresql-foundation`:
+Этап 5 реализован в `feature/postgresql-foundation` и находится в `main`:
 
 - `ed66702 build: establish PostgreSQL persistence runtime`;
 - `74319d0 test: verify PostgreSQL migration boundaries`;
@@ -51,7 +62,7 @@
 - ADR-0004, database conventions и recovery assumptions поддерживают межсессионный контекст;
 - local Compose config, shell syntax и полный offline `qualityGate` проходят успешно.
 
-Этап 6 завершён в `feature/identity-access`:
+Этап 6 реализован в `feature/identity-access` и находится в `main`:
 
 - `46498f3 build: provision identity and session infrastructure`;
 - `39f6d63 feat: enforce backend-managed browser security`;
@@ -129,9 +140,9 @@
 
 GitLab activation остаётся обязательным deferred gate до первого shared remote, release или deployment.
 
-## Следующий этап
+## Завершённый этап 8
 
-Этап 8 выполняется в `feature/inventory`:
+Этап 8 реализован в `feature/inventory` и fast-forward закрыт в `main`:
 
 - утверждён план из 12 logical blocks с отдельными gates и commits;
 - блок 1/12 завершён: ТЗ, ADR-0007, inventory invariants, public/warehouse OpenAPI и module boundaries зафиксированы;
@@ -193,6 +204,21 @@ GitLab activation остаётся обязательным deferred gate до �
 - модель использует `on_hand`, `reserved`, вычисляемое `available`, immutable physical movement ledger и all-or-nothing reservations;
 - public contract раскрывает только `IN_STOCK/OUT_OF_STOCK`; exact quantities остаются warehouse/internal data;
 - исходное ТЗ находится в `docs/requirements/INVENTORY_VERTICAL_SLICE.md`.
+
+## Следующий разрешённый этап
+
+Этап 9 — Customer, favorites и cart — выполняется только после отдельного утверждения contract/invariants в `feature/customer-cart`. Product implementation ещё не начат.
+
+До его начала подготовлен проект [плана frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Он фиксирует, что:
+
+- frontend пока не вызывает backend и продолжает использовать product/profile fixtures и `localStorage`;
+- Catalog/Search/Inventory можно подключать отдельным frontend slice после contract delivery и local seed;
+- полноценные favorites/cart/profile требуют этапа 9, цены — этапа 10, checkout/orders — этапа 11, returns/integration flows — этапа 12;
+- текущий frontend build успешен, но два starter-skeleton test устарели и `npm audit` показывает 20 dependency findings; cleanup входит в первый frontend integration block;
+- local identity/data/media bootstrap и full-stack developer workflow являются обязательными integration gates;
+- сам план ожидает утверждения владельцем и не разрешает начать business implementation.
+
+Результаты проверки контекстных файлов и найденные contract/frontend gaps находятся в [CONTEXT_AUDIT.md](integration/CONTEXT_AUDIT.md).
 
 ## Отложено до production readiness
 

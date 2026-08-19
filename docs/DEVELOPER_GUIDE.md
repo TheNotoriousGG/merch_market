@@ -42,6 +42,8 @@
 
 Следующий разрешённый этап всегда определяется в [PROJECT_STATUS](PROJECT_STATUS.md), а не по наличию package.
 
+Отдельный frontend пока не интегрирован: product/profile data остаются fixtures, а cart/favorites — device-local `localStorage`. Фактические blockers и последовательность замены описаны в [аудите контекста](integration/CONTEXT_AUDIT.md) и [плане frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Наличие готового Catalog/Inventory API не означает готовность profile, price, cart или checkout flows.
+
 ## 3. Технологический baseline
 
 | Область | Выбор | Причина |
@@ -95,6 +97,8 @@ set -a && . ./.env && set +a
 - discovery: `GET /api/v1/`.
 
 Local realm не содержит production-пользователей. Keycloak import — bootstrap, не backup и не reconciliation mechanism.
+
+Этот раздел поднимает backend infrastructure и приложение. Он ещё не является полным storefront workflow: local identity provisioning, demo seed/media и frontend generated-client wiring входят в отдельный [integration plan](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md).
 
 ### 4.3 Минимальная проверка без ручного запуска
 
@@ -803,3 +807,5 @@ GitLab activation отложена ADR-0002, но local-only режим не о�
 | Local/CI delivery | [GITLAB_DELIVERY](operations/GITLAB_DELIVERY.md) |
 | Catalog release acceptance | [CATALOG_RELEASE_CHECKLIST](catalog/CATALOG_RELEASE_CHECKLIST.md) |
 | Inventory release acceptance | [INVENTORY_RELEASE_CHECKLIST](inventory/INVENTORY_RELEASE_CHECKLIST.md) |
+| Аудит контекстных файлов | [CONTEXT_AUDIT](integration/CONTEXT_AUDIT.md) |
+| План frontend/backend-интеграции | [FRONTEND_BACKEND_INTEGRATION_PLAN](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md) |

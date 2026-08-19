@@ -4,6 +4,8 @@
 
 Проект инициализирован и развивается последовательными short-lived feature-ветками. Новый разработчик начинает с полного [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md). Принятые решения находятся в [реестре решений](docs/DECISION_REGISTER.md), инженерные правила — в [ENGINEERING_CHARTER.md](docs/ENGINEERING_CHARTER.md), системный контекст — в [SYSTEM_CONTEXT.md](docs/architecture/SYSTEM_CONTEXT.md), последовательность этапов и gates — в [IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
 
+Текущее состояние: platform, identity/access, Catalog и Inventory завершены; следующим разрешён этап Customer/Favorites/Cart. Frontend пока остаётся прототипом на fixtures и `localStorage`, поэтому команды ниже поднимают backend и infrastructure, а не готовый full-stack магазин. Последовательность полноценного соединения проектов находится в [плане frontend/backend-интеграции](docs/integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md), результаты проверки контекста — в [аудите](docs/integration/CONTEXT_AUDIT.md).
+
 ## Зафиксированная база
 
 - Java 25;
@@ -61,6 +63,8 @@ set -a && . ./.env && set +a
 `amra_owner` используется только bootstrap-контейнером, `amra_migrator` — Flyway, `amra_runtime` — приложением. Соглашения описаны в [DATABASE_CONVENTIONS.md](docs/persistence/DATABASE_CONVENTIONS.md), recovery assumptions — в [DATABASE_RECOVERY.md](docs/operations/DATABASE_RECOVERY.md).
 
 Локальный Keycloak доступен на `http://localhost:8081`, использует отдельную PostgreSQL и импортирует realm `amra-shop` без тестовых пользователей. Авторизация начинается с `/oauth2/authorization/keycloak`; состояние браузерной сессии доступно по `GET /api/v1/session`. Контракт ролей, MFA, CSRF, CORS и отзыва сессий описан в [IDENTITY_ACCESS.md](docs/security/IDENTITY_ACCESS.md).
+
+Воспроизводимые local users, catalog/inventory seed, media fixtures, frontend API client и единый full-stack start ещё не реализованы. Они являются отдельными gates интеграционного плана; README не выдаёт ручную тестовую настройку за готовый workflow.
 
 Container build и обязательные GitLab project settings описаны в [GITLAB_DELIVERY.md](docs/operations/GITLAB_DELIVERY.md). Подключение GitLab remote/runner и registry временно отложено по ADR-0002; локальные gates и container checks остаются обязательными.
 

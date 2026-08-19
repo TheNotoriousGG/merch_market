@@ -6,6 +6,24 @@
 
 План состоит из последовательных gates. Следующий этап не начинается, пока критерии выхода предыдущего не выполнены. Временное исключение local-only GitLab activation описано ADR-0002 и не распространяется на release/deployment. Каждый этап после initial commit выполняется в отдельной short-lived feature-ветке и завершается документацией, проверками и logical Conventional Commits.
 
+## Сводный прогресс
+
+| Этап | Статус | Примечание |
+| --- | --- | --- |
+| 0. Architecture baseline | Завершён | P0 закрыты, baseline и ADR-0001 утверждены |
+| 1. Инициализация | Завершён | initial commit создан в `main` |
+| 2. Engineering foundation | Завершён | quality/test/architecture gates находятся в `main` |
+| 3. GitLab CI и supply chain | Локальная часть завершена | remote/runner/registry activation отложена ADR-0002 до shared remote/release/deployment |
+| 4. OpenAPI foundation | Завершён локально | generation/compatibility/artifact gates работают; package publication отложена ADR-0002 |
+| 5. PostgreSQL foundation | Завершён | Flyway/roles/Testcontainers foundation находится в `main` |
+| 6. Identity/access | Завершён | OIDC/session/security foundation находится в `main` |
+| 7. Catalog | Завершён | 12/12, release acceptance и merge в `main` |
+| 8. Inventory | Завершён | 12/12, release acceptance и merge в `main` |
+| 9. Customer, favorites и cart | Следующий разрешённый | product implementation ещё не начат |
+| 10–15 | Ожидают | начинаются только после gate предыдущего этапа |
+
+Параллельное состояние frontend и последовательность замены fixtures зафиксированы в [плане frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Этот integration track не меняет порядок backend stages и не разрешает подменять отсутствующий backend-модуль временной business logic во frontend.
+
 ## Этап 0. Architecture baseline — до Git init
 
 - Проверить соответствие `ENGINEERING_CHARTER.md` и `DECISION_REGISTER.md` утверждённым решениям.
@@ -225,6 +243,21 @@ Commit: `chore: initialize backend project`.
 - Runbooks: deploy, migration, rollback, incident, backup/restore, session/key rotation.
 
 Выход: production-readiness checklist утверждён; release candidate использует тот же image, что прошёл staging.
+
+## Межпроектный integration track
+
+Интеграция storefront выполняется инкрементально после появления соответствующего backend contract:
+
+1. синхронизация контекста и generated TypeScript client;
+2. воспроизводимый local stack, identity/data/media bootstrap;
+3. Catalog/Search/Inventory во frontend;
+4. Customer/Favorites/Cart после этапа 9;
+5. Pricing/Promotions после этапа 10;
+6. Checkout/Orders после этапа 11;
+7. Returns/Fake integrations после этапа 12;
+8. full-stack acceptance и единый local developer workflow.
+
+Полные gates, blockers и Definition of Done находятся в [FRONTEND_BACKEND_INTEGRATION_PLAN.md](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). План имеет статус проекта до отдельного утверждения владельцем.
 
 ## Git-ритм каждого этапа
 
