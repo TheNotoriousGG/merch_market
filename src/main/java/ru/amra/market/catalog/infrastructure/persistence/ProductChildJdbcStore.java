@@ -258,6 +258,17 @@ class ProductChildJdbcStore {
                     "delete from catalog_product_media where product_id = ? and id not in (" + placeholders + ")",
                     arguments.toArray());
         }
+        var desiredPrimary = product.media().stream().filter(ProductMedia::primary).findFirst();
+        if (desiredPrimary.isPresent()) {
+            jdbc.update(
+                    "update catalog_product_media set is_primary = false where product_id = ? and is_primary and id <> ?",
+                    product.id().value(),
+                    desiredPrimary.orElseThrow().id().value());
+        } else {
+            jdbc.update(
+                    "update catalog_product_media set is_primary = false where product_id = ? and is_primary",
+                    product.id().value());
+        }
         for (var media : product.media()) {
             var stored = findMedia(media.id());
             if (stored.isEmpty()) {
