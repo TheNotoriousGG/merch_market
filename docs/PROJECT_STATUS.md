@@ -219,6 +219,8 @@ SPA CSRF contract явно использует plain cookie/header request hand
 
 Локальный Keycloak client `amra-backend` имеет явный realm-role mapper для ID token, access token и userinfo; backend session получает allowlisted RBAC roles из `realm_access.roles`, а не доверяет frontend.
 
+Допустимые admin MFA ACR values конфигурируются через `AMRA_ADMIN_MFA_ACR_VALUES`: secure default принимает только `2`, а local Compose явно разрешает dev-level `0,1,2` для отладки без настройки MFA flow.
+
 До его начала подготовлен проект [плана frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Он фиксирует, что:
 
 - frontend пока не вызывает backend и продолжает использовать product/profile fixtures и `localStorage`;

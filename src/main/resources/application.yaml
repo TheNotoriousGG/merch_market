@@ -92,7 +92,7 @@ amra:
     customer-absolute-timeout: 30d
     admin-idle-timeout: 15m
     admin-absolute-timeout: 8h
-    admin-mfa-acr-values: "2"
+    admin-mfa-acr-values: ${AMRA_ADMIN_MFA_ACR_VALUES:2}
 
 management:
   endpoints:
