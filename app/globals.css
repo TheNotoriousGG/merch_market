@@ -17,12 +17,6 @@
 .mobile-toggle { display:none; }
 .mega-panel { position:absolute; top:76px; right:0; left:0; background:white; border-top:1px solid #eeeeec; box-shadow:0 22px 45px rgba(22,25,29,.1); animation:reveal .18s ease-out; }
 .mega-content { display:grid; grid-template-columns:1fr 1fr 1.25fr; gap:70px; width:min(1120px,91vw); margin:0 auto; padding:32px 0 36px; }
-.menu-column { display:flex; flex-direction:column; gap:12px; }
-.menu-column p { margin:0 0 3px; color:#8b8f94; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-.menu-column a { width:fit-content; font-size:16px; line-height:1.35; } .menu-column a:hover { opacity:.55; }
-.menu-feature { position:relative; min-height:162px; padding:24px; border-radius:22px; overflow:hidden; cursor:default; }
-.menu-feature span { display:block; margin-bottom:12px; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
-.menu-feature strong { display:block; max-width:230px; font-size:24px; line-height:1.05; letter-spacing:-.8px; }
 .hero { min-height:570px; display:grid; grid-template-columns:.85fr 1.15fr; overflow:hidden; background:#f1efe9; }
 .hero-copy { display:flex; flex-direction:column; justify-content:center; padding:70px 7vw; }
 .hero-label { width:fit-content; padding:8px 12px; background:white; border-radius:99px; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
@@ -138,8 +132,7 @@ article h3 { margin:16px 0 6px; font-size:17px; } article p { margin:0; color:#6
 .menu-icon { display:grid; place-items:center; width:44px; height:40px; color:#ffe166; background:#41403b; border:1px solid rgba(255,225,102,.12); border-radius:13px; font-size:20px; font-weight:700; }
 .hero .menu-nav button>span:last-child { font-size:12px; }
 .hero .mega-panel { top:calc(100% + 12px); left:50%; right:auto; width:min(880px,92vw); transform:translateX(-50%); border:1px solid #ececea; border-radius:24px; box-shadow:0 26px 70px rgba(22,25,29,.18); overflow:hidden; }
-.hero .mega-content { width:100%; grid-template-columns:1fr 1fr 1.2fr; gap:44px; padding:28px; text-align:left; }
-.hero .menu-feature { min-height:150px; }
+.hero .mega-content { width:100%; padding:28px; text-align:left; }
 
 @media (max-width:760px) {
   .site-header { grid-template-columns:1fr auto; }
@@ -153,8 +146,7 @@ article h3 { margin:16px 0 6px; font-size:17px; } article p { margin:0; color:#6
   .hero .menu-nav button>span:last-child { max-width:72px; overflow:hidden; text-overflow:ellipsis; }
   .menu-icon { width:38px; height:36px; }
   .hero .mega-panel { top:auto; right:12px; bottom:18px; left:12px; width:auto; transform:none; border-radius:21px; }
-  .hero .mega-content { grid-template-columns:1fr 1fr; max-height:46vh; gap:24px; padding:22px; }
-  .hero .menu-feature { display:none; }
+  .hero .mega-content { max-height:46vh; padding:22px; }
 }
 
 /* Плотная светлая капсула — финальная геометрия мегабара */
@@ -538,14 +530,19 @@ a:hover>.link-arrow { background:#ffe45b; transform:translateX(2px); }
 .mega-panel-head span { display:block; margin-bottom:7px; color:#8b8e94; font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
 .mega-panel-head h2 { margin:0; font-size:32px; line-height:1; letter-spacing:-1.7px; }
 .mega-panel-head>a { display:inline-flex; align-items:center; gap:10px; min-height:32px; border:0; font-size:15px; line-height:1; font-weight:700; }.mega-panel-head>a .link-arrow { display:grid; place-items:center; flex:0 0 29px; width:29px; height:29px; margin:0; border-radius:9px; }.mega-panel-head>a .arrow-icon { display:block; margin:0; }
-.hero .mega-content { grid-template-columns:minmax(0,1fr) 280px; gap:36px; padding:24px 30px 28px; }
-.mega-columns { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:32px; }
-.hero .menu-column { gap:9px; }.hero .menu-column p { margin-bottom:5px; font-size:10px; }.hero .menu-column a { font-size:14px; line-height:1.35; }
-.hero .menu-feature { display:flex; align-items:flex-end; min-height:154px; padding:22px; }.hero .menu-feature strong { font-size:22px; }
+.hero .mega-content { display:block; padding:24px 30px 28px; }
+.mega-category-links { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.mega-category-links a { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:54px; padding:12px 15px; background:#f7f7f4; border:1px solid transparent; border-radius:14px; font-size:14px; font-weight:650; line-height:1.25; transition:background .18s ease,border-color .18s ease,transform .18s ease; }
+.mega-category-links a::after { content:"\2192"; flex:0 0 auto; color:#777b81; font-size:17px; transition:transform .18s ease,color .18s ease; }
+.mega-category-links a:hover { background:#fff8cf; border-color:#f0d85f; transform:translateY(-1px); }
+.mega-category-links a:hover::after { color:#202226; transform:translateX(2px); }
 @keyframes mega-panel-in { from { opacity:0; transform:translate(-50%,9px); } to { opacity:1; transform:translate(-50%,0); } }
 @media (max-width:760px) {
   .hero .mega-panel { top:auto; right:0; bottom:calc(100% + 10px); left:0; width:100%; transform:none; animation:none; }
-  .mega-panel-head { padding:20px; }.hero .mega-content { grid-template-columns:1fr; padding:20px; }.mega-columns { grid-template-columns:1fr 1fr; }.hero .menu-feature { display:none; }
+  .mega-panel-head { padding:20px; }.hero .mega-content { padding:20px; }.mega-category-links { grid-template-columns:1fr 1fr; }
+}
+@media (max-width:520px) {
+  .mega-category-links { grid-template-columns:1fr; }
 }
 .new-products { scroll-margin-top:70px; padding-top:86px; background:#fff; }
 .new-products .section-heading { align-items:flex-end; margin-bottom:31px; }

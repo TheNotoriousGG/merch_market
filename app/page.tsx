@@ -14,7 +14,6 @@ type MenuKey = string;
 type MenuItem = {
   id: MenuKey; label: string; icon: string;
   columns: Array<{ title: string; links: string[] }>;
-  feature?: { eyebrow: string; title: string; color: string };
 };
 
 const fallbackMenu: MenuItem[] = [
@@ -22,19 +21,19 @@ const fallbackMenu: MenuItem[] = [
     { title: "Основное", links: ["Вся одежда", "Футболки и поло", "Лонгсливы", "Рубашки"] },
     { title: "Тёплый слой", links: ["Свитшоты и олимпийки", "Толстовки", "Худи"] },
     { title: "Низ и костюмы", links: ["Блейзеры и пиджаки", "Брюки и шорты", "Носки"] },
-  ], feature: { eyebrow: "База", title: "Комфорт на каждый день", color: "#bde9dc" } },
+  ] },
   { id: "accessories", label: "Аксессуары", icon: "watch", columns: [
     { title: "С собой", links: ["Все аксессуары", "Картхолдеры", "Рюкзаки и сумки", "Косметички"] },
     { title: "Для деталей", links: ["Брелоки", "Бутылки и кружки", "Головные уборы", "Зонты"] },
-  ], feature: { eyebrow: "2 = 1", title: "Брелоки с платёжным чипом", color: "#c8d8ff" } },
+  ] },
   { id: "bags", label: "Сумки", icon: "bag", columns: [
     { title: "Сумки", links: ["Все сумки", "Шоперы", "Рюкзаки", "Сумки через плечо"] },
     { title: "Для техники", links: ["Чехлы для ноутбука", "Органайзеры", "Косметички"] },
-  ], feature: { eyebrow: "Новинка", title: "Вместится всё важное", color: "#f4c9ce" } },
+  ] },
   { id: "pants", label: "Брюки", icon: "pants", columns: [
     { title: "Брюки", links: ["Все брюки", "Джоггеры", "Классические брюки"] },
     { title: "Шорты", links: ["Повседневные", "Спортивные", "Домашние"] },
-  ], feature: { eyebrow: "Новая база", title: "Свободный крой на каждый день", color: "#fee45a" } },
+  ] },
 ];
 
 const products: Array<{
@@ -157,7 +156,6 @@ export default function Home() {
           label: category.name,
           icon: presentation?.icon ?? "shirt",
           columns: menuColumns(category.children),
-          feature: presentation?.feature,
         };
       }));
     }).catch(() => setMenu(fallbackMenu));
@@ -246,13 +244,11 @@ export default function Home() {
               <a href={catalogHref(activeItem.id)}>Смотреть всё<LinkArrow /></a>
             </header>
             <div className="mega-content">
-              <div className="mega-columns">{activeItem.columns.map((column) => <div className="menu-column" key={column.title}>
-                <p>{column.title}</p>
-                {column.links.map((link) => <a href={catalogHref(activeItem.id, link)} key={link}>{link}</a>)}
-              </div>)}</div>
-              {activeItem.feature && <aside className="menu-feature" style={{ background: activeItem.feature.color }} aria-label={activeItem.feature.title}>
-                <strong>{activeItem.feature.title}</strong>
-              </aside>}
+              <nav className="mega-category-links" aria-label={`Подкатегории раздела ${activeItem.label}`}>
+                {activeItem.columns.flatMap((column) => column.links).map((link) => (
+                  <a href={catalogHref(activeItem.id, link)} key={link}>{link}</a>
+                ))}
+              </nav>
             </div>
           </section>}
         </div>
