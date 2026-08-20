@@ -3,6 +3,7 @@ package ru.amra.market.catalog.application.port;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import ru.amra.market.catalog.application.CatalogProductListCriteria;
 import ru.amra.market.catalog.domain.AttributeType;
 
@@ -24,6 +25,7 @@ public interface CatalogProductListReader {
             String slug,
             String name,
             String shortDescription,
+            @Nullable Long priceMinor,
             Instant publishedAt,
             MediaRecord primaryMedia,
             List<VariantOptionRecord> variantOptions) {

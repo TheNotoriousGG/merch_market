@@ -22,6 +22,7 @@ public final class Product {
     private final ProductSlug slug;
     private final Set<ProductSlug> aliases;
     private final ProductContent content;
+    private final @Nullable ProductPrice price;
     private final ProductStatus status;
     private final CategoryId primaryCategoryId;
     private final Set<CategoryId> categoryIds;
@@ -38,6 +39,7 @@ public final class Product {
             ProductSlug slug,
             Set<ProductSlug> aliases,
             ProductContent content,
+            @Nullable ProductPrice price,
             ProductStatus status,
             CategoryId primaryCategoryId,
             Set<CategoryId> categoryIds,
@@ -55,6 +57,7 @@ public final class Product {
             throw new ProductInvariantViolation(ProductInvariant.SLUG_REUSE, "Canonical slug cannot also be an alias");
         }
         this.content = content;
+        this.price = price;
         if (status == null) {
             throw invalidTransition("Product status must not be null");
         }
@@ -96,11 +99,24 @@ public final class Product {
             Set<CategoryId> categoryIds,
             Set<CollectionId> collectionIds,
             List<AttributeValue> characteristics) {
+        return create(id, slug, content, null, primaryCategoryId, categoryIds, collectionIds, characteristics);
+    }
+
+    public static Product create(
+            ProductId id,
+            ProductSlug slug,
+            ProductContent content,
+            @Nullable ProductPrice price,
+            CategoryId primaryCategoryId,
+            Set<CategoryId> categoryIds,
+            Set<CollectionId> collectionIds,
+            List<AttributeValue> characteristics) {
         return new Product(
                 id,
                 slug,
                 Set.of(),
                 content,
+                price,
                 ProductStatus.DRAFT,
                 primaryCategoryId,
                 categoryIds,
@@ -119,6 +135,7 @@ public final class Product {
             ProductSlug slug,
             Set<ProductSlug> aliases,
             ProductContent content,
+            @Nullable ProductPrice price,
             ProductStatus status,
             CategoryId primaryCategoryId,
             Set<CategoryId> categoryIds,
@@ -134,6 +151,7 @@ public final class Product {
                 slug,
                 aliases,
                 content,
+                price,
                 status,
                 primaryCategoryId,
                 categoryIds,
@@ -151,8 +169,18 @@ public final class Product {
             ProductId id, ProductSlug slug, Set<ProductSlug> aliases, ProductContent content, ProductStatus status,
             CategoryId primaryCategoryId, Set<CategoryId> categoryIds, Set<CollectionId> collectionIds,
             List<AttributeValue> characteristics, List<ProductVariant> variants, List<ProductMedia> media,
+            ProductMerchandising merchandising, @Nullable Instant publishedAt, long version) {
+        return restore(id, slug, aliases, content, null, status, primaryCategoryId, categoryIds, collectionIds,
+                characteristics, variants, media, merchandising, publishedAt, version);
+    }
+
+    /** Backwards-compatible persistence/test restoration for products without merchandising data. */
+    public static Product restore(
+            ProductId id, ProductSlug slug, Set<ProductSlug> aliases, ProductContent content, ProductStatus status,
+            CategoryId primaryCategoryId, Set<CategoryId> categoryIds, Set<CollectionId> collectionIds,
+            List<AttributeValue> characteristics, List<ProductVariant> variants, List<ProductMedia> media,
             @Nullable Instant publishedAt, long version) {
-        return restore(id, slug, aliases, content, status, primaryCategoryId, categoryIds, collectionIds,
+        return restore(id, slug, aliases, content, null, status, primaryCategoryId, categoryIds, collectionIds,
                 characteristics, variants, media, ProductMerchandising.none(), publishedAt, version);
     }
 
@@ -191,7 +219,7 @@ public final class Product {
             Set<CollectionId> newCollectionIds,
             List<AttributeValue> newCharacteristics) {
         return revise(newSlug, newContent, newPrimaryCategoryId, newCategoryIds, newCollectionIds,
-                newCharacteristics, merchandising);
+                newCharacteristics, merchandising, price);
     }
 
     public Product revise(
@@ -202,6 +230,19 @@ public final class Product {
             Set<CollectionId> newCollectionIds,
             List<AttributeValue> newCharacteristics,
             ProductMerchandising newMerchandising) {
+        return revise(newSlug, newContent, newPrimaryCategoryId, newCategoryIds, newCollectionIds,
+                newCharacteristics, newMerchandising, price);
+    }
+
+    public Product revise(
+            ProductSlug newSlug,
+            ProductContent newContent,
+            CategoryId newPrimaryCategoryId,
+            Set<CategoryId> newCategoryIds,
+            Set<CollectionId> newCollectionIds,
+            List<AttributeValue> newCharacteristics,
+            ProductMerchandising newMerchandising,
+            @Nullable ProductPrice newPrice) {
         requireMutable();
         var newAliases = new HashSet<>(aliases);
         if (!slug.equals(newSlug)) {
@@ -217,10 +258,11 @@ public final class Product {
                 && categoryIds.equals(newCategoryIds)
                 && collectionIds.equals(newCollectionIds)
                 && characteristics.equals(newCharacteristics)
-                && merchandising.equals(newMerchandising)) {
+                && merchandising.equals(newMerchandising)
+                && Objects.equals(price, newPrice)) {
             return this;
         }
-        return new Product(id, newSlug, newAliases, newContent, status, newPrimaryCategoryId, newCategoryIds,
+        return new Product(id, newSlug, newAliases, newContent, newPrice, status, newPrimaryCategoryId, newCategoryIds,
                 newCollectionIds, newCharacteristics, variants, media, newMerchandising, publishedAt, version + 1);
     }
 
@@ -247,7 +289,7 @@ public final class Product {
     public Product reviseMerchandising(ProductMerchandising newMerchandising) {
         requireMutable();
         if (merchandising.equals(newMerchandising)) return this;
-        return new Product(id, slug, aliases, content, status, primaryCategoryId, categoryIds, collectionIds,
+        return new Product(id, slug, aliases, content, price, status, primaryCategoryId, categoryIds, collectionIds,
                 characteristics, variants, media, newMerchandising, publishedAt, version + 1);
     }
 
@@ -445,6 +487,9 @@ public final class Product {
         if (media.stream().noneMatch(ProductMedia::primary)) {
             violations.add("Exactly one primary image with alt text is required");
         }
+        if (price == null) {
+            violations.add("Product price is required");
+        }
         return List.copyOf(violations);
     }
 
@@ -462,6 +507,10 @@ public final class Product {
 
     public ProductContent content() {
         return content;
+    }
+
+    public Optional<ProductPrice> price() {
+        return Optional.ofNullable(price);
     }
 
     public ProductStatus status() {
@@ -521,6 +570,7 @@ public final class Product {
                 newSlug,
                 newAliases,
                 newContent,
+                price,
                 newStatus,
                 newPrimaryCategoryId,
                 newCategoryIds,

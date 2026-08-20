@@ -66,6 +66,7 @@ public class ListCatalogProducts {
                 product.slug(),
                 product.name(),
                 product.shortDescription(),
+                product.priceMinor(),
                 publicMedia,
                 product.publishedAt(),
                 options);
@@ -83,6 +84,7 @@ public class ListCatalogProducts {
                     .add(item.slug())
                     .add(item.name())
                     .add(item.shortDescription())
+                    .add(item.priceMinor() == null ? 0 : item.priceMinor())
                     .add(item.publishedAt());
             var media = item.primaryMedia();
             hash.add(media.id())

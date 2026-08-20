@@ -42,6 +42,7 @@ import ru.amra.market.catalog.domain.MediaId;
 import ru.amra.market.catalog.domain.ProductContent;
 import ru.amra.market.catalog.domain.ProductId;
 import ru.amra.market.catalog.domain.ProductMerchandising;
+import ru.amra.market.catalog.domain.ProductPrice;
 import ru.amra.market.catalog.domain.ProductInvariantViolation;
 import ru.amra.market.catalog.domain.ProductSlug;
 import ru.amra.market.catalog.domain.Sku;
@@ -240,6 +241,7 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                             requireNonNull(request.getName()),
                             requireNonNull(request.getShortDescription()),
                             requireNonNull(request.getDescription())),
+                    new ProductPrice(requireNonNull(request.getPriceMinor())),
                     new CategoryId(requireNonNull(request.getPrimaryCategoryId())),
                     CatalogAdministrationDtoMapper.categories(requireNonNull(request.getCategoryIds())),
                     CatalogAdministrationDtoMapper.collections(request.getCollectionIds()),
@@ -273,6 +275,7 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                     request.getName(),
                     request.getShortDescription(),
                     request.getDescription(),
+                    request.getPriceMinor() == null ? null : new ProductPrice(request.getPriceMinor()),
                     request.getPrimaryCategoryId() == null ? null : new CategoryId(request.getPrimaryCategoryId()),
                     request.getCategoryIds() == null
                             ? null

@@ -7,6 +7,7 @@ properties:
   name: {type: string, minLength: 1, maxLength: 200}
   shortDescription: {type: string, minLength: 1, maxLength: 500}
   description: {type: string, minLength: 1, maxLength: 10000}
+  priceMinor: {type: integer, format: int64, minimum: 1, description: Selling price in kopecks.}
   primaryCategoryId: {type: string, format: uuid}
   categoryIds:
     type: array

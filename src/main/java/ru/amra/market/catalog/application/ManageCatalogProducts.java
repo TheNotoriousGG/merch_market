@@ -24,6 +24,7 @@ import ru.amra.market.catalog.domain.ProductInvariant;
 import ru.amra.market.catalog.domain.ProductInvariantViolation;
 import ru.amra.market.catalog.domain.ProductMedia;
 import ru.amra.market.catalog.domain.ProductMerchandising;
+import ru.amra.market.catalog.domain.ProductPrice;
 import ru.amra.market.catalog.domain.ProductSlug;
 import ru.amra.market.catalog.domain.ProductStatus;
 import ru.amra.market.catalog.domain.ProductVariant;
@@ -83,6 +84,7 @@ public class ManageCatalogProducts {
                 new ProductId(ids.next()),
                 command.slug(),
                 command.content(),
+                command.price(),
                 command.primaryCategoryId(),
                 command.categoryIds(),
                 command.collectionIds(),
@@ -121,7 +123,8 @@ public class ManageCatalogProducts {
                 command.categoryIds() == null ? current.categoryIds() : command.categoryIds(),
                 command.collectionIds() == null ? current.collectionIds() : command.collectionIds(),
                 command.characteristics() == null ? current.characteristics() : command.characteristics(),
-                command.merchandising() == null ? current.merchandising() : command.merchandising());
+                command.merchandising() == null ? current.merchandising() : command.merchandising(),
+                command.price() == null ? current.price().orElse(null) : command.price());
         ensureActiveProductRemainsPublishable(changed);
         var saved = products.save(changed);
         audit.record(
@@ -383,6 +386,7 @@ public class ManageCatalogProducts {
                         new RepresentationHasher(),
                         command.slug(),
                         command.content(),
+                        command.price(),
                         command.primaryCategoryId(),
                         command.categoryIds(),
                         command.collectionIds(),
@@ -431,6 +435,7 @@ public class ManageCatalogProducts {
             RepresentationHasher hash,
             ProductSlug slug,
             ProductContent content,
+            ProductPrice price,
             CategoryId primaryCategoryId,
             Set<CategoryId> categoryIds,
             Set<CollectionId> collectionIds,
@@ -439,6 +444,7 @@ public class ManageCatalogProducts {
                 .add(content.name())
                 .add(content.shortDescription())
                 .add(content.description())
+                .add(price.minorUnits())
                 .add(primaryCategoryId.value());
         categoryIds.stream().map(CategoryId::value).sorted().forEach(hash::add);
         collectionIds.stream().map(CollectionId::value).sorted().forEach(hash::add);
@@ -481,6 +487,7 @@ public class ManageCatalogProducts {
     public record CreateCommand(
             ProductSlug slug,
             ProductContent content,
+            ProductPrice price,
             CategoryId primaryCategoryId,
             Set<CategoryId> categoryIds,
             Set<CollectionId> collectionIds,
@@ -495,6 +502,7 @@ public class ManageCatalogProducts {
             @Nullable String name,
             @Nullable String shortDescription,
             @Nullable String description,
+            @Nullable ProductPrice price,
             @Nullable CategoryId primaryCategoryId,
             @Nullable Set<CategoryId> categoryIds,
             @Nullable Set<CollectionId> collectionIds,

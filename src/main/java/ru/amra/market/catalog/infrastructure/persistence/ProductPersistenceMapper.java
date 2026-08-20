@@ -5,6 +5,7 @@ import ru.amra.market.catalog.domain.Product;
 import ru.amra.market.catalog.domain.ProductContent;
 import ru.amra.market.catalog.domain.ProductId;
 import ru.amra.market.catalog.domain.ProductMerchandising;
+import ru.amra.market.catalog.domain.ProductPrice;
 import ru.amra.market.catalog.domain.ProductSlug;
 
 final class ProductPersistenceMapper {
@@ -17,6 +18,7 @@ final class ProductPersistenceMapper {
                 new ProductSlug(entity.canonicalSlug()),
                 children.aliases(),
                 new ProductContent(entity.name(), entity.shortDescription(), entity.description()),
+                entity.priceMinor() == null ? null : new ProductPrice(entity.priceMinor()),
                 entity.status(),
                 new CategoryId(entity.primaryCategoryId()),
                 children.categoryIds(),

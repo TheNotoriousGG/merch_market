@@ -145,9 +145,11 @@ public final class CatalogApiController implements CatalogApi {
                 item.slug(),
                 item.name(),
                 item.shortDescription(),
+                CatalogProductSummaryDto.CurrencyEnum.RUB,
                 toDto(item.primaryMedia()),
                 item.publishedAt(),
-                item.variantOptions().stream().map(CatalogApiController::toDto).toList());
+                item.variantOptions().stream().map(CatalogApiController::toDto).toList())
+                .priceMinor(item.priceMinor());
     }
 
     private static CatalogVariantOptionDto toDto(CatalogProductPage.VariantOption option) {

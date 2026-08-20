@@ -14,6 +14,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.jspecify.annotations.Nullable;
 import ru.amra.market.catalog.domain.Product;
 import ru.amra.market.catalog.domain.ProductStatus;
+import ru.amra.market.catalog.domain.ProductPrice;
 
 @Entity
 @Table(name = "catalog_products")
@@ -44,6 +45,9 @@ class ProductJpaEntity {
 
     @Column(name = "published_at")
     private @Nullable Instant publishedAt;
+
+    @Column(name = "price_minor")
+    private @Nullable Long priceMinor;
 
     @Column(name = "new_arrival", nullable = false)
     private boolean newArrival;
@@ -84,6 +88,7 @@ class ProductJpaEntity {
         status = product.status();
         primaryCategoryId = product.primaryCategoryId().value();
         publishedAt = product.publishedAt().orElse(null);
+        priceMinor = product.price().map(ProductPrice::minorUnits).orElse(null);
         newArrival = product.merchandising().newArrival();
         newUntil = product.merchandising().newUntil();
         onSale = product.merchandising().onSale();
@@ -122,6 +127,8 @@ class ProductJpaEntity {
     @Nullable Instant publishedAt() {
         return publishedAt;
     }
+
+    @Nullable Long priceMinor() { return priceMinor; }
 
     boolean newArrival() { return newArrival; }
     @Nullable Instant newUntil() { return newUntil; }

@@ -47,6 +47,7 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                    product.canonical_slug,
                    product.name,
                    product.short_description,
+                   product.price_minor,
                    product.published_at,
                    media.id as media_id,
                    media.object_key,
@@ -113,6 +114,7 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                         product.slug(),
                         product.name(),
                         product.shortDescription(),
+                        product.priceMinor(),
                         product.publishedAt(),
                         product.media(),
                         options.getOrDefault(product.id(), List.of())))
@@ -153,6 +155,7 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                 requireNonNull(resultSet.getString("canonical_slug")),
                 requireNonNull(resultSet.getString("name")),
                 requireNonNull(resultSet.getString("short_description")),
+                resultSet.getObject("price_minor", Long.class),
                 requireNonNull(resultSet.getTimestamp("published_at")).toInstant(),
                 media);
     }
@@ -272,7 +275,7 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
     private record SqlQuery(String cte, String relation, String orderBy, MapSqlParameterSource parameters) {}
 
     private record ProductBaseRow(
-            UUID id, String slug, String name, String shortDescription, Instant publishedAt, MediaRecord media) {}
+            UUID id, String slug, String name, String shortDescription, Long priceMinor, Instant publishedAt, MediaRecord media) {}
 
     private static final class OptionAccumulator {
 

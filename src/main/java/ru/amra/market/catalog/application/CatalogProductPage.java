@@ -20,6 +20,7 @@ public record CatalogProductPage(List<Item> items, Metadata page, String etag) {
             String slug,
             String name,
             String shortDescription,
+            @Nullable Long priceMinor,
             Media primaryMedia,
             Instant publishedAt,
             List<VariantOption> variantOptions) {
