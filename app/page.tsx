@@ -250,8 +250,8 @@ export default function Home() {
                 <p>{column.title}</p>
                 {column.links.map((link) => <a href={catalogHref(activeItem.id, link)} key={link}>{link}</a>)}
               </div>)}</div>
-              {activeItem.feature && <aside className="menu-feature" style={{ background: activeItem.feature.color }} aria-label={`${activeItem.feature.eyebrow}: ${activeItem.feature.title}`}>
-                <span>{activeItem.feature.eyebrow}</span><strong>{activeItem.feature.title}</strong>
+              {activeItem.feature && <aside className="menu-feature" style={{ background: activeItem.feature.color }} aria-label={activeItem.feature.title}>
+                <strong>{activeItem.feature.title}</strong>
               </aside>}
             </div>
           </section>}
