@@ -21,8 +21,7 @@ const navigation = [
   { href: "/admin", label: "Обзор", permissions: ["CATALOG_MANAGER", "WAREHOUSE_MANAGER", "ADMIN"] },
   { href: "/admin/catalog", label: "Товары", permissions: ["CATALOG_MANAGER", "ADMIN"] },
   { href: "/admin/categories", label: "Категории", permissions: ["CATALOG_MANAGER", "ADMIN"] },
-  { href: "/admin/collections", label: "Коллекции", permissions: ["CATALOG_MANAGER", "ADMIN"] },
-  { href: "/admin/inventory", label: "Склад", permissions: ["WAREHOUSE_MANAGER", "ADMIN"] },
+  { href: "/admin/inventory", label: "Остатки", permissions: ["WAREHOUSE_MANAGER"] },
 ] as const;
 
 export default function AdminAuth({ children }: { children: React.ReactNode }) {
