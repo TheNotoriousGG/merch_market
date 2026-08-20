@@ -1,0 +1,13 @@
+type: object
+required: [id, slug, name, status, primaryCategoryId, variantCount, mediaCount, hasPrimaryMedia, version, updatedAt]
+properties:
+  id: {type: string, format: uuid}
+  slug: {type: string}
+  name: {type: string}
+  status: {type: string, enum: [DRAFT, ACTIVE, ARCHIVED]}
+  primaryCategoryId: {type: string, format: uuid}
+  variantCount: {type: integer, format: int32, minimum: 0}
+  mediaCount: {type: integer, format: int32, minimum: 0}
+  hasPrimaryMedia: {type: boolean}
+  version: {type: integer, format: int64, minimum: 0}
+  updatedAt: {type: string, format: date-time}

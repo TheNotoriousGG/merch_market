@@ -113,6 +113,12 @@ components:
       $ref: components/schemas/update-category-request.yaml
     AdminProduct:
       $ref: components/schemas/admin-product.yaml
+    AdminProductSummary:
+      $ref: components/schemas/admin-product-summary.yaml
+    AdminProductPage:
+      $ref: components/schemas/admin-product-page.yaml
+    AdminCategoryList:
+      $ref: components/schemas/admin-category-list.yaml
     CreateProductRequest:
       $ref: components/schemas/create-product-request.yaml
     UpdateProductRequest:

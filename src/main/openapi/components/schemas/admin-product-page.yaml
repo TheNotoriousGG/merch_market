@@ -1,0 +1,7 @@
+type: object
+required: [items, page]
+properties:
+  items:
+    type: array
+    items: {$ref: admin-product-summary.yaml}
+  page: {$ref: page-metadata.yaml}
