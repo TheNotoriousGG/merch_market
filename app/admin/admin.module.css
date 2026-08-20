@@ -5,6 +5,7 @@
 .nav { display: grid; gap: 7px; }
 .nav a { color: #b8bbc0; text-decoration: none; padding: 12px 14px; border-radius: var(--radius-control); font-weight: 650; }
 .nav a:hover { color: white; background: var(--color-ink-elevated); }
+.nav a.navActive { color: var(--color-ink); background: var(--color-accent); }
 .sidebarFoot { margin-top: auto; padding: 16px 12px 0; border-top: 1px solid #34363b; color: #8d9096; font-size: 12px; line-height: 1.5; }
 .workspace { min-width: 0; }
 .topbar { height: 76px; padding: 0 38px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border); background: rgba(255,255,255,.92); }

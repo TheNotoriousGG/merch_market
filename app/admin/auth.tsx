@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { API_BASE, api, commandHeaders } from "./api";
@@ -25,6 +26,7 @@ const navigation = [
 ] as const;
 
 export default function AdminAuth({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [session, setSession] = useState<Session | null>(null);
   const [error, setError] = useState("");
 
@@ -73,8 +75,11 @@ export default function AdminAuth({ children }: { children: React.ReactNode }) {
 
   const permittedNavigation = navigation.filter(item => item.permissions.some(permission => session.permissions.includes(permission)));
   return <div className={styles.shell}>
-    <aside className={styles.sidebar}><Link className={styles.brand} href="/admin">амра <span>admin</span></Link>
-      <nav className={styles.nav} aria-label="Административные разделы">{permittedNavigation.map(item => <Link key={item.href} href={item.href}>{item.label}</Link>)}</nav>
+    <aside className={styles.sidebar}><a className={styles.brand} href="/admin">амра <span>admin</span></a>
+      <nav className={styles.nav} aria-label="Административные разделы">{permittedNavigation.map(item => {
+        const active = item.href === "/admin" ? pathname === item.href : pathname.startsWith(item.href);
+        return <a className={active ? styles.navActive : undefined} aria-current={active ? "page" : undefined} key={item.href} href={item.href}>{item.label}</a>;
+      })}</nav>
       <div className={styles.sidebarFoot}>Каталог и склад<br/>Рабочая среда сотрудника</div>
     </aside>
     <div className={styles.workspace}><header className={styles.topbar}><strong>Панель управления</strong><div className={styles.topActions}><span className={styles.connection}>● {session.displayName || "Сотрудник"}</span><button className={styles.logout} onClick={() => void logout()}>Выйти</button><Link className={styles.storeLink} href="/">На витрину ↗</Link></div></header><main className={styles.content}>{children}</main></div>
