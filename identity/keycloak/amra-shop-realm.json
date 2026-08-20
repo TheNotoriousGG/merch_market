@@ -21,6 +21,16 @@
   },
   "users": [
     {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "dev-admin@amra.local",
+      "firstName": "Local",
+      "lastName": "Administrator",
+      "realmRoles": ["ADMIN"],
+      "credentials": [{"type": "password", "value": "admin", "temporary": false}]
+    },
+    {
       "username": "catalog-manager",
       "enabled": true,
       "emailVerified": true,
