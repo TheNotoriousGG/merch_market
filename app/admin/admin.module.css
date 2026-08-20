@@ -45,6 +45,15 @@
 .metric { display: block; margin-bottom: 10px; font: 760 32px/1 var(--font-display); }
 .panel { padding: 22px; margin-bottom: 18px; }
 .panel h2 { margin: 0 0 18px; font-size: 19px; }
+.collapsiblePanel { padding: 0; overflow: hidden; }
+.collapsibleTrigger { display:flex; align-items:center; justify-content:space-between; gap:18px; width:100%; min-height:68px; padding:20px 22px; color:var(--color-ink); background:transparent; border:0; text-align:left; cursor:pointer; }
+.collapsibleTrigger:hover { background:#fafaf8; }
+.collapsibleTrigger:focus-visible { outline:2px solid #b8a009; outline-offset:-3px; }
+.collapsibleTrigger h2 { margin:0; }
+.collapsibleTrigger span { display:grid; place-items:center; width:30px; height:30px; flex:0 0 30px; background:#f0f1ef; border-radius:9px; font-size:20px; line-height:1; transition:transform .18s ease; }
+.collapsibleTrigger[aria-expanded="false"] span { transform:rotate(-90deg); }
+.collapsibleContent { padding:0 22px 22px; }
+.collapsibleContent > :first-child { margin-top:0; }
 .panelHeading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
 .panelHeading h2 { margin: 0; }
 .toolbar { display: grid; grid-template-columns: minmax(260px,1fr) 180px 190px auto; gap: 10px; margin-bottom: 16px; }
@@ -119,7 +128,7 @@
 .mediaItem div { display: grid; gap: 3px; }.mediaItem span { color: var(--color-muted); font-size: 12px; }
 .variantBuilders { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }.variantBuilders>div { display:grid; gap:9px; padding:14px; background:#f7f7f5; border:1px solid var(--color-border); border-radius:12px; }.variantBuilders strong { font-size:12px; }.colorForm { display:grid; grid-template-columns:42px 1fr auto; gap:8px; }.colorPicker { width:42px; height:42px; padding:3px; background:#fff; border:1px solid var(--color-border); border-radius:10px; cursor:pointer; }
 .colorLegend { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }.colorLegend span { display:flex; align-items:center; gap:7px; padding:7px 10px; background:#f1f2f0; border-radius:9px; font-size:10px; font-weight:700; }.colorLegend i,.variantColor { width:13px; height:13px; border:1px solid rgba(0,0,0,.16); border-radius:50%; }.variantMatrix { display:grid; gap:7px; margin-top:14px; }.variantRow { display:grid; grid-template-columns:18px 1fr auto; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--color-border); border-radius:10px; }.variantRow>div { display:grid; gap:2px; }.variantRow strong { font-size:11px; }.variantRow small { color:var(--color-muted); font-size:8px; }.variantRow button { padding:6px 8px; background:transparent; border:1px solid var(--color-border); border-radius:7px; font-size:9px; cursor:pointer; }
-.mediaColorPanel { display:flex; align-items:end; justify-content:space-between; gap:20px; margin-bottom:14px; padding:14px 16px; background:#fffbe2; border:1px solid #e8d860; border-radius:13px; }.mediaColorPanel label { display:grid; gap:7px; min-width:min(360px,100%); font-size:11px; font-weight:750; }.mediaColorPanel span { color:var(--color-muted); font-size:10px; }
+.mediaColorPanel { display:flex; align-items:end; justify-content:space-between; gap:20px; margin:16px 0 14px; padding:14px 16px; background:#fffbe2; border:1px solid #e8d860; border-radius:13px; }.mediaColorPanel label { display:grid; gap:7px; min-width:min(360px,100%); font-size:11px; font-weight:750; }.mediaColorPanel span { max-width:380px; color:var(--color-muted); font-size:10px; line-height:1.45; }
 @media (max-width: 1050px) { .shell { grid-template-columns: 205px 1fr; } .content,.topbar { padding-left: 24px; padding-right: 24px; } .grid { grid-template-columns: 1fr; } }
 @media (max-width: 900px) { .editorLayout { grid-template-columns: 1fr; } .readiness { position: static; } .formGrid,.promotionGrid { grid-template-columns: 1fr; } .full { grid-column: auto; } .categoryRow { grid-template-columns: 1fr; gap: 8px; } .rowActions { justify-content: flex-start; } }
 @media (max-width:700px) { .variantBuilders { grid-template-columns:1fr; }.colorForm { grid-template-columns:42px 1fr; }.colorForm button { grid-column:1/-1; }.mediaColorPanel { align-items:stretch; flex-direction:column; }.mediaColorPanel label { min-width:0; } }
