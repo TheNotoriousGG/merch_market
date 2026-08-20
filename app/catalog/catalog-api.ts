@@ -21,6 +21,8 @@ type StorefrontProductSummary = {
   slug: string;
   name: string;
   shortDescription: string;
+  priceMinor?: number | null;
+  currency: "RUB";
   primaryMedia: { url: string; alt: string };
   publishedAt: string;
   variantOptions: Array<{ type: string; values: Array<{ label: string }> }>;
@@ -41,8 +43,8 @@ export async function loadStorefrontProducts(options: { category?: string; query
     return {
       id: item.id,
       name: item.name,
-      price: 0,
-      priceAvailable: false,
+      price: (item.priceMinor ?? 0) / 100,
+      priceAvailable: (item.priceMinor ?? 0) > 0,
       art: "hoodie",
       colorClass: "product-steel",
       description: item.shortDescription,

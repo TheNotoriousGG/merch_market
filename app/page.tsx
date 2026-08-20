@@ -167,8 +167,8 @@ export default function Home() {
     void loadStorefrontProducts({ onlyNew: true }).then((items) => setPublishedNewProducts(items.map((product) => ({
       id: product.id,
       name: product.name,
-      price: "Цена появится позже",
-      priceAvailable: false,
+      price: product.priceAvailable === false ? "Цена появится позже" : `${product.price.toLocaleString("ru-RU")} ₽`,
+      priceAvailable: product.priceAvailable,
       category: "published",
       className: product.colorClass,
       art: product.art,
