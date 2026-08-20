@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatPrice, type ShopProduct, useShop } from "./ShopState";
 import { CartButtonContent, FavoriteIcon } from "./ShopIcons";
 
@@ -18,10 +19,20 @@ const descriptions: Record<string, string> = {
 const sizesFor = (art: string) => ["watch", "cap", "bag", "tote"].includes(art) ? ["One size"] : ["S", "M", "L", "XL"];
 
 export default function ShopProductDialog({ product, onClose }: { product: ShopProduct; onClose: () => void }) {
-  const { addToCart, toggleFavorite, isFavorite, isInCart } = useShop();
+  const router = useRouter();
+  const { cart, addToCart, toggleFavorite, isFavorite } = useShop();
   const sizes = sizesFor(product.art);
   const [selectedSize, setSelectedSize] = useState(sizes.length === 1 ? sizes[0] : "");
   const liked = isFavorite(product.id);
+  const cartQuantity = cart.find((item) => item.id === product.id)?.quantity ?? 0;
+
+  const handleCartAction = () => {
+    if (cartQuantity > 0) {
+      router.push("/cart");
+      return;
+    }
+    addToCart(product);
+  };
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => event.key === "Escape" && onClose();
@@ -41,7 +52,7 @@ export default function ShopProductDialog({ product, onClose }: { product: ShopP
         <p>{descriptions[product.art] || "Фирменная вещь Amra с продуманной конструкцией и вниманием к деталям."}</p>
         <dl><div><dt>Коллекция</dt><dd>Amra Base</dd></div><div><dt>Материал</dt><dd>{["bag", "watch"].includes(product.art) ? "Комбинированный" : "Премиальный хлопок"}</dd></div><div><dt>Доставка</dt><dd>1–3 рабочих дня</dd></div></dl>
         <div className="product-dialog-sizes"><span>{sizes.length === 1 ? "Размер" : "Выберите размер"}</span><div>{sizes.map((size) => <button className={selectedSize === size ? "active" : ""} onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} key={size}>{size}</button>)}</div></div>
-        <div className="product-dialog-actions"><button className={`cart-action-button ${isInCart(product.id) ? "is-added" : ""}`} disabled={!selectedSize} onClick={() => addToCart(product)}><CartButtonContent label={isInCart(product.id) ? "Добавить ещё" : selectedSize ? "В корзину" : "Выберите размер"} /></button><button className={liked ? "liked" : ""} onClick={() => toggleFavorite(product)} aria-pressed={liked} aria-label={`${liked ? "Убрать" : "Добавить"} ${product.name} ${liked ? "из избранного" : "в избранное"}`}><FavoriteIcon active={liked} /></button></div>
+        <div className="product-dialog-actions"><button className={`cart-action-button ${cartQuantity > 0 ? "is-added" : ""}`} disabled={!selectedSize && cartQuantity === 0} onClick={handleCartAction}><CartButtonContent label={cartQuantity > 0 ? `В корзине · ${cartQuantity}` : selectedSize ? "В корзину" : "Выберите размер"} /></button><button className={liked ? "liked" : ""} onClick={() => toggleFavorite(product)} aria-pressed={liked} aria-label={`${liked ? "Убрать" : "Добавить"} ${product.name} ${liked ? "из избранного" : "в избранное"}`}><FavoriteIcon active={liked} /></button></div>
         <small>Бесплатная доставка от 5 000 ₽ · Возврат в течение 14 дней</small>
       </div>
     </section>

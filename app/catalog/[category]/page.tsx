@@ -88,11 +88,20 @@ function ProductCatalogCard({ product, onOpen }: { product: Product; onOpen: () 
 }
 
 function ProductDetailDialog({ product, onClose }: { product: Product; onClose: () => void }) {
-  const { addToCart, toggleFavorite, isFavorite, isInCart } = useShop();
+  const router = useRouter();
+  const { cart, addToCart, toggleFavorite, isFavorite } = useShop();
   const singleSize = product.sizes.length === 1;
   const [selectedSize, setSelectedSize] = useState(singleSize ? product.sizes[0] : "");
   const liked = isFavorite(product.id);
-  const added = isInCart(product.id);
+  const cartQuantity = cart.find((item) => item.id === product.id)?.quantity ?? 0;
+
+  const handleCartAction = () => {
+    if (cartQuantity > 0) {
+      router.push("/cart");
+      return;
+    }
+    addToCart(toShopProduct(product));
+  };
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => event.key === "Escape" && onClose();
@@ -113,7 +122,7 @@ function ProductDetailDialog({ product, onClose }: { product: Product; onClose: 
         <p>{product.description}</p>
         <dl><div><dt>Цвет</dt><dd>{product.color}</dd></div><div><dt>Состав</dt><dd>{product.material}</dd></div><div><dt>Посадка</dt><dd>{singleSize ? "Универсальная" : "Свободная"}</dd></div></dl>
         <div className="product-dialog-sizes"><span>{singleSize ? "Размер" : "Выберите размер"}</span><div>{product.sizes.map((size) => <button className={selectedSize === size ? "active" : ""} onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} key={size}>{size}</button>)}</div></div>
-        <div className="product-dialog-actions"><button disabled={!selectedSize} className={`cart-action-button ${added ? "is-added" : ""}`} onClick={() => addToCart(toShopProduct(product))}><CartButtonContent label={added ? "Добавить ещё" : selectedSize ? "В корзину" : "Выберите размер"} /></button><button className={liked ? "liked" : ""} onClick={() => toggleFavorite(toShopProduct(product))} aria-pressed={liked} aria-label="Добавить в избранное"><FavoriteIcon active={liked} /></button></div>
+        <div className="product-dialog-actions"><button disabled={!selectedSize && cartQuantity === 0} className={`cart-action-button ${cartQuantity > 0 ? "is-added" : ""}`} onClick={handleCartAction}><CartButtonContent label={cartQuantity > 0 ? `В корзине · ${cartQuantity}` : selectedSize ? "В корзину" : "Выберите размер"} /></button><button className={liked ? "liked" : ""} onClick={() => toggleFavorite(toShopProduct(product))} aria-pressed={liked} aria-label="Добавить в избранное"><FavoriteIcon active={liked} /></button></div>
         <small>Бесплатная доставка от 5 000 ₽ · Возврат в течение 14 дней</small>
       </div>
     </section>
