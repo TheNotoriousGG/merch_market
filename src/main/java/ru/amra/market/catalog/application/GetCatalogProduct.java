@@ -75,7 +75,7 @@ public class GetCatalogProduct {
                         .orElse(true))
                 .map(item -> new CatalogProductPage.Media(
                         item.id().value(),
-                        mediaUrls.publicUrl(item.id().value()),
+                        mediaUrls.publicUrl(item.id().value(), item.objectKey()),
                         item.alt(),
                         item.width(),
                         item.height(),

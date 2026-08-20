@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,6 +49,7 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                    product.short_description,
                    product.published_at,
                    media.id as media_id,
+                   media.object_key,
                    media.alt_text,
                    media.width,
                    media.height,
@@ -86,7 +86,8 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
 
     @Override
     public Result find(CatalogProductListCriteria criteria, Instant newAfter) {
-        var query = query(criteria, newAfter);
+        requireNonNull(newAfter);
+        var query = query(criteria);
         var total = requireNonNull(jdbc.queryForObject(
                 query.cte() + "select count(*) " + query.relation(), query.parameters(), Long.class));
         if (total == 0) {
@@ -142,6 +143,7 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
     private static ProductBaseRow productRow(ResultSet resultSet, int rowNumber) throws SQLException {
         var media = new MediaRecord(
                 requireNonNull(resultSet.getObject("media_id", UUID.class)),
+                requireNonNull(resultSet.getString("object_key")),
                 requireNonNull(resultSet.getString("alt_text")),
                 resultSet.getInt("width"),
                 resultSet.getInt("height"),
@@ -155,7 +157,7 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                 media);
     }
 
-    private static SqlQuery query(CatalogProductListCriteria criteria, Instant newAfter) {
+    private static SqlQuery query(CatalogProductListCriteria criteria) {
         var relation = new StringBuilder(PRODUCT_RELATION);
         var parameters = new MapSqlParameterSource();
         var cte = "";
@@ -185,8 +187,7 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                     """);
         }
         if (criteria.onlyNew()) {
-            parameters.addValue("newAfter", newAfter.atOffset(ZoneOffset.UTC));
-            relation.append("and product.published_at >= :newAfter\n");
+            relation.append("and product.new_arrival and (product.new_until is null or product.new_until > CURRENT_TIMESTAMP)\n");
         }
         if (criteria.search() != null) {
             parameters.addValue("search", criteria.search());

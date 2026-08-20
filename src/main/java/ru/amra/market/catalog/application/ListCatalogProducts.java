@@ -41,7 +41,7 @@ public class ListCatalogProducts {
         var media = product.primaryMedia();
         var publicMedia = new CatalogProductPage.Media(
                 media.id(),
-                mediaUrls.publicUrl(media.id()),
+                mediaUrls.publicUrl(media.id(), media.objectKey()),
                 media.alt(),
                 media.width(),
                 media.height(),

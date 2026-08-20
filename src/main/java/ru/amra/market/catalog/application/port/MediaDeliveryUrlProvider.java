@@ -7,5 +7,5 @@ import java.util.UUID;
 public interface MediaDeliveryUrlProvider {
 
     /** Returns the externally consumable delivery URL for one media resource. */
-    URI publicUrl(UUID mediaId);
+    URI publicUrl(UUID mediaId, String objectKey);
 }

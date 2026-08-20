@@ -21,7 +21,7 @@ class ConfiguredMediaDeliveryUrlProvider implements MediaDeliveryUrlProvider {
     }
 
     @Override
-    public URI publicUrl(UUID mediaId) {
-        return baseUrl.resolve(mediaId.toString());
+    public URI publicUrl(UUID mediaId, String objectKey) {
+        return baseUrl.resolve(objectKey);
     }
 }

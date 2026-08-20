@@ -33,7 +33,7 @@ public interface CatalogProductListReader {
         }
     }
 
-    record MediaRecord(UUID id, String alt, int width, int height, int displayOrder) {}
+    record MediaRecord(UUID id, String objectKey, String alt, int width, int height, int displayOrder) {}
 
     record VariantOptionRecord(
             String definitionCode, String definitionName, AttributeType type, List<AttributeValueRecord> values) {
