@@ -207,7 +207,7 @@ GitLab activation остаётся обязательным deferred gate до �
 
 ## Следующий разрешённый этап
 
-Local full-stack infrastructure acceptance закрыт: единый Compose-проект `amra-merch-market` собирает frontend и backend из исходников и поднимает их вместе с PostgreSQL, Keycloak/PostgreSQL и MinIO. Контейнеры, сеть и persistent volumes имеют стабильные имена `amra-merch-market-*`; storefront, admin, backend health, OIDC discovery и MinIO health проверены через host HTTP endpoints. Локальные роли представлены импортируемыми пользователями `catalog-manager`, `warehouse-manager` и `amra-admin`.
+Local full-stack infrastructure acceptance закрыт: отдельный sibling-проект `amra-merch-market-infra` владеет единым Compose-проектом `amra-merch-market`, собирает frontend и backend из их Dockerfile и поднимает их вместе с PostgreSQL, Keycloak/PostgreSQL и MinIO. Контейнеры, сеть и persistent volumes имеют стабильные имена `amra-merch-market-*`; storefront, admin, backend health, OIDC discovery и MinIO health проверены через host HTTP endpoints. Локальные роли представлены импортируемыми пользователями `catalog-manager`, `warehouse-manager` и `amra-admin`.
 
 Admin Catalog integration по ADR-0008: paged admin queries, presigned media lifecycle с local MinIO, generated client и frontend admin flow. После его acceptance следующим product stage остаётся этап 9 — Customer, favorites и cart.
 

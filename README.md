@@ -50,17 +50,14 @@ Canonical OpenAPI contract находится в `src/main/openapi`. Discovery e
 
 Integration tests используют PostgreSQL 18.4 через Testcontainers, поэтому для полного `qualityGate` нужен работающий Docker daemon. In-memory database намеренно не используется.
 
-## Локальная PostgreSQL
+## Локальный full-stack
 
 ```shell
-cp .env.example .env
-# Заменить все local passwords и OIDC client secret.
-docker compose up -d postgres keycloak-postgres keycloak
-set -a && . ./.env && set +a
-./gradlew bootRun
+cd ../amra-merch-market-infra
+docker compose up --build --detach
 ```
 
-`amra_owner` используется только bootstrap-контейнером, `amra_migrator` — Flyway, `amra_runtime` — приложением. Соглашения описаны в [DATABASE_CONVENTIONS.md](docs/persistence/DATABASE_CONVENTIONS.md), recovery assumptions — в [DATABASE_RECOVERY.md](docs/operations/DATABASE_RECOVERY.md).
+Compose принадлежит отдельному sibling-проекту `amra-merch-market-infra`, собирает backend через `Dockerfile.compose` и не требует локальных Java/Node. `amra_owner` используется только bootstrap-контейнером, `amra_migrator` — Flyway, `amra_runtime` — приложением. Соглашения описаны в [DATABASE_CONVENTIONS.md](docs/persistence/DATABASE_CONVENTIONS.md), recovery assumptions — в [DATABASE_RECOVERY.md](docs/operations/DATABASE_RECOVERY.md).
 
 Локальный Keycloak доступен на `http://localhost:8081`, использует отдельную PostgreSQL и импортирует realm `amra-shop` без тестовых пользователей. Авторизация начинается с `/oauth2/authorization/keycloak`; состояние браузерной сессии доступно по `GET /api/v1/session`. Контракт ролей, MFA, CSRF, CORS и отзыва сессий описан в [IDENTITY_ACCESS.md](docs/security/IDENTITY_ACCESS.md).
 
@@ -69,20 +66,3 @@ set -a && . ./.env && set +a
 Container build и обязательные GitLab project settings описаны в [GITLAB_DELIVERY.md](docs/operations/GITLAB_DELIVERY.md). Подключение GitLab remote/runner и registry временно отложено по ADR-0002; локальные gates и container checks остаются обязательными.
 
 Текущее состояние и следующий разрешённый этап находятся в [PROJECT_STATUS.md](docs/PROJECT_STATUS.md). Markdown обновляется вместе с каждым изменением решения или поведения.
-# Локальный full-stack запуск
-
-Из backend-репозитория весь контур собирается и запускается одной командой:
-
-```bash
-docker compose up --build
-```
-
-Compose использует соседний каталог `../amra-merch-market-frontend` как frontend build context и поднимает:
-
-- storefront/admin frontend — `http://localhost:3001`;
-- backend API — `http://localhost:8080/api/v1`;
-- Keycloak — `http://localhost:8081`;
-- MinIO API/console — `http://localhost:9000` и `http://localhost:9001`;
-- отдельные PostgreSQL для приложения и Keycloak.
-
-Local users импортируются в realm `amra-shop`: `catalog-manager`, `warehouse-manager`, `amra-admin`; пароль каждого — `amra-local`. Эти credentials предназначены только для локального Compose.
