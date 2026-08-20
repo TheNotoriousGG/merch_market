@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StoreHeader from "../../components/StoreHeader";
 import CatalogProductCard from "../components/CatalogProductCard";
 import CatalogProductDialog from "../components/CatalogProductDialog";
 import { catalog, type CatalogKey, type CatalogProduct as Product } from "../catalog-data";
+import { loadStorefrontCategories, type StorefrontCategory } from "../catalog-api";
 
 const PAGE_SIZE = 5;
 
@@ -14,8 +15,12 @@ export default function CatalogPage() {
   const params = useParams<{ category: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const key: CatalogKey = params.category in catalog ? params.category as CatalogKey : "clothes";
-  const current = catalog[key];
+  const key = params.category;
+  const staticCategory = key in catalog ? catalog[key as CatalogKey] : null;
+  const [category, setCategory] = useState<StorefrontCategory | null>(null);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
+  useEffect(() => { void loadStorefrontCategories().then((items) => setCategory(items.find((item) => item.slug === key) ?? null)).finally(() => setCategoriesLoaded(true)); }, [key]);
+  const current = { label: category?.name ?? staticCategory?.label ?? "Каталог", sections: category ? [category.name, ...category.children.map((child) => child.name)] : staticCategory?.sections ?? [], products: staticCategory?.products ?? [] };
   const title = searchParams.get("section") || current.label;
   const [sort, setSort] = useState("popular");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -46,9 +51,9 @@ export default function CatalogPage() {
     <StoreHeader />
     <div className="catalog-page-body">
       <div className="catalog-breadcrumbs"><Link href="/">Главная</Link><span>·</span><span>{current.label}</span></div>
-      <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{title}</h1></div><span>{products.length} товара</span></div>
+      <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{categoriesLoaded&&!category?"Категория скрыта":title}</h1></div><span>{products.length} товара</span></div>
       <nav className="catalog-chips" aria-label={`Подкатегории: ${current.label}`}>
-        {current.sections.map((item) => <Link className={item === title ? "active" : ""} href={`/catalog/${key}?section=${encodeURIComponent(item)}`} key={item}>{item}</Link>)}
+        {category&&current.sections.map((item) => <Link className={item === title ? "active" : ""} href={`/catalog/${key}?section=${encodeURIComponent(item)}`} key={item}>{item}</Link>)}
       </nav>
       <div className="catalog-toolbar">
         <button aria-expanded={filterOpen} onClick={() => setFilterOpen((value) => !value)}>Фильтры <span>{filterOpen ? "−" : "+"}</span></button>

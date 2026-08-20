@@ -7,14 +7,17 @@ import StoreHeader from "./components/StoreHeader";
 import { ShopProduct, useShop } from "./components/ShopState";
 import ShopProductDialog from "./components/ShopProductDialog";
 import { CartButtonContent, FavoriteIcon } from "./components/ShopIcons";
+import { loadStorefrontCategories } from "./catalog/catalog-api";
 
-type MenuKey = "clothes" | "accessories" | "bags" | "pants";
+type MenuKey = string;
 
-const menu: Array<{
+type MenuItem = {
   id: MenuKey; label: string; icon: string;
   columns: Array<{ title: string; links: string[] }>;
   feature?: { eyebrow: string; title: string; color: string };
-}> = [
+};
+
+const fallbackMenu: MenuItem[] = [
   { id: "clothes", label: "Одежда", icon: "shirt", columns: [
     { title: "Основное", links: ["Вся одежда", "Футболки и поло", "Лонгсливы", "Рубашки"] },
     { title: "Тёплый слой", links: ["Свитшоты и олимпийки", "Толстовки", "Худи"] },
@@ -48,7 +51,7 @@ const products: Array<{
   { id: 8, name: "Шорты «База»", price: "3 490 ₽", category: "pants", className: "product-steel", art: "shorts", colors: ["#637183", "#e9e7e1"] },
 ];
 
-const categoryLabels: Record<MenuKey, string> = {
+const categoryLabels: Record<string, string> = {
   clothes: "Одежда", accessories: "Аксессуары", bags: "Сумки", pants: "Брюки",
 };
 
@@ -124,6 +127,7 @@ const shopProduct = (product: { id: string | number; name: string; price: string
 });
 
 export default function Home() {
+  const [menu, setMenu] = useState<MenuItem[]>(fallbackMenu);
   const { addToCart, toggleFavorite, isFavorite } = useShop();
   const [active, setActive] = useState<MenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -135,6 +139,20 @@ export default function Home() {
   const [salePage, setSalePage] = useState(0);
   const [selectedShopProduct, setSelectedShopProduct] = useState<ShopProduct | null>(null);
   const menuShellRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    void loadStorefrontCategories().then((categories) => {
+      setMenu(categories.map((category) => {
+        const presentation = fallbackMenu.find((item) => item.id === category.slug);
+        return {
+          id: category.slug,
+          label: category.name,
+          icon: presentation?.icon ?? "shirt",
+          columns: category.children.length > 0 ? [{title: category.name, links: category.children.map((child) => child.name)}] : [],
+          feature: presentation?.feature,
+        };
+      }));
+    }).catch(() => setMenu(fallbackMenu));
+  }, []);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") { setActive(null); setMobileOpen(false); }
@@ -239,7 +257,7 @@ export default function Home() {
 
     <section className="catalog new-products" id="new">
       <div className="section-heading">
-        <div><span className="section-kicker">Последние поступления</span><h2>Новинки{selectedCategory ? ` · ${categoryLabels[selectedCategory]}` : ""}</h2></div>
+        <div><span className="section-kicker">Последние поступления</span><h2>Новинки{selectedCategory ? ` · ${menu.find((item) => item.id === selectedCategory)?.label ?? categoryLabels[selectedCategory] ?? ""}` : ""}</h2></div>
         <div className="section-tools">
           <a href="#new">Смотреть все<LinkArrow /></a>
         </div>
@@ -395,7 +413,7 @@ export default function Home() {
           </section>
           <nav className="footer-module footer-module-links" aria-label="Ссылки в подвале">
             <div><span className="module-kicker">Магазин</span><a href="#new">Новинки</a><a href="#collections">Коллекции</a><a href="#weekly">Товары недели</a><a href="#sale">Sale</a></div>
-            <div><span className="module-kicker">Категории</span><Link href="/catalog/clothes">Одежда</Link><Link href="/catalog/bags">Сумки</Link><Link href="/catalog/accessories">Аксессуары</Link><Link href="/catalog/pants">Брюки</Link></div>
+            <div><span className="module-kicker">Категории</span>{menu.map((item) => <Link href={`/catalog/${item.id}`} key={item.id}>{item.label}</Link>)}</div>
           </nav>
           <section className="footer-module footer-module-contact">
             <span className="module-kicker">Связаться</span>
