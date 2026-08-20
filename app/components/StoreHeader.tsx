@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useShop } from "./ShopState";
 
@@ -33,7 +34,7 @@ export default function StoreHeader({
 
   return <header className={`site-header ${isScrolled ? "is-scrolled" : ""}`}>
     <Link className="logo amra-logo" href="/#campaigns" aria-label="Амра Шоп, на главную">
-      <span className="amra-mark"><img src="/amra-brand-reference.png" alt="" /></span>
+      <span className="amra-mark"><Image src="/amra-brand-reference.png" alt="" width={510} height={136} priority /></span>
       <span className="amra-wordmark">амра шоп</span>
     </Link>
     <button className="mobile-toggle" onClick={onMobileToggle} aria-expanded={mobileOpen}>

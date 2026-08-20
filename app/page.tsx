@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import StoreHeader from "./components/StoreHeader";
 import { ShopProduct, useShop } from "./components/ShopState";
@@ -365,7 +366,7 @@ export default function Home() {
       <div className="footer-modular">
         <div className="footer-modular-head">
           <a className="footer-logo" href="#campaigns" aria-label="Амра Шоп, наверх">
-            <span className="amra-mark"><img src="/amra-brand-reference.png" alt="" /></span>
+            <span className="amra-mark"><Image src="/amra-brand-reference.png" alt="" width={510} height={136} /></span>
             <span>амра шоп</span>
           </a>
           <p>Вещи для повседневной жизни, в которых есть характер.</p>
