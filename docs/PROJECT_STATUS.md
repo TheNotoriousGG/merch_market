@@ -215,6 +215,8 @@ Admin Catalog integration по ADR-0008: paged admin queries, presigned media li
 
 Security rejection логирует только stable code, HTTP method и request path; cookies, tokens, credentials и problem detail в telemetry не попадают.
 
+SPA CSRF contract явно использует plain cookie/header request handler: browser читает `AMRA_CSRF` и возвращает то же значение в `X-AMRA-CSRF`; интеграционный тест проверяет реальный handshake без test-only CSRF post-processor.
+
 До его начала подготовлен проект [плана frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Он фиксирует, что:
 
 - frontend пока не вызывает backend и продолжает использовать product/profile fixtures и `localStorage`;

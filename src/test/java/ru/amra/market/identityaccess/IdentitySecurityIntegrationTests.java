@@ -1,7 +1,6 @@
 package ru.amra.market.identityaccess;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
@@ -13,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -97,7 +97,15 @@ class IdentitySecurityIntegrationTests extends PostgreSqlIntegrationTest {
         var customer = oidcLogin().idToken(token -> token.claim("email_verified", true));
 
         mockMvc.perform(post("/api/v1/session/logout").with(customer)).andExpect(status().isForbidden());
-        mockMvc.perform(post("/api/v1/session/logout").with(customer).with(csrf().asHeader()))
+        var csrfCookie = Objects.requireNonNull(mockMvc.perform(get("/api/v1/session").with(customer))
+                .andReturn()
+                .getResponse()
+                .getCookie("AMRA_CSRF"));
+
+        mockMvc.perform(post("/api/v1/session/logout")
+                        .with(customer)
+                        .cookie(csrfCookie)
+                        .header("X-AMRA-CSRF", csrfCookie.getValue()))
                 .andExpect(status().isNoContent());
     }
 
