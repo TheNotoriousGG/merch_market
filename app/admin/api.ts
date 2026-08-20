@@ -2,8 +2,9 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhos
 
 export type Category = { id:string; parentId?:string|null; slug:string; name:string; displayOrder:number; status:"ACTIVE"|"HIDDEN"|"ARCHIVED"; version:number; updatedAt:string };
 export type ProductSummary = { id:string; slug:string; name:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; variantCount:number; mediaCount:number; hasPrimaryMedia:boolean; version:number; updatedAt:string };
-export type Variant = { id:string; sku:string; label:string; status:"ACTIVE"|"ARCHIVED"; displayOrder:number; version:number };
-export type ProductMedia = { id:string; objectKey:string; deliveryUrl:string; contentType:string; width:number; height:number; alt:string; displayOrder:number; primary:boolean; version:number };
+export type VariantAttribute = { definitionCode:string; definitionName:string; type:"TEXT"|"COLOR"|"SIZE"|"DIMENSION"; valueCode:string; label:string; colorHex?:string|null };
+export type Variant = { id:string; sku:string; label:string; status:"ACTIVE"|"ARCHIVED"; displayOrder:number; attributes:VariantAttribute[]; version:number };
+export type ProductMedia = { id:string; variantId?:string|null; objectKey:string; deliveryUrl:string; contentType:string; width:number; height:number; alt:string; displayOrder:number; primary:boolean; version:number };
 export type ProductMerchandising = { newArrival:boolean; newUntil?:string|null; onSale:boolean; salePercent?:number|null };
 export type Product = { id:string; slug:string; name:string; shortDescription:string; description:string; priceMinor?:number|null; currency?:"RUB"; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; categoryIds:string[]; collectionIds:string[]; characteristics:unknown[]; merchandising?:ProductMerchandising; variants:Variant[]; media:ProductMedia[]; version:number; updatedAt:string };
 export type ProductPage = { items:ProductSummary[]; page:{page:number;size:number;totalElements:number;totalPages:number} };
