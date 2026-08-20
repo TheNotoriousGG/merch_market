@@ -395,6 +395,14 @@ article h3 { margin:16px 0 6px; font-size:17px; } article p { margin:0; color:#6
   background:#fff;
   border-color:#303237;
 }
+.header-search-backdrop { position:fixed; z-index:120; inset:0; display:flex; align-items:flex-start; justify-content:center; padding:104px 20px 20px; background:rgba(17,19,22,.58); backdrop-filter:blur(8px); }
+.header-search-panel { position:relative; width:min(680px,100%); padding:12px; background:#fff; border-radius:22px; box-shadow:0 28px 80px rgba(0,0,0,.3); }
+.header-search-panel form { display:flex; align-items:center; gap:12px; min-height:58px; padding:7px 7px 7px 17px; background:#f2f3f1; border-radius:15px; }
+.header-search-panel form svg { flex:0 0 20px; width:20px; height:20px; fill:none; stroke:#676b71; stroke-width:1.8; stroke-linecap:round; }
+.header-search-panel input { flex:1; min-width:0; padding:0; color:#202226; background:transparent; border:0; outline:0; font:650 16px Manrope,Arial,sans-serif; }
+.header-search-panel form button { min-height:44px; padding:0 20px; color:#17191c; background:#ffdd2d; border:0; border-radius:11px; font-weight:800; cursor:pointer; }
+.header-search-close { position:absolute; top:-42px; right:0; width:34px; height:34px; padding:0; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.18); border-radius:11px; font-size:23px; line-height:1; cursor:pointer; }
+@media (max-width:520px) { .header-search-backdrop { padding-top:82px; }.header-search-panel form { align-items:stretch; flex-wrap:wrap; }.header-search-panel input { min-width:calc(100% - 38px); }.header-search-panel form button { width:100%; } }
 .hero h1 { font-family:Manrope,Arial,sans-serif; font-weight:500; }
 @media (max-width:1100px) {
   .header-center { gap:11px; padding-left:14px; }
