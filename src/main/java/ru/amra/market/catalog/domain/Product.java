@@ -363,6 +363,9 @@ public final class Product {
                 }
                 updated.add(replacement);
                 found = true;
+            } else if (replacement.primary() && item.primary()) {
+                updated.add(item.revise(
+                        item.variantId().orElse(null), item.alt(), item.displayOrder(), false));
             } else {
                 updated.add(item);
             }
