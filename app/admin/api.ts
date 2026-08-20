@@ -14,9 +14,11 @@ export async function api<T>(path:string, init:RequestInit = {}):Promise<{data:T
   if (!/^(GET|HEAD|OPTIONS)$/i.test(method)) headers.set("X-AMRA-CSRF", decodeURIComponent(cookie("AMRA_CSRF")));
   const response = await fetch(`${API_BASE}${path}`, {...init, headers, credentials:"include"});
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== "undefined") window.dispatchEvent(new Event("amra:unauthorized"));
     const problem = await response.json().catch(()=>null) as {detail?:string;title?:string}|null;
     throw new Error(problem?.detail ?? problem?.title ?? `Backend вернул ${response.status}`);
   }
-  return {data: await response.json() as T, etag:response.headers.get("ETag")};
+  const data = response.status === 204 ? undefined as T : await response.json() as T;
+  return {data, etag:response.headers.get("ETag")};
 }
 export const commandHeaders = (etag?:string|null) => ({...(etag?{"If-Match":etag}:{}), "Idempotency-Key":crypto.randomUUID()});

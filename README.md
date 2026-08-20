@@ -4,7 +4,7 @@
 
 ## Быстрый старт всего решения
 
-Frontend собирается и запускается вместе с backend, PostgreSQL, Keycloak и MinIO из соседнего backend-репозитория:
+Frontend собирается и запускается вместе с backend, PostgreSQL, Keycloak и MinIO из соседнего infra-репозитория:
 
 ```bash
 cd ../amra-merch-market-infra
@@ -12,6 +12,8 @@ docker compose up --build
 ```
 
 После запуска storefront и админка доступны на `http://localhost:3001` и `http://localhost:3001/admin`.
+
+Маршрут `/admin` проверяет backend-сессию и отправляет анонимного пользователя в локальный Keycloak. После входа Keycloak возвращает браузер в административный интерфейс; доступные разделы зависят от роли сотрудника.
 
 ## Отдельный frontend-процесс
 
@@ -33,6 +35,6 @@ npm run build
 
 ## Текущее состояние
 
-Это frontend-прототип, который пока не подключён к существующему отдельному backend. Корзина и избранное сохраняются в `localStorage`, а данные профиля, заказов и товаров остаются демонстрационными. Backend Catalog/Inventory и OIDC foundation готовы, но generated client и browser integration ещё не подключены.
+Storefront пока использует демонстрационные товары; корзина и избранное сохраняются в `localStorage`. Админка подключена к backend Catalog/Inventory API, PostgreSQL, MinIO и backend-managed OIDC-сессии.
 
 Проект подготовлен для OpenAI Sites: конфигурация находится в `.openai/hosting.json`.
