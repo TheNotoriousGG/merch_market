@@ -19,4 +19,4 @@ Compose-проект называется `amra-merch-market`. Он собира
 
 Адреса: frontend `http://localhost:3001`, backend `http://localhost:8080`, Keycloak `http://localhost:8081`, MinIO `http://localhost:9000`, MinIO Console `http://localhost:9001`.
 
-Локальные пользователи Keycloak: `catalog-manager`, `warehouse-manager`, `amra-admin`; пароль — `amra-local`.
+Дефолтный пользователь админки: `admin` / `admin`. Дополнительные локальные пользователи Keycloak: `catalog-manager`, `warehouse-manager`, `amra-admin`; пароль — `amra-local`.
