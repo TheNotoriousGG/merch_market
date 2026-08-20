@@ -20,11 +20,11 @@ class JdbcAdminProductListReader implements AdminProductListReader {
 
     private static final String RELATION = """
             from catalog_products product
-            where (:query is null
+            where (cast(:query as text) is null
                    or lower(product.name) like :query
                    or lower(product.canonical_slug) like :query)
-              and (:status is null or product.status = :status)
-              and (:categoryId is null or exists (
+              and (cast(:status as text) is null or product.status = :status)
+              and (cast(:categoryId as uuid) is null or exists (
                     select 1
                     from catalog_product_categories assignment
                     where assignment.product_id = product.id

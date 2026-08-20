@@ -35,8 +35,8 @@ class JdbcAdminCategoryListReader implements AdminCategoryListReader {
             )
             select id, parent_id, slug, name, display_order, status, version, updated_at
             from category_tree
-            where (:query is null or lower(name) like :query or lower(slug) like :query)
-              and (:status is null or status = :status)
+            where (cast(:query as text) is null or lower(name) like :query or lower(slug) like :query)
+              and (cast(:status as text) is null or status = :status)
             order by order_path, id_path
             """;
 
