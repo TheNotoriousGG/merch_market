@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import StoreHeader from "../components/StoreHeader";
@@ -26,7 +25,7 @@ export default function SearchPage() {
   return <main className="catalog-page">
     <StoreHeader />
     <div className="catalog-page-body">
-      <div className="catalog-breadcrumbs"><Link href="/">Главная</Link><span>·</span><span>Поиск</span></div>
+      <div className="catalog-breadcrumbs"><a href="/">Главная</a><span>·</span><span>Поиск</span></div>
       <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{query ? `«${query}»` : "Поиск"}</h1></div><span>{products.length} найдено</span></div>
       {products.length > 0 ? <section className="catalog-product-grid" aria-label={`Результаты поиска: ${query}`}>
         {products.map((product) => <CatalogProductCard product={product} onOpen={() => setSelectedProduct(product)} key={product.id} />)}

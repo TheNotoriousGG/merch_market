@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import StoreHeader from "../components/StoreHeader";
 
 const orders = [
@@ -13,7 +12,7 @@ export default function AccountPage() {
   return <main className="utility-page account-page">
     <StoreHeader />
     <div className="utility-shell">
-      <div className="utility-breadcrumbs"><Link href="/">Главная</Link><span>·</span><span>Личный кабинет</span></div>
+      <div className="utility-breadcrumbs"><a href="/">Главная</a><span>·</span><span>Личный кабинет</span></div>
       <header className="utility-heading"><div><span className="section-kicker">Профиль покупателя</span><h1>Добрый день,<br />Алексей</h1></div><span>Клиент с 2024 года</span></header>
 
       <div className="account-grid">

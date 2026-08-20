@@ -50,7 +50,7 @@ export default function CatalogPage() {
   return <main className="catalog-page">
     <StoreHeader />
     <div className="catalog-page-body">
-      <div className="catalog-breadcrumbs"><Link href="/">Главная</Link><span>·</span><span>{current.label}</span></div>
+      <div className="catalog-breadcrumbs"><a href="/">Главная</a><span>·</span><span>{current.label}</span></div>
       <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{categoriesLoaded&&!category?"Категория скрыта":title}</h1></div><span>{products.length} товара</span></div>
       <nav className="catalog-chips" aria-label={`Подкатегории: ${current.label}`}>
         {category&&current.sections.map((item) => <Link className={item === title ? "active" : ""} href={`/catalog/${key}?section=${encodeURIComponent(item)}`} key={item}>{item}</Link>)}

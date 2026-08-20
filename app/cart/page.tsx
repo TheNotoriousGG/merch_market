@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import StoreHeader from "../components/StoreHeader";
 import { formatPrice, type ShopProduct, useShop } from "../components/ShopState";
@@ -15,12 +14,12 @@ export default function CartPage() {
   return <main className="utility-page">
     <StoreHeader />
     <div className="utility-shell">
-      <div className="utility-breadcrumbs"><Link href="/">Главная</Link><span>·</span><span>Корзина</span></div>
+      <div className="utility-breadcrumbs"><a href="/">Главная</a><span>·</span><span>Корзина</span></div>
       <header className="utility-heading"><div><span className="section-kicker">Ваш заказ</span><h1>Корзина</h1></div><span>{cartCount} {positionLabel}</span></header>
 
       {cart.length === 0 ? <section className="utility-empty">
         <span className="empty-symbol empty-bag">□</span><h2>Корзина ждёт вещей</h2><p>Добавьте товары из новых поступлений или редакционной подборки.</p>
-        <Link className="utility-primary-link" href="/#new">Перейти к покупкам<span>›</span></Link>
+        <a className="utility-primary-link" href="/#new">Перейти к покупкам<span>›</span></a>
       </section> : <div className="cart-layout">
         <section className="cart-list" aria-label="Товары в корзине">
           {cart.map((product) => <article className="cart-line" key={product.id}>

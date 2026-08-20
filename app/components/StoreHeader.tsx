@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useShop } from "./ShopState";
 
 const productWord = (count: number) => {
@@ -34,20 +33,20 @@ export default function StoreHeader({
   }, []);
 
   return <header className={`site-header ${isScrolled ? "is-scrolled" : ""}`}>
-    <Link className="logo amra-logo" href="/#campaigns" aria-label="Амра Шоп, на главную">
+    <a className="logo amra-logo" href="/" aria-label="Амра Шоп, на главную">
       <span className="amra-mark"><Image src="/amra-brand-reference.png" alt="" width={510} height={136} priority /></span>
       <span className="amra-wordmark">амра шоп</span>
-    </Link>
+    </a>
     <button className="mobile-toggle" onClick={onMobileToggle} aria-expanded={mobileOpen}>
       {mobileOpen ? "Закрыть" : "Меню"}
     </button>
     <div className="header-center">
       <nav className="header-nav" aria-label="Основная навигация">
-        <Link href="/#new" onClick={onNewClick}>Новинки</Link>
-        <Link href="/#weekly">Товары недели</Link>
-        <Link href="/#collections">Коллекции</Link>
-        <Link className="sale-link" href="/#sale">Sale</Link>
-        <Link href="/#buyers">Покупателям</Link>
+        <a href="/#new" onClick={onNewClick}>Новинки</a>
+        <a href="/#weekly">Товары недели</a>
+        <a href="/#collections">Коллекции</a>
+        <a className="sale-link" href="/#sale">Sale</a>
+        <a href="/#buyers">Покупателям</a>
       </nav>
       <div className="header-actions">
         <button className="header-icon search-icon" aria-label="Открыть поиск" title="Поиск" aria-expanded={searchOpen} onClick={() => setSearchOpen(true)}>
