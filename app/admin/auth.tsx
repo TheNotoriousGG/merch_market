@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { API_BASE, api, commandHeaders } from "./api";
 import styles from "./admin.module.css";
@@ -18,11 +17,17 @@ const backendOrigin = API_BASE.replace(/\/api\/v1\/?$/, "");
 const loginUrl = `${backendOrigin}/oauth2/authorization/keycloak`;
 
 const navigation = [
-  { href: "/admin", label: "Обзор", permissions: ["CATALOG_MANAGER", "WAREHOUSE_MANAGER", "ADMIN"] },
-  { href: "/admin/catalog", label: "Товары", permissions: ["CATALOG_MANAGER", "ADMIN"] },
-  { href: "/admin/categories", label: "Категории", permissions: ["CATALOG_MANAGER", "ADMIN"] },
-  { href: "/admin/inventory", label: "Остатки", permissions: ["WAREHOUSE_MANAGER"] },
+  { href: "/admin", label: "Главная", icon: "⌂", permissions: ["CATALOG_MANAGER", "WAREHOUSE_MANAGER", "ADMIN"] },
+  { href: "/admin/catalog", label: "Товары", icon: "□", permissions: ["CATALOG_MANAGER", "ADMIN"] },
+  { href: "/admin/categories", label: "Категории", icon: "≡", permissions: ["CATALOG_MANAGER", "ADMIN"] },
+  { href: "/admin/inventory", label: "Остатки", icon: "↕", permissions: ["WAREHOUSE_MANAGER"] },
 ] as const;
+
+function Breadcrumbs({pathname}:{pathname:string}) {
+  const items = pathname === "/admin" ? [] : pathname === "/admin/catalog" ? ["Товары"] : pathname === "/admin/categories" ? ["Категории"] : pathname === "/admin/inventory" ? ["Остатки"] : pathname === "/admin/catalog/products/new" ? ["Товары", "Новый товар"] : pathname.startsWith("/admin/catalog/products/") ? ["Товары", "Редактирование"] : [];
+  if (items.length === 0) return null;
+  return <nav className={styles.breadcrumbs} aria-label="Путь"><a href="/admin">Главная</a>{items.map((item,index)=><span key={item}><b>›</b>{index===items.length-1?<strong>{item}</strong>:<a href="/admin/catalog">{item}</a>}</span>)}</nav>;
+}
 
 export default function AdminAuth({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -74,13 +79,13 @@ export default function AdminAuth({ children }: { children: React.ReactNode }) {
 
   const permittedNavigation = navigation.filter(item => item.permissions.some(permission => session.permissions.includes(permission)));
   return <div className={styles.shell}>
-    <aside className={styles.sidebar}><a className={styles.brand} href="/admin">амра <span>admin</span></a>
+    <aside className={styles.sidebar}><a className={styles.brand} href="/admin">амра <span>admin</span></a><span className={styles.navCaption}>Управление магазином</span>
       <nav className={styles.nav} aria-label="Административные разделы">{permittedNavigation.map(item => {
         const active = item.href === "/admin" ? pathname === item.href : pathname.startsWith(item.href);
-        return <a className={active ? styles.navActive : undefined} aria-current={active ? "page" : undefined} key={item.href} href={item.href}>{item.label}</a>;
+        return <a className={active ? styles.navActive : undefined} aria-current={active ? "page" : undefined} key={item.href} href={item.href}><i aria-hidden="true">{item.icon}</i>{item.label}</a>;
       })}</nav>
       <div className={styles.sidebarFoot}>Каталог и склад<br/>Рабочая среда сотрудника</div>
     </aside>
-    <div className={styles.workspace}><header className={styles.topbar}><strong>Панель управления</strong><div className={styles.topActions}><span className={styles.connection}>● {session.displayName || "Сотрудник"}</span><button className={styles.logout} onClick={() => void logout()}>Выйти</button><Link className={styles.storeLink} href="/">На витрину ↗</Link></div></header><main className={styles.content}>{children}</main></div>
+    <div className={styles.workspace}><header className={styles.topbar}><span className={styles.workspaceName}>Каталог Amra Shop</span><div className={styles.topActions}><span className={styles.connection}>● {session.displayName || "Сотрудник"}</span><a className={styles.storeLink} href="/">Открыть магазин ↗</a><button className={styles.logout} onClick={() => void logout()}>Выйти</button></div></header><main className={styles.content}><Breadcrumbs pathname={pathname}/>{children}</main></div>
   </div>;
 }
