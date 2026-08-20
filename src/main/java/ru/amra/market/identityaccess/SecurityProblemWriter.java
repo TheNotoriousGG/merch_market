@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -18,6 +20,8 @@ import tools.jackson.databind.ObjectMapper;
 /** Writes authentication, authorization and CSRF failures in the shared API problem format. */
 @Component
 public final class SecurityProblemWriter implements AuthenticationEntryPoint, AccessDeniedHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityProblemWriter.class);
 
     private final ApiProblemFactory problems;
     private final ObjectMapper objectMapper;
@@ -65,6 +69,11 @@ public final class SecurityProblemWriter implements AuthenticationEntryPoint, Ac
             String title,
             String detail)
             throws IOException {
+        LOGGER.warn(
+                "Security request rejected: code={}, method={}, path={}",
+                code,
+                request.getMethod(),
+                request.getRequestURI());
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         objectMapper.writeValue(

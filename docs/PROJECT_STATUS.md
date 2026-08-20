@@ -213,6 +213,8 @@ Admin Catalog integration по ADR-0008: paged admin queries, presigned media li
 
 Локальный admin browser flow завершает OIDC-контур: frontend проверяет backend-managed session до показа `/admin`, а конфигурируемый `amra.security.login-success-url` возвращает браузер из backend OAuth callback в административный интерфейс. Авторизация admin API по-прежнему выполняется только backend.
 
+Security rejection логирует только stable code, HTTP method и request path; cookies, tokens, credentials и problem detail в telemetry не попадают.
+
 До его начала подготовлен проект [плана frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Он фиксирует, что:
 
 - frontend пока не вызывает backend и продолжает использовать product/profile fixtures и `localStorage`;
