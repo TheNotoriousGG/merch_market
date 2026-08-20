@@ -1,0 +1,14 @@
+FROM gradle:9.6.1-jdk25-ubi10@sha256:f28ea16270b96c12c3b3f6a6f1ea206e8e6f8e7aa3d1297f4974975ea6da874b AS builder
+
+WORKDIR /workspace
+COPY . .
+RUN --mount=type=cache,target=/home/gradle/.gradle ./gradlew bootJar --no-daemon
+
+FROM gcr.io/distroless/java25-debian13:nonroot@sha256:54bb9e269b6f1866d91055fd55dc39baee1914da01bb03eeb44c5b268e77176a
+
+WORKDIR /application
+COPY --from=builder --chown=nonroot:nonroot /workspace/build/libs/application.jar application.jar
+
+USER nonroot:nonroot
+EXPOSE 8080
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "application.jar"]

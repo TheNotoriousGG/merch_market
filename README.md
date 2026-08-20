@@ -69,3 +69,20 @@ set -a && . ./.env && set +a
 Container build и обязательные GitLab project settings описаны в [GITLAB_DELIVERY.md](docs/operations/GITLAB_DELIVERY.md). Подключение GitLab remote/runner и registry временно отложено по ADR-0002; локальные gates и container checks остаются обязательными.
 
 Текущее состояние и следующий разрешённый этап находятся в [PROJECT_STATUS.md](docs/PROJECT_STATUS.md). Markdown обновляется вместе с каждым изменением решения или поведения.
+# Локальный full-stack запуск
+
+Из backend-репозитория весь контур собирается и запускается одной командой:
+
+```bash
+docker compose up --build
+```
+
+Compose использует соседний каталог `../amra-merch-market-frontend` как frontend build context и поднимает:
+
+- storefront/admin frontend — `http://localhost:3001`;
+- backend API — `http://localhost:8080/api/v1`;
+- Keycloak — `http://localhost:8081`;
+- MinIO API/console — `http://localhost:9000` и `http://localhost:9001`;
+- отдельные PostgreSQL для приложения и Keycloak.
+
+Local users импортируются в realm `amra-shop`: `catalog-manager`, `warehouse-manager`, `amra-admin`; пароль каждого — `amra-local`. Эти credentials предназначены только для локального Compose.

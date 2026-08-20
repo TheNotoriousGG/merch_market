@@ -19,6 +19,38 @@
       { "name": "ADMIN" }
     ]
   },
+  "users": [
+    {
+      "username": "catalog-manager",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "catalog-manager@amra.local",
+      "firstName": "Catalog",
+      "lastName": "Manager",
+      "realmRoles": ["CATALOG_MANAGER"],
+      "credentials": [{"type": "password", "value": "amra-local", "temporary": false}]
+    },
+    {
+      "username": "warehouse-manager",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "warehouse-manager@amra.local",
+      "firstName": "Warehouse",
+      "lastName": "Manager",
+      "realmRoles": ["WAREHOUSE_MANAGER"],
+      "credentials": [{"type": "password", "value": "amra-local", "temporary": false}]
+    },
+    {
+      "username": "amra-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@amra.local",
+      "firstName": "Amra",
+      "lastName": "Admin",
+      "realmRoles": ["ADMIN"],
+      "credentials": [{"type": "password", "value": "amra-local", "temporary": false}]
+    }
+  ],
   "clients": [
     {
       "clientId": "amra-backend",
