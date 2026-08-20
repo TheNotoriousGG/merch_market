@@ -58,11 +58,11 @@ const categoryLabels: Record<string, string> = {
 const catalogHref = (category: MenuKey, section?: string) =>
   `/catalog/${category}${section ? `?section=${encodeURIComponent(section)}` : ""}`;
 
-const menuColumns = (label: string, children: Array<{name:string}>) => {
+const menuColumns = (children: Array<{name:string}>) => {
   if (children.length === 0) return [];
   const size = Math.ceil(children.length / Math.min(3, Math.ceil(children.length / 3)));
   return Array.from({length: Math.ceil(children.length / size)}, (_, index) => ({
-    title: index === 0 ? `Все разделы · ${label}` : "Ещё",
+    title: index === 0 ? "Разделы" : "Ещё",
     links: children.slice(index * size, (index + 1) * size).map((child) => child.name),
   }));
 };
@@ -156,7 +156,7 @@ export default function Home() {
           id: category.slug,
           label: category.name,
           icon: presentation?.icon ?? "shirt",
-          columns: menuColumns(category.name, category.children),
+          columns: menuColumns(category.children),
           feature: presentation?.feature,
         };
       }));
@@ -250,9 +250,9 @@ export default function Home() {
                 <p>{column.title}</p>
                 {column.links.map((link) => <a href={catalogHref(activeItem.id, link)} key={link}>{link}</a>)}
               </div>)}</div>
-              {activeItem.feature && <a className="menu-feature" style={{ background: activeItem.feature.color }} href={catalogHref(activeItem.id)}>
-                <span>{activeItem.feature.eyebrow}</span><strong>{activeItem.feature.title}</strong><i><ArrowIcon /></i>
-              </a>}
+              {activeItem.feature && <aside className="menu-feature" style={{ background: activeItem.feature.color }} aria-label={`${activeItem.feature.eyebrow}: ${activeItem.feature.title}`}>
+                <span>{activeItem.feature.eyebrow}</span><strong>{activeItem.feature.title}</strong>
+              </aside>}
             </div>
           </section>}
         </div>
