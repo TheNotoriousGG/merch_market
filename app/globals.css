@@ -606,7 +606,8 @@ a:hover>.link-arrow { background:#ffe45b; transform:translateX(2px); }
 .weekly-visual::before { content:""; position:absolute; width:330px; height:330px; right:-75px; bottom:-85px; background:rgba(255,255,255,.3); border-radius:50%; }
 .weekly-visual::after { content:""; position:absolute; width:230px; height:230px; left:-90px; top:35px; border:45px solid rgba(255,255,255,.28); border-radius:50%; }
 .weekly-visual .product-object { z-index:3; transform:translate(-50%,-44%) scale(1.55)!important; }
-.weekly-number { position:absolute; top:33px; left:36px; color:rgba(32,34,38,.38); font-size:18px; font-weight:800; }
+.weekly-number { position:absolute; z-index:3; top:33px; left:36px; color:rgba(255,255,255,.9); font-size:18px; font-weight:800; text-shadow:0 1px 8px rgba(0,0,0,.24); }
+.weekly-visual>.catalog-product-photo,.sale-card-visual>.catalog-product-photo { z-index:1; }
 .weekly-stamp { position:absolute; z-index:5; right:32px; top:31px; display:grid; place-items:center; width:82px; height:82px; color:#fff; background:#202226; border-radius:50%; font-size:9px; font-weight:800; line-height:1.25; letter-spacing:.09em; text-align:center; transform:rotate(8deg); }
 .weekly-copy { display:flex; flex-direction:column; justify-content:center; padding:48px 52px; animation:weekly-in .42s ease both; }
 .weekly-deadline { display:flex; align-items:center; gap:8px; width:max-content; margin-bottom:35px; padding:9px 12px; color:#555960; background:#fff; border-radius:11px; font-size:11px; font-weight:700; }

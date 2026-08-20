@@ -43,6 +43,8 @@ export default function StoreHeader({
     <div className="header-center">
       <nav className="header-nav" aria-label="Основная навигация">
         <a href="/#new" onClick={onNewClick}>Новинки</a>
+        <a href="/#weekly">Товары недели</a>
+        <a className="sale-link" href="/#sale">Sale</a>
         <a href="/#buyers">Покупателям</a>
       </nav>
       <div className="header-actions">

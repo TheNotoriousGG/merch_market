@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import StoreHeader from "./components/StoreHeader";
+import { useShop } from "./components/ShopState";
+import { CartButtonContent, FavoriteIcon } from "./components/ShopIcons";
 import { loadStorefrontCategories, loadStorefrontProducts } from "./catalog/catalog-api";
-import type { CatalogProduct } from "./catalog/catalog-data";
+import { toShopProduct, type CatalogProduct } from "./catalog/catalog-data";
 import CatalogProductCard from "./catalog/components/CatalogProductCard";
 import CatalogProductDialog from "./catalog/components/CatalogProductDialog";
 
@@ -55,8 +57,11 @@ export default function Home() {
   const [campaignIndex, setCampaignIndex] = useState(0);
   const [campaignPaused, setCampaignPaused] = useState(false);
   const [newOffset, setNewOffset] = useState(0);
+  const [weeklyIndex, setWeeklyIndex] = useState(0);
+  const [salePage, setSalePage] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
-  const [publishedNewProducts, setPublishedNewProducts] = useState<CatalogProduct[]>([]);
+  const [publishedProducts, setPublishedProducts] = useState<CatalogProduct[]>([]);
+  const { addToCart, toggleFavorite, isFavorite } = useShop();
   const menuShellRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     void loadStorefrontCategories().then((categories) => {
@@ -71,7 +76,7 @@ export default function Home() {
     }).catch(() => setMenu([]));
   }, []);
   useEffect(() => {
-    void loadStorefrontProducts({ onlyNew: true }).then(setPublishedNewProducts).catch(() => setPublishedNewProducts([]));
+    void loadStorefrontProducts().then(setPublishedProducts).catch(() => setPublishedProducts([]));
   }, []);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -98,10 +103,16 @@ export default function Home() {
 
   const activeItem = menu.find((item) => item.id === active);
   const campaign = campaigns[campaignIndex];
-  const filteredProducts = publishedNewProducts;
+  const filteredProducts = publishedProducts.filter((product) => product.isNew);
   const visibleProducts = filteredProducts.length <= 4
     ? filteredProducts
     : Array.from({ length: 4 }, (_, index) => filteredProducts[(newOffset + index) % filteredProducts.length]);
+  const weeklyProducts = publishedProducts.filter((product) => product.featured);
+  const weeklyProduct = weeklyProducts.length > 0 ? weeklyProducts[weeklyIndex % weeklyProducts.length] : null;
+  const saleProducts = publishedProducts.filter((product) => product.salePercent);
+  const salePageSize = 3;
+  const salePageCount = Math.max(1, Math.ceil(saleProducts.length / salePageSize));
+  const visibleSaleProducts = saleProducts.slice(salePage * salePageSize, (salePage + 1) * salePageSize);
 
   return <main>
     <StoreHeader
@@ -182,6 +193,67 @@ export default function Home() {
       </div>}
     </section>
 
+    {weeklyProduct&&<section className="weekly-section" id="weekly">
+      <div className="weekly-heading">
+        <div><span className="section-kicker">Редакционная подборка</span><h2>Товары недели</h2></div>
+        {weeklyProducts.length>1&&<div className="carousel-controls weekly-carousel-controls" aria-label="Листать товары недели">
+          <button onClick={()=>setWeeklyIndex((index)=>(index-1+weeklyProducts.length)%weeklyProducts.length)} aria-label="Предыдущий товар недели"><ArrowIcon direction="left"/></button>
+          <span><b>{weeklyIndex+1}</b> / {weeklyProducts.length}</span>
+          <button onClick={()=>setWeeklyIndex((index)=>(index+1)%weeklyProducts.length)} aria-label="Следующий товар недели"><ArrowIcon/></button>
+        </div>}
+      </div>
+      <div className={`weekly-showcase ${weeklyProduct.colorClass}`}>
+        <div className="weekly-visual">
+          <span className="weekly-number">{String(weeklyIndex+1).padStart(2,"0")}</span>
+          {weeklyProduct.imageUrl?<img className="catalog-product-photo" src={weeklyProduct.imageUrl} alt={weeklyProduct.name}/>:null}
+          <span className="weekly-stamp">AMRA<br/>SELECTED</span>
+          <button className="product-open-hit" onClick={()=>setSelectedProduct(weeklyProduct)} aria-label={`Открыть карточку ${weeklyProduct.name}`}/>
+        </div>
+        <div className="weekly-copy">
+          <div className="weekly-deadline"><i/> Выбор команды Amra</div>
+          <span className="section-kicker">Товар недели · № {String(weeklyIndex+1).padStart(2,"0")}</span>
+          <button className="weekly-title-button" onClick={()=>setSelectedProduct(weeklyProduct)}><h3>{weeklyProduct.name}</h3></button>
+          <p>{weeklyProduct.description}</p>
+          <div className="weekly-facts"><span>Цвет <b>{weeklyProduct.color}</b></span><strong>{weeklyProduct.price.toLocaleString("ru-RU")} ₽</strong></div>
+          <div className="weekly-actions">
+            <button className="weekly-buy cart-action-button" onClick={()=>addToCart(toShopProduct(weeklyProduct))}><CartButtonContent/></button>
+            <button className={`weekly-like ${isFavorite(weeklyProduct.id)?"liked":""}`} onClick={()=>toggleFavorite(toShopProduct(weeklyProduct))} aria-pressed={isFavorite(weeklyProduct.id)} aria-label="Добавить товар недели в избранное"><FavoriteIcon active={isFavorite(weeklyProduct.id)}/></button>
+          </div>
+          {weeklyProducts.length>1&&<div className="weekly-selectors" aria-label="Другие товары недели">{weeklyProducts.map((product,index)=><button key={product.id} className={index===weeklyIndex?"active":""} onClick={()=>setWeeklyIndex(index)} aria-pressed={index===weeklyIndex}><i style={product.imageUrl?{backgroundImage:`url(${product.imageUrl})`,backgroundSize:"cover"}:undefined}/><span>{product.name}</span><b>{String(index+1).padStart(2,"0")}</b></button>)}</div>}
+        </div>
+      </div>
+    </section>}
+
+    {saleProducts.length>0&&<section className="sale-section" id="sale">
+      <div className="sale-panel">
+        <div className="sale-message">
+          <span className="sale-eyebrow">Специальные цены</span>
+          <h2>Sale<br/>сейчас</h2>
+          <p>Скидки на опубликованные товары, настроенные каталог-менеджером.</p>
+          <a href="#sale-products">Смотреть распродажу<LinkArrow/></a>
+          {salePageCount>1&&<div className="carousel-controls sale-carousel-controls" aria-label="Листать товары распродажи">
+            <button onClick={()=>setSalePage((page)=>(page-1+salePageCount)%salePageCount)} aria-label="Предыдущие товары Sale"><ArrowIcon direction="left"/></button>
+            <span><b>{salePage+1}</b> / {salePageCount}</span>
+            <button onClick={()=>setSalePage((page)=>(page+1)%salePageCount)} aria-label="Следующие товары Sale"><ArrowIcon/></button>
+          </div>}
+        </div>
+        <div className="sale-products" id="sale-products" aria-live="polite">{visibleSaleProducts.map((product)=><article className="sale-card" key={product.id}>
+          <div className={`sale-card-visual ${product.colorClass}`}>
+            <span className="sale-discount">−{product.salePercent}%</span>
+            <button className={`sale-heart ${isFavorite(product.id)?"liked":""}`} onClick={()=>toggleFavorite(toShopProduct(product))} aria-pressed={isFavorite(product.id)} aria-label="Добавить товар в избранное"><FavoriteIcon active={isFavorite(product.id)}/></button>
+            {product.imageUrl?<img className="catalog-product-photo" src={product.imageUrl} alt={product.name}/>:null}
+            <button className="product-open-hit" onClick={()=>setSelectedProduct(product)} aria-label={`Открыть карточку ${product.name}`}/>
+          </div>
+          <div className="sale-card-copy">
+            <button className="sale-title-button" onClick={()=>setSelectedProduct(product)}><h3>{product.name}</h3></button>
+            <div className="sale-prices"><strong>{product.price.toLocaleString("ru-RU")} ₽</strong>{product.originalPrice&&<del>{product.originalPrice.toLocaleString("ru-RU")} ₽</del>}</div>
+            <div className="sale-sizes"><span>Размеры:</span>{product.sizes.map((size)=><i key={size}>{size}</i>)}</div>
+            <button className="cart-action-button" onClick={()=>addToCart(toShopProduct(product))}><CartButtonContent/></button>
+          </div>
+        </article>)}</div>
+      </div>
+    </section>}
+
     <footer className="site-footer" id="buyers">
       <div className="footer-modular">
         <div className="footer-modular-head">
@@ -214,7 +286,7 @@ export default function Home() {
             <div className="footer-socials"><a href="https://vk.com/" aria-label="ВКонтакте">VK</a><a href="https://t.me/" aria-label="Telegram">TG</a><a href="https://www.pinterest.com/" aria-label="Pinterest">P</a></div>
           </section>
           <nav className="footer-module footer-module-links" aria-label="Ссылки в подвале">
-            <div><span className="module-kicker">Магазин</span><a href="#new">Новинки</a></div>
+            <div><span className="module-kicker">Магазин</span><a href="#new">Новинки</a><a href="#weekly">Товары недели</a><a href="#sale">Sale</a></div>
             <div><span className="module-kicker">Категории</span>{menu.map((item) => <Link href={`/catalog/${item.id}`} key={item.id}>{item.label}</Link>)}</div>
           </nav>
           <section className="footer-module footer-module-contact">

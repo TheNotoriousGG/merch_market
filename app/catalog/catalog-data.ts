@@ -9,6 +9,9 @@ export type CatalogProduct = ShopProduct & {
   isNew?: boolean;
   imageUrl?: string;
   priceAvailable?: boolean;
+  originalPrice?: number;
+  salePercent?: number;
+  featured?: boolean;
 };
 
 export const toShopProduct = (product: CatalogProduct): ShopProduct => ({
