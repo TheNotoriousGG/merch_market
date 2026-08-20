@@ -113,7 +113,7 @@ npm run build
 
 ## Локальная контейнерная среда
 
-Полный developer stack принадлежит backend Compose и собирает frontend из соседнего репозитория. Локальный Node и Java для обычного запуска не требуются: `docker compose up --build` поднимает frontend, backend, две PostgreSQL, Keycloak и MinIO. Browser обращается к API через `http://localhost:8080`, поэтому OIDC redirect и presigned MinIO URL остаются достижимыми с host-машины.
+Полный developer stack принадлежит отдельному sibling-проекту `amra-merch-market-infra`. Его Compose собирает frontend и backend через Dockerfile соответствующих репозиториев. Локальный Node и Java для обычного запуска не требуются: `docker compose up --build` поднимает frontend, backend, две PostgreSQL, Keycloak и MinIO. Browser обращается к API через `http://localhost:8080`, поэтому OIDC redirect и presigned MinIO URL остаются достижимыми с host-машины.
 
 ## Конвенции frontend-кода
 
