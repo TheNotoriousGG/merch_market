@@ -4,7 +4,8 @@ export type Category = { id:string; parentId?:string|null; slug:string; name:str
 export type ProductSummary = { id:string; slug:string; name:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; variantCount:number; mediaCount:number; hasPrimaryMedia:boolean; version:number; updatedAt:string };
 export type Variant = { id:string; sku:string; label:string; status:"ACTIVE"|"ARCHIVED"; displayOrder:number; version:number };
 export type ProductMedia = { id:string; contentType:string; width:number; height:number; alt:string; displayOrder:number; primary:boolean; version:number };
-export type Product = { id:string; slug:string; name:string; shortDescription:string; description:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; categoryIds:string[]; collectionIds:string[]; characteristics:unknown[]; variants:Variant[]; media:ProductMedia[]; version:number; updatedAt:string };
+export type ProductMerchandising = { newArrival:boolean; newUntil?:string|null; onSale:boolean; salePercent?:number|null };
+export type Product = { id:string; slug:string; name:string; shortDescription:string; description:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; categoryIds:string[]; collectionIds:string[]; characteristics:unknown[]; merchandising?:ProductMerchandising; variants:Variant[]; media:ProductMedia[]; version:number; updatedAt:string };
 export type ProductPage = { items:ProductSummary[]; page:{page:number;size:number;totalElements:number;totalPages:number} };
 export type Balance = { warehouseCode:string; variantId:string; onHand:number; reserved:number; available:number; version:number; updatedAt:string };
 

@@ -56,6 +56,10 @@
 .field { display: grid; gap: 7px; }
 .field label { color: #62656a; font-size: 12px; font-weight: 750; }
 .formGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.promotionGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:18px; }
+.promotionCard { display:flex; align-items:flex-start; gap:12px; min-height:88px; padding:17px; background:#f6f6f3; border:1px solid #e6e6e2; border-radius:15px; cursor:pointer; }
+.promotionCard input { flex:0 0 18px; width:18px; height:18px; margin:2px 0 0; accent-color:#202226; }
+.promotionCard span { display:grid; gap:5px; }.promotionCard strong { font-size:14px; }.promotionCard small { color:#74777c; font-size:11px; line-height:1.45; }
 .full { grid-column: 1/-1; }
 .tableWrap { overflow-x: auto; background: white; border: 1px solid var(--color-border); border-radius: var(--radius-card); }
 .table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -105,5 +109,5 @@
 .mediaItem { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; border: 1px solid var(--color-border); border-radius: 11px; }
 .mediaItem div { display: grid; gap: 3px; }.mediaItem span { color: var(--color-muted); font-size: 12px; }
 @media (max-width: 1050px) { .shell { grid-template-columns: 205px 1fr; } .content,.topbar { padding-left: 24px; padding-right: 24px; } .grid { grid-template-columns: 1fr; } }
-@media (max-width: 900px) { .editorLayout { grid-template-columns: 1fr; } .readiness { position: static; } .formGrid { grid-template-columns: 1fr; } .full { grid-column: auto; } .categoryRow { grid-template-columns: 1fr; gap: 8px; } .rowActions { justify-content: flex-start; } }
+@media (max-width: 900px) { .editorLayout { grid-template-columns: 1fr; } .readiness { position: static; } .formGrid,.promotionGrid { grid-template-columns: 1fr; } .full { grid-column: auto; } .categoryRow { grid-template-columns: 1fr; gap: 8px; } .rowActions { justify-content: flex-start; } }
 @media (prefers-reduced-motion: reduce) { .authLoader { animation: none; border-top-color: #dedfdd; } }
