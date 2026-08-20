@@ -6,6 +6,8 @@ export type CatalogProduct = ShopProduct & {
   material: string;
   sizes: string[];
   isNew?: boolean;
+  imageUrl?: string;
+  priceAvailable?: boolean;
 };
 
 export const toShopProduct = (product: CatalogProduct): ShopProduct => ({

@@ -7,7 +7,7 @@ import StoreHeader from "../../components/StoreHeader";
 import CatalogProductCard from "../components/CatalogProductCard";
 import CatalogProductDialog from "../components/CatalogProductDialog";
 import { catalog, type CatalogKey, type CatalogProduct as Product } from "../catalog-data";
-import { loadStorefrontCategories, type StorefrontCategory } from "../catalog-api";
+import { loadStorefrontCategories, loadStorefrontProducts, type StorefrontCategory } from "../catalog-api";
 
 const PAGE_SIZE = 5;
 
@@ -26,13 +26,20 @@ export default function CatalogPage() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [newOnly, setNewOnly] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [apiProducts, setApiProducts] = useState<Product[]>([]);
+  useEffect(() => {
+    let active = true;
+    void loadStorefrontProducts({ category: key }).then((items) => active && setApiProducts(items)).catch(() => active && setApiProducts([]));
+    return () => { active = false; };
+  }, [key]);
 
   const products = useMemo(() => {
-    const result = newOnly ? current.products.filter((product) => product.isNew) : [...current.products];
+    const combined = [...apiProducts, ...current.products.filter((product) => !apiProducts.some((apiProduct) => apiProduct.id === product.id))];
+    const result = newOnly ? combined.filter((product) => product.isNew) : combined;
     if (sort === "price") result.sort((a, b) => a.price - b.price);
     if (sort === "new") result.sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew)));
     return result;
-  }, [current.products, newOnly, sort]);
+  }, [apiProducts, current.products, newOnly, sort]);
   const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
   const pageFromUrl = Number.parseInt(searchParams.get("page") || "1", 10);
   const currentPage = Math.min(Math.max(Number.isFinite(pageFromUrl) ? pageFromUrl : 1, 1), totalPages);

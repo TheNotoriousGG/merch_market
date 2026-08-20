@@ -7,7 +7,7 @@ import StoreHeader from "./components/StoreHeader";
 import { ShopProduct, useShop } from "./components/ShopState";
 import ShopProductDialog from "./components/ShopProductDialog";
 import { CartButtonContent, FavoriteIcon } from "./components/ShopIcons";
-import { loadStorefrontCategories } from "./catalog/catalog-api";
+import { loadStorefrontCategories, loadStorefrontProducts } from "./catalog/catalog-api";
 
 type MenuKey = string;
 
@@ -36,10 +36,12 @@ const fallbackMenu: MenuItem[] = [
   ] },
 ];
 
-const products: Array<{
-  id: number; name: string; price: string; category: MenuKey;
-  className: string; art: string; colors: string[];
-}> = [
+type HomeProduct = {
+  id: string | number; name: string; price: string; category: MenuKey;
+  className: string; art: string; colors: string[]; imageUrl?: string; priceAvailable?: boolean;
+};
+
+const products: HomeProduct[] = [
   { id: 1, name: "Футболка «Серия 01»", price: "2 990 ₽", category: "clothes", className: "product-blue", art: "tee", colors: ["#202226", "#f1efe8", "#9ebbdc"] },
   { id: 2, name: "Худи свободного кроя", price: "5 490 ₽", category: "clothes", className: "product-lilac", art: "hoodie", colors: ["#655d7d", "#d7d0e9"] },
   { id: 3, name: "Часы Amra Mono", price: "8 990 ₽", category: "accessories", className: "product-yellow", art: "watch", colors: ["#202226", "#ffdd2d"] },
@@ -146,6 +148,7 @@ export default function Home() {
   const [weeklyIndex, setWeeklyIndex] = useState(0);
   const [salePage, setSalePage] = useState(0);
   const [selectedShopProduct, setSelectedShopProduct] = useState<ShopProduct | null>(null);
+  const [publishedNewProducts, setPublishedNewProducts] = useState<HomeProduct[]>([]);
   const menuShellRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     void loadStorefrontCategories().then((categories) => {
@@ -159,6 +162,19 @@ export default function Home() {
         };
       }));
     }).catch(() => setMenu(fallbackMenu));
+  }, []);
+  useEffect(() => {
+    void loadStorefrontProducts({ onlyNew: true }).then((items) => setPublishedNewProducts(items.map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: "Цена появится позже",
+      priceAvailable: false,
+      category: "published",
+      className: product.colorClass,
+      art: product.art,
+      colors: [],
+      imageUrl: product.imageUrl,
+    })))).catch(() => setPublishedNewProducts([]));
   }, []);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -185,7 +201,7 @@ export default function Home() {
 
   const activeItem = menu.find((item) => item.id === active);
   const campaign = campaigns[campaignIndex];
-  const filteredProducts = selectedCategory ? products.filter((product) => product.category === selectedCategory) : products;
+  const filteredProducts = selectedCategory ? products.filter((product) => product.category === selectedCategory) : [...publishedNewProducts, ...products];
   const visibleProducts = filteredProducts.length <= 4
     ? filteredProducts
     : Array.from({ length: 4 }, (_, index) => filteredProducts[(newOffset + index) % filteredProducts.length]);
@@ -272,9 +288,9 @@ export default function Home() {
           <div className={`product-image ${product.className}`}>
             <span className="new-badge">NEW</span>
             <button className={`product-heart ${isFavorite(String(product.id)) ? "liked" : ""}`} onClick={() => toggleFavorite(shopProduct(product))} aria-pressed={isFavorite(String(product.id))} aria-label={`${isFavorite(String(product.id)) ? "Убрать" : "Добавить"} ${product.name} ${isFavorite(String(product.id)) ? "из избранного" : "в избранное"}`}><FavoriteIcon active={isFavorite(String(product.id))} /></button>
-            <span className={`product-object product-object-${product.art}`} aria-hidden="true" />
-            <button className="product-open-hit" onClick={() => setSelectedShopProduct(shopProduct(product))} aria-label={`Открыть карточку ${product.name}`} />
-            <button className="quick-add cart-action-button" onClick={() => addToCart(shopProduct(product))}><CartButtonContent /></button>
+            {product.imageUrl ? <img className="catalog-product-photo" src={product.imageUrl} alt="" /> : <span className={`product-object product-object-${product.art}`} aria-hidden="true" />}
+            {product.priceAvailable !== false && <button className="product-open-hit" onClick={() => setSelectedShopProduct(shopProduct(product))} aria-label={`Открыть карточку ${product.name}`} />}
+            <button className="quick-add cart-action-button" disabled={product.priceAvailable === false} onClick={() => addToCart(shopProduct(product))}><CartButtonContent label={product.priceAvailable === false ? "Скоро" : undefined} /></button>
           </div>
           <div className="product-meta"><button className="product-title-button" onClick={() => setSelectedShopProduct(shopProduct(product))}><h3>{product.name}</h3></button><strong>{product.price}</strong></div>
           <div className="color-dots" aria-label={`${product.colors.length} цвета`}>
