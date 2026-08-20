@@ -45,7 +45,7 @@ export default function ShopProductDialog({ product, onClose }: { product: ShopP
   return <div className="product-dialog-backdrop" role="button" tabIndex={-1} aria-label="Закрыть карточку" onKeyDown={(event) => event.key === "Escape" && onClose()} onClick={(event) => event.target === event.currentTarget && onClose()}>
     <section className="product-dialog" role="dialog" aria-modal="true" aria-labelledby="shop-product-title">
       <button className="product-dialog-close" onClick={onClose} aria-label="Закрыть карточку">×</button>
-      <div className={`product-dialog-visual ${product.colorClass}`}><span className="new-badge">AMRA</span><span className={`product-object product-object-${product.art}`} aria-hidden="true" /></div>
+      <div className={`product-dialog-visual ${product.colorClass}`}><span className="new-badge">AMRA</span>{product.imageUrl?<img className="catalog-product-photo" src={product.imageUrl} alt=""/>:<span className={`product-object product-object-${product.art}`} aria-hidden="true" />}</div>
       <div className="product-dialog-copy">
         <span className="section-kicker">Амра Шоп · Коллекция 2026</span>
         <h2 id="shop-product-title">{product.name}</h2><strong className="product-dialog-price">{formatPrice(product.price)}</strong>

@@ -25,7 +25,7 @@ export default function FavoritesPage() {
         <a className="utility-primary-link" href="/#new">Смотреть новинки<span>›</span></a>
       </section> : <section className="favorites-grid" aria-label="Избранные товары">
         {favorites.map((product) => <article className="favorite-card" key={product.id}>
-          <div className={`favorite-visual ${product.colorClass}`}><span className={`product-object product-object-${product.art}`} aria-hidden="true" /><button className="product-open-hit" onClick={() => setSelectedProduct(product)} aria-label={`Открыть карточку ${product.name}`} /><button className="liked" onClick={() => toggleFavorite(product)} aria-label={`Убрать ${product.name} из избранного`}><FavoriteIcon active /></button></div>
+          <div className={`favorite-visual ${product.colorClass}`}>{product.imageUrl?<img className="catalog-product-photo" src={product.imageUrl} alt=""/>:<span className={`product-object product-object-${product.art}`} aria-hidden="true" />}<button className="product-open-hit" onClick={() => setSelectedProduct(product)} aria-label={`Открыть карточку ${product.name}`} /><button className="liked" onClick={() => toggleFavorite(product)} aria-label={`Убрать ${product.name} из избранного`}><FavoriteIcon active /></button></div>
           <div className="favorite-copy"><div><button className="favorite-title-button" onClick={() => setSelectedProduct(product)}><h2>{product.name}</h2></button><strong>{formatPrice(product.price)}</strong></div><button className="cart-action-button" onClick={() => addToCart(product)}><CartButtonContent /></button></div>
         </article>)}
       </section>}

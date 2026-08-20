@@ -8,6 +8,7 @@ export type ShopProduct = {
   price: number;
   art: string;
   colorClass: string;
+  imageUrl?: string;
 };
 
 export type CartLine = ShopProduct & { quantity: number };

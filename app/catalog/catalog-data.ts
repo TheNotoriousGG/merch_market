@@ -16,6 +16,7 @@ export const toShopProduct = (product: CatalogProduct): ShopProduct => ({
   price: product.price,
   art: product.art,
   colorClass: product.colorClass,
+  imageUrl: product.imageUrl,
 });
 
 const clothes: CatalogProduct[] = [

@@ -132,8 +132,8 @@ function LinkArrow({ external = false }: { external?: boolean }) {
 }
 
 const numericPrice = (value: string) => Number(value.replace(/\D/g, ""));
-const shopProduct = (product: { id: string | number; name: string; price: string; art: string; className?: string; color?: string }): ShopProduct => ({
-  id: String(product.id), name: product.name, price: numericPrice(product.price), art: product.art, colorClass: product.className || product.color || "product-blue",
+const shopProduct = (product: { id: string | number; name: string; price: string; art: string; className?: string; color?: string; imageUrl?: string }): ShopProduct => ({
+  id: String(product.id), name: product.name, price: numericPrice(product.price), art: product.art, colorClass: product.className || product.color || "product-blue", imageUrl: product.imageUrl,
 });
 
 export default function Home() {
