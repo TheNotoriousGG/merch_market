@@ -83,6 +83,7 @@
 - Reservation command idempotency stores immutable typed results keyed by lifecycle event; create/extend/commit/release replay their original snapshot after later transitions, and V10 backfills pre-existing event history without JSON state.
 - Reservation expiry is a bounded scheduled application use case coordinated only by a PostgreSQL-time lease; candidates use the partial expiry index plus `FOR UPDATE SKIP LOCKED`, and deployment properties are fail-fast bounded.
 - Cache не внедряется заранее; Redis возможен через adapter после измерения и определения invalidation.
+- Admin integration до этапа 9 добавляет paged catalog queries и presigned media lifecycle; local S3-compatible adapter — MinIO, production provider остаётся отложенным решением (ADR-0008).
 
 ## Customer, favorites и cart
 

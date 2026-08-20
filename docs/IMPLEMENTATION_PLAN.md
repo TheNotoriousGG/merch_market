@@ -2,7 +2,7 @@
 
 Статус: утверждён владельцем проекта 19 августа 2026 года.
 
-Обновлено: 19 августа 2026 года.
+Обновлено: 20 августа 2026 года.
 
 План состоит из последовательных gates. Следующий этап не начинается, пока критерии выхода предыдущего не выполнены. Временное исключение local-only GitLab activation описано ADR-0002 и не распространяется на release/deployment. Каждый этап после initial commit выполняется в отдельной short-lived feature-ветке и завершается документацией, проверками и logical Conventional Commits.
 
@@ -19,10 +19,11 @@
 | 6. Identity/access | Завершён | OIDC/session/security foundation находится в `main` |
 | 7. Catalog | Завершён | 12/12, release acceptance и merge в `main` |
 | 8. Inventory | Завершён | 12/12, release acceptance и merge в `main` |
-| 9. Customer, favorites и cart | Следующий разрешённый | product implementation ещё не начат |
+| Admin Catalog integration | Следующий разрешённый | ограниченный integration track ADR-0008; не меняет порядок product stages |
+| 9. Customer, favorites и cart | Ожидает admin integration gate | product implementation ещё не начат |
 | 10–15 | Ожидают | начинаются только после gate предыдущего этапа |
 
-Параллельное состояние frontend и последовательность замены fixtures зафиксированы в [плане frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Этот integration track не меняет порядок backend stages и не разрешает подменять отсутствующий backend-модуль временной business logic во frontend.
+Параллельное состояние frontend и последовательность замены fixtures зафиксированы в [плане frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Владелец отдельно разрешил ограниченный Admin Catalog integration по ADR-0008 до этапа 9; он расширяет готовые Catalog/Inventory contracts и не начинает следующий business module.
 
 ## Этап 0. Architecture baseline — до Git init
 
@@ -248,14 +249,15 @@ Commit: `chore: initialize backend project`.
 
 Интеграция storefront выполняется инкрементально после появления соответствующего backend contract:
 
-1. синхронизация контекста и generated TypeScript client;
-2. воспроизводимый local stack, identity/data/media bootstrap;
-3. Catalog/Search/Inventory во frontend;
-4. Customer/Favorites/Cart после этапа 9;
-5. Pricing/Promotions после этапа 10;
-6. Checkout/Orders после этапа 11;
-7. Returns/Fake integrations после этапа 12;
-8. full-stack acceptance и единый local developer workflow.
+1. Admin Catalog: list queries, local MinIO media lifecycle, generated client и admin UI по ADR-0008;
+2. синхронизация storefront context и generated TypeScript client;
+3. воспроизводимый local stack, identity/data/media bootstrap;
+4. Catalog/Search/Inventory во frontend;
+5. Customer/Favorites/Cart после этапа 9;
+6. Pricing/Promotions после этапа 10;
+7. Checkout/Orders после этапа 11;
+8. Returns/Fake integrations после этапа 12;
+9. full-stack acceptance и единый local developer workflow.
 
 Полные gates, blockers и Definition of Done находятся в [FRONTEND_BACKEND_INTEGRATION_PLAN.md](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). План имеет статус проекта до отдельного утверждения владельцем.
 

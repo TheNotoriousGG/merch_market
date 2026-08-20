@@ -1,6 +1,6 @@
 # Текущее состояние backend
 
-Обновлено: 19 августа 2026 года.
+Обновлено: 20 августа 2026 года.
 
 ## Короткий ответ
 
@@ -9,8 +9,8 @@
 | Backend stages 0–8 | Завершены локально и находятся в `main`; GitLab/package publication exceptions перечислены отдельно |
 | Реализованные product slices | Catalog и Inventory |
 | Последний закрытый acceptance | 173 tests, Inventory 12/12, container/client/reproducibility checks |
-| Следующий разрешённый product stage | этап 9 — Customer, favorites и cart |
-| Frontend/backend integration | спроектирована, но frontend всё ещё использует fixtures/`localStorage`; план ожидает утверждения |
+| Следующий разрешённый этап | ограниченный Admin Catalog integration по ADR-0008; затем product stage 9 |
+| Frontend/backend integration | Admin Catalog UX/local MinIO baseline утверждён; storefront всё ещё использует fixtures/`localStorage` |
 | Production-only решения | platform, Secret Manager, real providers и GitLab activation отложены |
 
 ## Завершено
@@ -207,16 +207,16 @@ GitLab activation остаётся обязательным deferred gate до �
 
 ## Следующий разрешённый этап
 
-Этап 9 — Customer, favorites и cart — выполняется только после отдельного утверждения contract/invariants в `feature/customer-cart`. Product implementation ещё не начат.
+Admin Catalog integration по ADR-0008: paged admin queries, presigned media lifecycle с local MinIO, generated client и frontend admin flow. После его acceptance следующим product stage остаётся этап 9 — Customer, favorites и cart.
 
 До его начала подготовлен проект [плана frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Он фиксирует, что:
 
 - frontend пока не вызывает backend и продолжает использовать product/profile fixtures и `localStorage`;
 - Catalog/Search/Inventory можно подключать отдельным frontend slice после contract delivery и local seed;
 - полноценные favorites/cart/profile требуют этапа 9, цены — этапа 10, checkout/orders — этапа 11, returns/integration flows — этапа 12;
-- текущий frontend build успешен, но два starter-skeleton test устарели и `npm audit` показывает 20 dependency findings; cleanup входит в первый frontend integration block;
+- frontend foundation приведён к зелёным build, storefront tests и lint; новый admin code использует design tokens, CSS Modules и feature boundaries;
 - local identity/data/media bootstrap и full-stack developer workflow являются обязательными integration gates;
-- сам план ожидает утверждения владельцем и не разрешает начать business implementation.
+- общий storefront plan остаётся последовательным; Admin Catalog integration отдельно утверждён владельцем 20 августа 2026 года.
 
 Результаты проверки контекстных файлов и найденные contract/frontend gaps находятся в [CONTEXT_AUDIT.md](integration/CONTEXT_AUDIT.md).
 

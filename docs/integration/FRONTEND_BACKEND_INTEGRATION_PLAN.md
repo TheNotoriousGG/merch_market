@@ -1,6 +1,6 @@
 # План интеграции frontend и backend
 
-Статус: проект плана, ожидает утверждения владельцем.
+Статус: Admin Catalog integration track утверждён 20 августа 2026 года; остальные product-dependent блоки сохраняют свои gates.
 
 Обновлено: 19 августа 2026 года.
 
@@ -73,6 +73,8 @@
 - решить судьбу несовместимого `amra-shop-state-v1`: рекомендуемый вариант — явный одноразовый сброс demo-state, а не неоднозначный mapping по display name;
 - отдельно подтвердить auth model для будущего hosted Sites: local Keycloak уже выбран, но hosted external-identity path нельзя предполагать без проверки platform boundary;
 - выбрать browser E2E runner отдельным решением, не добавляя библиотеку молча.
+
+Решение владельца от 20 августа 2026 года: до этапа 9 разрешён Admin Catalog vertical slice по ADR-0008. Local media использует MinIO через S3 port/adapter; production storage provider остаётся отложенным.
 
 Gate: нет открытых решений, которые меняют contract, identity или data ownership.
 
