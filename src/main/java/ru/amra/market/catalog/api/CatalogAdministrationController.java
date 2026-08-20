@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.net.URI;
 import java.util.UUID;
 import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import ru.amra.market.catalog.application.AdminCatalogProductNotFoundException;
+import ru.amra.market.catalog.application.AdminCategoryListCriteria;
 import ru.amra.market.catalog.application.AdminCategoryView;
+import ru.amra.market.catalog.application.AdminProductListCriteria;
 import ru.amra.market.catalog.application.CatalogCategoryNotFoundException;
 import ru.amra.market.catalog.application.CatalogCollectionNotFoundException;
 import ru.amra.market.catalog.application.CatalogIdempotencyConflictException;
@@ -20,6 +23,8 @@ import ru.amra.market.catalog.application.CatalogProductChildNotFoundException;
 import ru.amra.market.catalog.application.CatalogVersionEtag;
 import ru.amra.market.catalog.application.ConcurrentCatalogModificationException;
 import ru.amra.market.catalog.application.CreateCatalogCategoryCommand;
+import ru.amra.market.catalog.application.ListAdminCatalogCategories;
+import ru.amra.market.catalog.application.ListAdminCatalogProducts;
 import ru.amra.market.catalog.application.ManageCatalogCategories;
 import ru.amra.market.catalog.application.ManageCatalogCollections;
 import ru.amra.market.catalog.application.ManageCatalogProducts;
@@ -42,15 +47,19 @@ import ru.amra.market.catalog.domain.VariantId;
 import ru.amra.market.catalog.domain.VariantStatus;
 import ru.amra.market.platform.generated.api.CatalogAdministrationApi;
 import ru.amra.market.platform.generated.model.AdminCategoryDto;
+import ru.amra.market.platform.generated.model.AdminCategoryListDto;
 import ru.amra.market.platform.generated.model.AdminCollectionDto;
 import ru.amra.market.platform.generated.model.AdminMediaDto;
 import ru.amra.market.platform.generated.model.AdminProductDto;
+import ru.amra.market.platform.generated.model.AdminProductPageDto;
+import ru.amra.market.platform.generated.model.AdminProductSummaryDto;
 import ru.amra.market.platform.generated.model.AdminVariantDto;
 import ru.amra.market.platform.generated.model.CreateCategoryRequestDto;
 import ru.amra.market.platform.generated.model.CreateCollectionRequestDto;
 import ru.amra.market.platform.generated.model.CreateMediaRequestDto;
 import ru.amra.market.platform.generated.model.CreateProductRequestDto;
 import ru.amra.market.platform.generated.model.CreateVariantRequestDto;
+import ru.amra.market.platform.generated.model.PageMetadataDto;
 import ru.amra.market.platform.generated.model.UpdateCategoryRequestDto;
 import ru.amra.market.platform.generated.model.UpdateCollectionProductsRequestDto;
 import ru.amra.market.platform.generated.model.UpdateCollectionRequestDto;
@@ -65,12 +74,72 @@ public final class CatalogAdministrationController implements CatalogAdministrat
     private final ManageCatalogCategories categories;
     private final ManageCatalogProducts products;
     private final ManageCatalogCollections collections;
+    private final ListAdminCatalogCategories categoryList;
+    private final ListAdminCatalogProducts productList;
 
     public CatalogAdministrationController(
-            ManageCatalogCategories categories, ManageCatalogProducts products, ManageCatalogCollections collections) {
+            ManageCatalogCategories categories,
+            ManageCatalogProducts products,
+            ManageCatalogCollections collections,
+            ListAdminCatalogCategories categoryList,
+            ListAdminCatalogProducts productList) {
         this.categories = categories;
         this.products = products;
         this.collections = collections;
+        this.categoryList = categoryList;
+        this.productList = productList;
+    }
+
+    @Override
+    public ResponseEntity<AdminCategoryListDto> listAdminCatalogCategories(
+            @Nullable String q, @Nullable String status) {
+        return translate(() -> {
+            var criteria = new AdminCategoryListCriteria(
+                    q, status == null ? null : CategoryStatus.valueOf(status.toUpperCase(java.util.Locale.ROOT)));
+            return ResponseEntity.ok(new AdminCategoryListDto(categoryList.execute(criteria).stream()
+                    .map(CatalogAdministrationController::toDto)
+                    .toList()));
+        });
+    }
+
+    @Override
+    public ResponseEntity<AdminProductPageDto> listAdminCatalogProducts(
+            @Nullable String q,
+            @Nullable String status,
+            @Nullable UUID categoryId,
+            Integer page,
+            Integer size,
+            String sort) {
+        return translate(() -> {
+            var criteria = new AdminProductListCriteria(
+                    q,
+                    status == null
+                            ? null
+                            : ru.amra.market.catalog.domain.ProductStatus.valueOf(
+                                    status.toUpperCase(java.util.Locale.ROOT)),
+                    categoryId == null ? null : new CategoryId(categoryId),
+                    page,
+                    size,
+                    AdminProductListCriteria.Sort.valueOf(sort.toUpperCase(java.util.Locale.ROOT)));
+            var result = productList.execute(criteria);
+            var items = result.items().stream()
+                    .map(item -> new AdminProductSummaryDto(
+                            item.id(),
+                            item.slug(),
+                            item.name(),
+                            AdminProductSummaryDto.StatusEnum.valueOf(
+                                    item.status().name()),
+                            item.primaryCategoryId(),
+                            item.variantCount(),
+                            item.mediaCount(),
+                            item.hasPrimaryMedia(),
+                            item.version(),
+                            item.updatedAt()))
+                    .toList();
+            return ResponseEntity.ok(new AdminProductPageDto(
+                    items,
+                    new PageMetadataDto(result.page(), result.size(), result.totalElements(), result.totalPages())));
+        });
     }
 
     @Override
