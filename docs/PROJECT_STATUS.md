@@ -217,6 +217,8 @@ Security rejection логирует только stable code, HTTP method и req
 
 SPA CSRF contract явно использует plain cookie/header request handler: browser читает `AMRA_CSRF` и возвращает то же значение в `X-AMRA-CSRF`; интеграционный тест проверяет реальный handshake без test-only CSRF post-processor.
 
+Локальный Keycloak client `amra-backend` имеет явный realm-role mapper для ID token, access token и userinfo; backend session получает allowlisted RBAC roles из `realm_access.roles`, а не доверяет frontend.
+
 До его начала подготовлен проект [плана frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Он фиксирует, что:
 
 - frontend пока не вызывает backend и продолжает использовать product/profile fixtures и `localStorage`;
