@@ -388,6 +388,20 @@ public final class Product {
                 publishedAt);
     }
 
+    /** Removes one media item. Active products must retain their primary image. */
+    public Product removeMedia(MediaId mediaId) {
+        requireMutable();
+        var removed = media.stream().filter(item -> item.id().equals(mediaId)).findFirst()
+                .orElseThrow(() -> new ProductInvariantViolation(ProductInvariant.INVALID_ID, "Media does not belong to product"));
+        if (status == ProductStatus.ACTIVE && removed.primary()) {
+            throw new ProductInvariantViolation(
+                    ProductInvariant.PRODUCT_NOT_PUBLISHABLE,
+                    "Choose another primary image before deleting the current primary image");
+        }
+        return copy(slug, aliases, content, status, primaryCategoryId, categoryIds, collectionIds,
+                characteristics, variants, media.stream().filter(item -> !item.id().equals(mediaId)).toList(), publishedAt);
+    }
+
     /** Archives a variant without releasing its immutable SKU or defining combination. */
     public Product archiveVariant(VariantId variantId) {
         requireMutable();

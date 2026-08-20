@@ -31,6 +31,7 @@ import ru.amra.market.catalog.application.ManageCatalogProducts;
 import ru.amra.market.catalog.application.MediaUploadService;
 import ru.amra.market.catalog.application.StaleCatalogVersionException;
 import ru.amra.market.catalog.application.UpdateCatalogCategoryCommand;
+import ru.amra.market.catalog.application.port.MediaDeliveryUrlProvider;
 import ru.amra.market.catalog.domain.CategoryId;
 import ru.amra.market.catalog.domain.CategoryInvariantViolation;
 import ru.amra.market.catalog.domain.CategoryStatus;
@@ -82,6 +83,7 @@ public final class CatalogAdministrationController implements CatalogAdministrat
     private final ListAdminCatalogCategories categoryList;
     private final ListAdminCatalogProducts productList;
     private final MediaUploadService mediaUploads;
+    private final MediaDeliveryUrlProvider mediaUrls;
 
     public CatalogAdministrationController(
             ManageCatalogCategories categories,
@@ -89,13 +91,15 @@ public final class CatalogAdministrationController implements CatalogAdministrat
             ManageCatalogCollections collections,
             ListAdminCatalogCategories categoryList,
             ListAdminCatalogProducts productList,
-            MediaUploadService mediaUploads) {
+            MediaUploadService mediaUploads,
+            MediaDeliveryUrlProvider mediaUrls) {
         this.categories = categories;
         this.products = products;
         this.collections = collections;
         this.categoryList = categoryList;
         this.productList = productList;
         this.mediaUploads = mediaUploads;
+        this.mediaUrls = mediaUrls;
     }
 
     @Override
@@ -252,7 +256,7 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                             CatalogAdministrationApi.PATH_GET_ADMIN_CATALOG_PRODUCT,
                             created.product().id().value()))
                     .eTag(created.etag())
-                    .body(CatalogAdministrationDtoMapper.product(created));
+                    .body(CatalogAdministrationDtoMapper.product(created, mediaUrls));
         });
     }
 
@@ -260,7 +264,7 @@ public final class CatalogAdministrationController implements CatalogAdministrat
     public ResponseEntity<AdminProductDto> getAdminCatalogProduct(UUID resourceId) {
         return translate(() -> {
             var product = products.get(new ProductId(resourceId));
-            return ResponseEntity.ok().eTag(product.etag()).body(CatalogAdministrationDtoMapper.product(product));
+            return ResponseEntity.ok().eTag(product.etag()).body(CatalogAdministrationDtoMapper.product(product, mediaUrls));
         });
     }
 
@@ -291,7 +295,7 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                             request.getMerchandising().getNewUntil(),
                             requireNonNull(request.getMerchandising().getOnSale()),
                             request.getMerchandising().getSalePercent())));
-            return ResponseEntity.ok().eTag(updated.etag()).body(CatalogAdministrationDtoMapper.product(updated));
+            return ResponseEntity.ok().eTag(updated.etag()).body(CatalogAdministrationDtoMapper.product(updated, mediaUrls));
         });
     }
 
@@ -310,7 +314,7 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                     },
                     actorScope(),
                     idempotencyKey));
-            return ResponseEntity.ok().eTag(changed.etag()).body(CatalogAdministrationDtoMapper.product(changed));
+            return ResponseEntity.ok().eTag(changed.etag()).body(CatalogAdministrationDtoMapper.product(changed, mediaUrls));
         });
     }
 
@@ -386,7 +390,7 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                     idempotencyKey));
             return ResponseEntity.status(HttpStatus.CREATED)
                     .eTag(created.productEtag())
-                    .body(CatalogAdministrationDtoMapper.media(created));
+                    .body(CatalogAdministrationDtoMapper.media(created, mediaUrls));
         });
     }
 
@@ -407,7 +411,17 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                     request.getAlt(),
                     request.getDisplayOrder(),
                     request.getPrimary()));
-            return ResponseEntity.ok().eTag(updated.productEtag()).body(CatalogAdministrationDtoMapper.media(updated));
+            return ResponseEntity.ok().eTag(updated.productEtag()).body(CatalogAdministrationDtoMapper.media(updated, mediaUrls));
+        });
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteCatalogProductMedia(
+            UUID resourceId, UUID mediaId, String ifMatch, String csrf) {
+        return translate(() -> {
+            products.deleteMedia(
+                    new ProductId(resourceId), new MediaId(mediaId), CatalogVersionEtag.parse(ifMatch));
+            return ResponseEntity.noContent().build();
         });
     }
 

@@ -337,6 +337,18 @@ public class ManageCatalogProducts {
         return mediaView(saved, replacement.id());
     }
 
+    /** Deletes media metadata and its underlying object. */
+    @Transactional
+    public void deleteMedia(ProductId productId, MediaId mediaId, long expectedVersion) {
+        var current = loadExpected(productId, expectedVersion);
+        var item = current.media().stream().filter(candidate -> candidate.id().equals(mediaId)).findFirst()
+                .orElseThrow(CatalogProductChildNotFoundException::new);
+        var saved = products.save(current.removeMedia(mediaId));
+        mediaStorage.delete(List.of(item.objectKey()));
+        audit.record("PRODUCT_MEDIA", mediaId.value(), "DELETED", current.version(), saved.version(),
+                Map.of("productId", saved.id().value().toString()));
+    }
+
     private Product load(ProductId id) {
         return products.findById(id).orElseThrow(AdminCatalogProductNotFoundException::new);
     }

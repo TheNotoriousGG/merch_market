@@ -1,11 +1,12 @@
 type: object
 description: Administrative media metadata. Object keys never appear in public DTOs.
-required: [id, type, objectKey, contentType, width, height, alt, displayOrder, primary, version]
+required: [id, type, objectKey, deliveryUrl, contentType, width, height, alt, displayOrder, primary, version]
 properties:
   id: {type: string, format: uuid}
   variantId: {type: string, format: uuid, nullable: true}
   type: {type: string, enum: [IMAGE]}
   objectKey: {type: string, minLength: 1, maxLength: 512}
+  deliveryUrl: {type: string, format: uri, description: Browser-readable media URL.}
   contentType: {type: string, pattern: '^image/', maxLength: 100}
   width: {type: integer, format: int32, minimum: 1}
   height: {type: integer, format: int32, minimum: 1}

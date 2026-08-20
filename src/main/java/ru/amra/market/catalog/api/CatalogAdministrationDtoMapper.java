@@ -13,6 +13,7 @@ import ru.amra.market.catalog.application.AdminCollectionView;
 import ru.amra.market.catalog.application.AdminMediaView;
 import ru.amra.market.catalog.application.AdminProductView;
 import ru.amra.market.catalog.application.AdminVariantView;
+import ru.amra.market.catalog.application.port.MediaDeliveryUrlProvider;
 import ru.amra.market.catalog.domain.AttributeType;
 import ru.amra.market.catalog.domain.AttributeValue;
 import ru.amra.market.catalog.domain.CategoryId;
@@ -29,7 +30,7 @@ final class CatalogAdministrationDtoMapper {
 
     private CatalogAdministrationDtoMapper() {}
 
-    static AdminProductDto product(AdminProductView view) {
+    static AdminProductDto product(AdminProductView view, MediaDeliveryUrlProvider mediaUrls) {
         var product = view.product();
         return new AdminProductDto(
                         product.id().value(),
@@ -63,7 +64,7 @@ final class CatalogAdministrationDtoMapper {
                         .map(CatalogAdministrationDtoMapper::variant)
                         .toList())
                 .media(product.media().stream()
-                        .map(CatalogAdministrationDtoMapper::media)
+                        .map(item -> media(item, mediaUrls))
                         .toList());
     }
 
@@ -84,15 +85,17 @@ final class CatalogAdministrationDtoMapper {
                 variant.version());
     }
 
-    static AdminMediaDto media(AdminMediaView view) {
-        return media(view.media());
+    static AdminMediaDto media(AdminMediaView view, MediaDeliveryUrlProvider mediaUrls) {
+        return media(view.media(), mediaUrls);
     }
 
-    private static AdminMediaDto media(ru.amra.market.catalog.domain.ProductMedia media) {
+    private static AdminMediaDto media(
+            ru.amra.market.catalog.domain.ProductMedia media, MediaDeliveryUrlProvider mediaUrls) {
         return new AdminMediaDto(
                         media.id().value(),
                         AdminMediaDto.TypeEnum.valueOf(media.type().name()),
                         media.objectKey(),
+                        mediaUrls.publicUrl(media.id().value(), media.objectKey()),
                         media.contentType(),
                         media.width(),
                         media.height(),
