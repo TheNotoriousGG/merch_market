@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { loadStorefrontProducts } from "../catalog/catalog-api";
+import { toShopProduct } from "../catalog/catalog-data";
 
 export type ShopProduct = {
   id: string;
@@ -53,6 +55,24 @@ export function ShopStateProvider({ children }: { children: React.ReactNode }) {
     if (!ready) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ cart, favorites }));
   }, [cart, favorites, ready]);
+
+  useEffect(() => {
+    if (!ready) return;
+    let active = true;
+    void loadStorefrontProducts().then((products) => {
+      if (!active) return;
+      const currentProducts = new Map(products.map((product) => [product.id, toShopProduct(product)]));
+      setCart((current) => current.flatMap((line) => {
+        const product = currentProducts.get(line.id);
+        return product ? [{ ...product, quantity: line.quantity }] : [];
+      }));
+      setFavorites((current) => current.flatMap((favorite) => {
+        const product = currentProducts.get(favorite.id);
+        return product ? [product] : [];
+      }));
+    }).catch(() => { /* Сохраняем локальное состояние, если каталог временно недоступен. */ });
+    return () => { active = false; };
+  }, [ready]);
 
   const value = useMemo<ShopContextValue>(() => ({
     cart,

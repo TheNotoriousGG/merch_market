@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import StoreHeader from "../components/StoreHeader";
-import { catalog, type CatalogProduct } from "../catalog/catalog-data";
+import { type CatalogProduct } from "../catalog/catalog-data";
 import CatalogProductCard from "../catalog/components/CatalogProductCard";
 import CatalogProductDialog from "../catalog/components/CatalogProductDialog";
 import { loadStorefrontProducts } from "../catalog/catalog-api";
@@ -21,13 +21,7 @@ export default function SearchPage() {
   }, [query]);
   const products = useMemo(() => {
     if (!query) return [];
-    const normalized = query.toLocaleLowerCase("ru");
-    const seen = new Set<string>();
-    return [...apiProducts, ...Object.values(catalog).flatMap((category) => category.products)].filter((product) => {
-      if (seen.has(product.id)) return false;
-      seen.add(product.id);
-      return `${product.name} ${product.description} ${product.color} ${product.material}`.toLocaleLowerCase("ru").includes(normalized);
-    });
+    return apiProducts;
   }, [apiProducts, query]);
 
   return <main className="catalog-page">

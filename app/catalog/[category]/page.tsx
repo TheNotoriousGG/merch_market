@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import StoreHeader from "../../components/StoreHeader";
 import CatalogProductCard from "../components/CatalogProductCard";
 import CatalogProductDialog from "../components/CatalogProductDialog";
-import { catalog, type CatalogKey, type CatalogProduct as Product } from "../catalog-data";
+import { type CatalogProduct as Product } from "../catalog-data";
 import { loadStorefrontCategories, loadStorefrontProducts, type StorefrontCategory } from "../catalog-api";
 
 const PAGE_SIZE = 5;
@@ -16,11 +16,10 @@ export default function CatalogPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const key = params.category;
-  const staticCategory = key in catalog ? catalog[key as CatalogKey] : null;
   const [category, setCategory] = useState<StorefrontCategory | null>(null);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   useEffect(() => { void loadStorefrontCategories().then((items) => setCategory(items.find((item) => item.slug === key) ?? null)).finally(() => setCategoriesLoaded(true)); }, [key]);
-  const current = { label: category?.name ?? staticCategory?.label ?? "Каталог", sections: category ? [category.name, ...category.children.map((child) => child.name)] : staticCategory?.sections ?? [], products: staticCategory?.products ?? [] };
+  const current = { label: category?.name ?? "Каталог", sections: category ? [category.name, ...category.children.map((child) => child.name)] : [] };
   const title = searchParams.get("section") || current.label;
   const [sort, setSort] = useState("popular");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -34,12 +33,11 @@ export default function CatalogPage() {
   }, [key]);
 
   const products = useMemo(() => {
-    const combined = [...apiProducts, ...current.products.filter((product) => !apiProducts.some((apiProduct) => apiProduct.id === product.id))];
-    const result = newOnly ? combined.filter((product) => product.isNew) : combined;
+    const result = newOnly ? apiProducts.filter((product) => product.isNew) : [...apiProducts];
     if (sort === "price") result.sort((a, b) => a.price - b.price);
     if (sort === "new") result.sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew)));
     return result;
-  }, [apiProducts, current.products, newOnly, sort]);
+  }, [apiProducts, newOnly, sort]);
   const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
   const pageFromUrl = Number.parseInt(searchParams.get("page") || "1", 10);
   const currentPage = Math.min(Math.max(Number.isFinite(pageFromUrl) ? pageFromUrl : 1, 1), totalPages);

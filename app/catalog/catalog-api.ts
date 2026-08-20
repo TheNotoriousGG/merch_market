@@ -25,7 +25,7 @@ type StorefrontProductSummary = {
   currency: "RUB";
   primaryMedia: { url: string; alt: string };
   publishedAt: string;
-  variantOptions: Array<{ type: string; values: Array<{ label: string }> }>;
+  variantOptions: Array<{ type: string; values: Array<{ label: string; colorHex?: string | null }> }>;
 };
 
 export async function loadStorefrontProducts(options: { category?: string; query?: string; onlyNew?: boolean } = {}) {
@@ -40,19 +40,23 @@ export async function loadStorefrontProducts(options: { category?: string; query
     const sizes = item.variantOptions
       .filter((option) => option.type === "SIZE" || option.type === "DIMENSION")
       .flatMap((option) => option.values.map((value) => value.label));
+    const colors = item.variantOptions
+      .filter((option) => option.type === "COLOR")
+      .flatMap((option) => option.values.map((value) => ({ label: value.label, hex: value.colorHex ?? undefined })));
     return {
       id: item.id,
       name: item.name,
       price: (item.priceMinor ?? 0) / 100,
       priceAvailable: (item.priceMinor ?? 0) > 0,
-      art: "hoodie",
+      art: "product",
       colorClass: "product-steel",
       description: item.shortDescription,
-      color: "Цвет не указан",
-      material: "Состав уточняется",
+      color: colors.map((color) => color.label).join(", ") || "Не указан",
+      colors,
+      material: "Не указан",
       sizes: sizes.length > 0 ? sizes : ["One size"],
       imageUrl: item.primaryMedia.url,
-      isNew: options.onlyNew,
+      isNew: options.onlyNew || Date.now() - new Date(item.publishedAt).getTime() < 30 * 24 * 60 * 60 * 1000,
     };
   });
 }
