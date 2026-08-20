@@ -19,6 +19,14 @@ properties:
   characteristics:
     type: array
     items: {$ref: catalog-attribute-value.yaml}
+  variants:
+    type: array
+    description: Variants currently managed inside the product aggregate.
+    items: {$ref: admin-variant.yaml}
+  media:
+    type: array
+    description: Product media currently managed inside the product aggregate.
+    items: {$ref: admin-media.yaml}
   version: {type: integer, format: int64, minimum: 0}
   createdAt: {type: string, format: date-time}
   updatedAt: {type: string, format: date-time}

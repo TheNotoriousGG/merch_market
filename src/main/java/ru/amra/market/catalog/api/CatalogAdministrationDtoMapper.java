@@ -50,11 +50,20 @@ final class CatalogAdministrationDtoMapper {
                         product.version(),
                         view.createdAt(),
                         view.updatedAt())
-                .publishedAt(product.publishedAt().orElse(null));
+                .publishedAt(product.publishedAt().orElse(null))
+                .variants(product.variants().stream()
+                        .map(CatalogAdministrationDtoMapper::variant)
+                        .toList())
+                .media(product.media().stream()
+                        .map(CatalogAdministrationDtoMapper::media)
+                        .toList());
     }
 
     static AdminVariantDto variant(AdminVariantView view) {
-        var variant = view.variant();
+        return variant(view.variant());
+    }
+
+    private static AdminVariantDto variant(ru.amra.market.catalog.domain.ProductVariant variant) {
         return new AdminVariantDto(
                 variant.id().value(),
                 variant.sku().value(),
@@ -68,7 +77,10 @@ final class CatalogAdministrationDtoMapper {
     }
 
     static AdminMediaDto media(AdminMediaView view) {
-        var media = view.media();
+        return media(view.media());
+    }
+
+    private static AdminMediaDto media(ru.amra.market.catalog.domain.ProductMedia media) {
         return new AdminMediaDto(
                         media.id().value(),
                         AdminMediaDto.TypeEnum.valueOf(media.type().name()),
