@@ -67,6 +67,13 @@ class JpaProductRepositoryAdapter implements ProductRepository {
                 .map(entity -> new ProductLookup(assemble(entity), true));
     }
 
+    @Override
+    @Transactional
+    public void delete(ProductId id) {
+        repository.deleteById(id.value());
+        repository.flush();
+    }
+
     private Product assemble(ProductJpaEntity entity) {
         return ProductPersistenceMapper.toDomain(entity, children.load(new ProductId(entity.id())));
     }

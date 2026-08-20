@@ -16,4 +16,7 @@ public interface ProductRepository {
 
     /** Resolves a canonical or historical slug directly to the current aggregate. */
     Optional<ProductLookup> findBySlug(ProductSlug slug);
+
+    /** Permanently deletes an aggregate and all database-owned children. */
+    void delete(ProductId id);
 }

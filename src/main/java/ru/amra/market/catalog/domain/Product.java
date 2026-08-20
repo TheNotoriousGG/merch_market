@@ -73,8 +73,8 @@ public final class Product {
         this.variants = validateVariants(variants);
         this.media = validateMedia(media, this.variants);
         if ((status == ProductStatus.DRAFT && publishedAt != null)
-                || (status != ProductStatus.DRAFT && publishedAt == null)) {
-            throw invalidTransition("Publication time must exist exactly for active or archived products");
+                || (status == ProductStatus.ACTIVE && publishedAt == null)) {
+            throw invalidTransition("Publication time must exist for active products and be absent for drafts");
         }
         this.publishedAt = publishedAt;
         if (version < 0) {
@@ -378,10 +378,10 @@ public final class Product {
                 publicationTime);
     }
 
-    /** Archives an active product. Archived state is terminal. */
+    /** Archives a draft or active product. */
     public Product archive() {
-        if (status != ProductStatus.ACTIVE) {
-            throw invalidTransition("Only an active product can be archived");
+        if (status == ProductStatus.ARCHIVED) {
+            throw invalidTransition("Product is already archived");
         }
         return copy(
                 slug,
@@ -395,6 +395,15 @@ public final class Product {
                 variants,
                 media,
                 publishedAt);
+    }
+
+    /** Restores an archived product as an editable draft. */
+    public Product restoreAsDraft() {
+        if (status != ProductStatus.ARCHIVED) {
+            throw invalidTransition("Only an archived product can be restored");
+        }
+        return copy(slug, aliases, content, ProductStatus.DRAFT, primaryCategoryId, categoryIds,
+                collectionIds, characteristics, variants, media, null);
     }
 
     /** Returns all failures that currently prevent publication. */

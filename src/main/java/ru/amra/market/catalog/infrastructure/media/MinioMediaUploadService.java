@@ -6,6 +6,7 @@ import io.minio.Http.Method;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.StatObjectArgs;
+import io.minio.RemoveObjectArgs;
 import java.net.URI;
 import java.time.Clock;
 import java.util.Set;
@@ -76,6 +77,17 @@ class MinioMediaUploadService implements MediaUploadService {
             throw exception;
         } catch (Exception exception) {
             throw new IllegalArgumentException("Uploaded catalog media object is unavailable", exception);
+        }
+    }
+
+    @Override
+    public void delete(Iterable<String> objectKeys) {
+        try {
+            for (var objectKey : objectKeys) {
+                minio.removeObject(RemoveObjectArgs.builder().bucket(properties.bucket()).object(objectKey).build());
+            }
+        } catch (Exception exception) {
+            throw new IllegalStateException("Cannot remove catalog media", exception);
         }
     }
 

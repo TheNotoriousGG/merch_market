@@ -296,11 +296,20 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                     switch (transition) {
                         case "publish" -> ManageCatalogProducts.Transition.PUBLISH;
                         case "archive" -> ManageCatalogProducts.Transition.ARCHIVE;
+                        case "restore" -> ManageCatalogProducts.Transition.RESTORE;
                         default -> throw new IllegalArgumentException("Unsupported product transition");
                     },
                     actorScope(),
                     idempotencyKey));
             return ResponseEntity.ok().eTag(changed.etag()).body(CatalogAdministrationDtoMapper.product(changed));
+        });
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteCatalogProduct(UUID resourceId, String ifMatch, String csrf) {
+        return translate(() -> {
+            products.delete(new ProductId(resourceId), CatalogVersionEtag.parse(ifMatch));
+            return ResponseEntity.noContent().build();
         });
     }
 

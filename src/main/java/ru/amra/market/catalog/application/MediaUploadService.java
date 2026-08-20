@@ -11,5 +11,7 @@ public interface MediaUploadService {
 
     void verify(ProductId productId, String objectKey, String contentType);
 
+    void delete(Iterable<String> objectKeys);
+
     record Upload(String objectKey, URI uploadUrl, Instant expiresAt, String contentType, long maxSize) {}
 }

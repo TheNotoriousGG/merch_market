@@ -9,7 +9,7 @@ post:
     - name: transition
       in: path
       required: true
-      schema: {type: string, enum: [publish, archive]}
+      schema: {type: string, enum: [publish, archive, restore]}
     - {$ref: ../components/parameters/if-match.yaml}
     - {$ref: ../components/parameters/idempotency-key.yaml}
     - {$ref: ../components/parameters/csrf-token.yaml}

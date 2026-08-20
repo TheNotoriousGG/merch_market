@@ -46,6 +46,7 @@ public class ManageCatalogProducts {
     private final CatalogIdempotencyStore idempotency;
     private final Clock clock;
     private final CatalogAuditTrail audit;
+    private final MediaUploadService mediaStorage;
 
     public ManageCatalogProducts(
             ProductRepository products,
@@ -54,7 +55,8 @@ public class ManageCatalogProducts {
             CatalogIdGenerator ids,
             CatalogIdempotencyStore idempotency,
             Clock clock,
-            CatalogAuditTrail audit) {
+            CatalogAuditTrail audit,
+            MediaUploadService mediaStorage) {
         this.products = products;
         this.adminReader = adminReader;
         this.activeCategories = activeCategories;
@@ -62,6 +64,7 @@ public class ManageCatalogProducts {
         this.idempotency = idempotency;
         this.clock = clock;
         this.audit = audit;
+        this.mediaStorage = mediaStorage;
     }
 
     /** Creates a draft product or replays the caller's identical create command. */
@@ -150,12 +153,13 @@ public class ManageCatalogProducts {
                     case PUBLISH ->
                         current.publish(activeCategories.findActive(current.categoryIds()), clock.instant());
                     case ARCHIVE -> current.archive();
+                    case RESTORE -> current.restoreAsDraft();
                 };
         var saved = products.save(changed);
         audit.record(
                 "PRODUCT",
                 saved.id().value(),
-                command.transition() == Transition.PUBLISH ? "PUBLISHED" : "ARCHIVED",
+                switch (command.transition()) { case PUBLISH -> "PUBLISHED"; case ARCHIVE -> "ARCHIVED"; case RESTORE -> "RESTORED"; },
                 current.version(),
                 saved.version(),
                 Map.of(
@@ -166,6 +170,18 @@ public class ManageCatalogProducts {
         idempotency.complete(
                 command.actorScope(), command.idempotencyKey(), saved.id().value());
         return view(saved);
+    }
+
+    /** Permanently deletes an archived product and its stored media. */
+    @Transactional
+    public void delete(ProductId id, long expectedVersion) {
+        var current = loadExpected(id, expectedVersion);
+        if (current.status() != ProductStatus.ARCHIVED) {
+            throw new IllegalArgumentException("Only archived products can be permanently deleted");
+        }
+        mediaStorage.delete(current.media().stream().map(ProductMedia::objectKey).toList());
+        products.delete(id);
+        audit.record("PRODUCT", id.value(), "DELETED", current.version(), current.version(), Map.of());
     }
 
     /** Adds an immutable-SKU variant as an owned product mutation. */
@@ -456,7 +472,8 @@ public class ManageCatalogProducts {
 
     public enum Transition {
         PUBLISH,
-        ARCHIVE
+        ARCHIVE,
+        RESTORE
     }
 
     public record CreateCommand(
