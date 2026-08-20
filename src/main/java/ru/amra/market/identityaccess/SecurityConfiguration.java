@@ -3,6 +3,7 @@ package ru.amra.market.identityaccess;
 import java.time.Clock;
 import java.util.List;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +39,7 @@ public class SecurityConfiguration {
             HttpSecurity http,
             ClientRegistrationRepository clients,
             SecurityProperties properties,
+            @Value("${amra.security.login-success-url}") String loginSuccessUrl,
             SessionLifetimePolicy lifetimePolicy,
             AbsoluteSessionLifetimeFilter absoluteLifetimeFilter,
             SecurityProblemWriter problemWriter)
@@ -51,6 +53,8 @@ public class SecurityConfiguration {
 
         var oidcUserService = new OidcUserService();
         var loginSuccess = new SavedRequestAwareAuthenticationSuccessHandler();
+        loginSuccess.setDefaultTargetUrl(loginSuccessUrl);
+        loginSuccess.setAlwaysUseDefaultTargetUrl(true);
 
         http.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
