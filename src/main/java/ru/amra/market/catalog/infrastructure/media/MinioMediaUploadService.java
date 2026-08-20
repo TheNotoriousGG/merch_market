@@ -22,6 +22,7 @@ class MinioMediaUploadService implements MediaUploadService {
     private static final Set<String> CONTENT_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
 
     private final MinioClient minio;
+    private final MinioClient uploadSigner;
     private final MediaStorageProperties properties;
     private final Clock clock;
 
@@ -29,6 +30,10 @@ class MinioMediaUploadService implements MediaUploadService {
         this.minio = minio;
         this.properties = properties;
         this.clock = clock;
+        this.uploadSigner = MinioClient.builder()
+                .endpoint(properties.uploadEndpoint())
+                .credentials(properties.accessKey(), properties.secretKey())
+                .build();
     }
 
     @Override
@@ -41,7 +46,7 @@ class MinioMediaUploadService implements MediaUploadService {
         try {
             ensureBucket();
             var seconds = Math.toIntExact(properties.uploadTtl().toSeconds());
-            var url = minio.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+            var url = uploadSigner.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
                     .method(Method.PUT)
                     .bucket(properties.bucket())
                     .object(objectKey)

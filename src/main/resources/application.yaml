@@ -80,6 +80,7 @@ amra:
       public-base-url: ${AMRA_CATALOG_MEDIA_BASE_URL:https://cdn.amra-shop.invalid/media/}
       storage:
         endpoint: ${AMRA_S3_ENDPOINT:http://localhost:9000}
+        upload-endpoint: ${AMRA_S3_UPLOAD_ENDPOINT:${AMRA_S3_ENDPOINT:http://localhost:9000}}
         access-key: ${AMRA_S3_ACCESS_KEY:amra-local}
         secret-key: ${AMRA_S3_SECRET_KEY:amra-local-secret}
         bucket: ${AMRA_S3_BUCKET:amra-catalog}

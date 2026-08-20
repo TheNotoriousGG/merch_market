@@ -5,4 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("amra.catalog.media.storage")
 record MediaStorageProperties(
-        String endpoint, String accessKey, String secretKey, String bucket, Duration uploadTtl, long maxSize) {}
+        String endpoint,
+        String uploadEndpoint,
+        String accessKey,
+        String secretKey,
+        String bucket,
+        Duration uploadTtl,
+        long maxSize) {}
