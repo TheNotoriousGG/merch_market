@@ -126,6 +126,7 @@ services:
       AMRA_S3_UPLOAD_ENDPOINT: http://localhost:${AMRA_MINIO_PORT:-9000}
       AMRA_S3_ACCESS_KEY: ${AMRA_S3_ACCESS_KEY:-amra-local}
       AMRA_S3_SECRET_KEY: ${AMRA_S3_SECRET_KEY:-amra-local-secret}
+      AMRA_S3_REGION: ${AMRA_S3_REGION:-us-east-1}
       AMRA_CATALOG_MEDIA_BASE_URL: http://localhost:9000/amra-catalog/
     ports: ["${AMRA_BACKEND_PORT:-8080}:8080"]
     depends_on:
