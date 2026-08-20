@@ -246,6 +246,18 @@ class ProductChildJdbcStore {
     }
 
     private void synchronizeMedia(Product product) {
+        var retainedIds = product.media().stream().map(item -> item.id().value()).toList();
+        if (retainedIds.isEmpty()) {
+            jdbc.update("delete from catalog_product_media where product_id = ?", product.id().value());
+        } else {
+            var placeholders = String.join(",", java.util.Collections.nCopies(retainedIds.size(), "?"));
+            var arguments = new ArrayList<Object>();
+            arguments.add(product.id().value());
+            arguments.addAll(retainedIds);
+            jdbc.update(
+                    "delete from catalog_product_media where product_id = ? and id not in (" + placeholders + ")",
+                    arguments.toArray());
+        }
         for (var media : product.media()) {
             var stored = findMedia(media.id());
             if (stored.isEmpty()) {
