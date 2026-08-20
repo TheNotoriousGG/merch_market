@@ -2,7 +2,9 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhos
 
 export type Category = { id:string; parentId?:string|null; slug:string; name:string; displayOrder:number; status:"ACTIVE"|"HIDDEN"; version:number; updatedAt:string };
 export type ProductSummary = { id:string; slug:string; name:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; variantCount:number; mediaCount:number; hasPrimaryMedia:boolean; version:number; updatedAt:string };
-export type Product = { id:string; slug:string; name:string; shortDescription:string; description:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; categoryIds:string[]; collectionIds:string[]; characteristics:unknown[]; version:number; updatedAt:string };
+export type Variant = { id:string; sku:string; label:string; status:"ACTIVE"|"ARCHIVED"; displayOrder:number; version:number };
+export type ProductMedia = { id:string; contentType:string; width:number; height:number; alt:string; displayOrder:number; primary:boolean; version:number };
+export type Product = { id:string; slug:string; name:string; shortDescription:string; description:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; categoryIds:string[]; collectionIds:string[]; characteristics:unknown[]; variants:Variant[]; media:ProductMedia[]; version:number; updatedAt:string };
 export type ProductPage = { items:ProductSummary[]; page:{page:number;size:number;totalElements:number;totalPages:number} };
 export type Balance = { warehouseCode:string; variantId:string; onHand:number; reserved:number; available:number; version:number; updatedAt:string };
 
@@ -16,7 +18,15 @@ export async function api<T>(path:string, init:RequestInit = {}):Promise<{data:T
   if (!response.ok) {
     if (response.status === 401 && typeof window !== "undefined") window.dispatchEvent(new Event("amra:unauthorized"));
     const problem = await response.json().catch(()=>null) as {detail?:string;title?:string}|null;
-    throw new Error(problem?.detail ?? problem?.title ?? `Backend вернул ${response.status}`);
+    const raw = problem?.detail ?? problem?.title ?? `Не удалось выполнить действие (${response.status})`;
+    const friendly = raw
+      .replace(/primary media/gi, "главной фотографии")
+      .replace(/active variant/gi, "доступного размера")
+      .replace(/primary category/gi, "категории")
+      .replace(/namespace conflicts?/gi, "конфликтов адреса")
+      .replace(/slug/gi, "адреса страницы")
+      .replace(/sku/gi, "артикула");
+    throw new Error(friendly);
   }
   const data = response.status === 204 ? undefined as T : await response.json() as T;
   return {data, etag:response.headers.get("ETag")};
