@@ -61,6 +61,9 @@ class ProductJpaEntity {
     @Column(name = "sale_percent")
     private @Nullable Integer salePercent;
 
+    @Column(name = "featured", nullable = false)
+    private boolean featured;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.EPOCH;
@@ -93,6 +96,7 @@ class ProductJpaEntity {
         newUntil = product.merchandising().newUntil();
         onSale = product.merchandising().onSale();
         salePercent = product.merchandising().salePercent();
+        featured = product.merchandising().featured();
         updatedAt = Instant.now();
     }
 
@@ -134,6 +138,7 @@ class ProductJpaEntity {
     @Nullable Instant newUntil() { return newUntil; }
     boolean onSale() { return onSale; }
     @Nullable Integer salePercent() { return salePercent; }
+    boolean featured() { return featured; }
 
     long version() {
         return version;

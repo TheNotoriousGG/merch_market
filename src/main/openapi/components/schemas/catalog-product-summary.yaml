@@ -30,6 +30,17 @@ properties:
     format: int64
     minimum: 1
     nullable: true
+  newArrival:
+    type: boolean
+  onSale:
+    type: boolean
+  salePercent:
+    type: integer
+    minimum: 1
+    maximum: 90
+    nullable: true
+  featured:
+    type: boolean
   currency:
     type: string
     enum: [RUB]

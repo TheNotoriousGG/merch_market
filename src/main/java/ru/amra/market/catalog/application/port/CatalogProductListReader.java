@@ -26,6 +26,10 @@ public interface CatalogProductListReader {
             String name,
             String shortDescription,
             @Nullable Long priceMinor,
+            boolean newArrival,
+            boolean onSale,
+            @Nullable Integer salePercent,
+            boolean featured,
             Instant publishedAt,
             MediaRecord primaryMedia,
             List<VariantOptionRecord> variantOptions) {

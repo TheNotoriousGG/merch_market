@@ -8,7 +8,8 @@ public record ProductMerchandising(
         boolean newArrival,
         @Nullable Instant newUntil,
         boolean onSale,
-        @Nullable Integer salePercent) {
+        @Nullable Integer salePercent,
+        boolean featured) {
 
     public ProductMerchandising {
         if (!newArrival && newUntil != null) {
@@ -23,7 +24,7 @@ public record ProductMerchandising(
     }
 
     public static ProductMerchandising none() {
-        return new ProductMerchandising(false, null, false, null);
+        return new ProductMerchandising(false, null, false, null, false);
     }
 
     public boolean isNewAt(Instant instant) {

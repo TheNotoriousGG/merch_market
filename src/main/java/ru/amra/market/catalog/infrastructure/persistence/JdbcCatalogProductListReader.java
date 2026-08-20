@@ -48,6 +48,10 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                    product.name,
                    product.short_description,
                    product.price_minor,
+                   product.new_arrival,
+                   product.on_sale,
+                   product.sale_percent,
+                   product.featured,
                    product.published_at,
                    media.id as media_id,
                    media.object_key,
@@ -115,6 +119,10 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                         product.name(),
                         product.shortDescription(),
                         product.priceMinor(),
+                        product.newArrival(),
+                        product.onSale(),
+                        product.salePercent(),
+                        product.featured(),
                         product.publishedAt(),
                         product.media(),
                         options.getOrDefault(product.id(), List.of())))
@@ -156,6 +164,10 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                 requireNonNull(resultSet.getString("name")),
                 requireNonNull(resultSet.getString("short_description")),
                 resultSet.getObject("price_minor", Long.class),
+                resultSet.getBoolean("new_arrival"),
+                resultSet.getBoolean("on_sale"),
+                resultSet.getObject("sale_percent", Integer.class),
+                resultSet.getBoolean("featured"),
                 requireNonNull(resultSet.getTimestamp("published_at")).toInstant(),
                 media);
     }
@@ -275,7 +287,17 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
     private record SqlQuery(String cte, String relation, String orderBy, MapSqlParameterSource parameters) {}
 
     private record ProductBaseRow(
-            UUID id, String slug, String name, String shortDescription, Long priceMinor, Instant publishedAt, MediaRecord media) {}
+            UUID id,
+            String slug,
+            String name,
+            String shortDescription,
+            Long priceMinor,
+            boolean newArrival,
+            boolean onSale,
+            Integer salePercent,
+            boolean featured,
+            Instant publishedAt,
+            MediaRecord media) {}
 
     private static final class OptionAccumulator {
 

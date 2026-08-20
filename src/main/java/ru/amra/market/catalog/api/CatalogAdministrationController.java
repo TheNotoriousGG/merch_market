@@ -294,7 +294,8 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                             requireNonNull(request.getMerchandising().getNewArrival()),
                             request.getMerchandising().getNewUntil(),
                             requireNonNull(request.getMerchandising().getOnSale()),
-                            request.getMerchandising().getSalePercent())));
+                            request.getMerchandising().getSalePercent(),
+                            requireNonNull(request.getMerchandising().getFeatured()))));
             return ResponseEntity.ok().eTag(updated.etag()).body(CatalogAdministrationDtoMapper.product(updated, mediaUrls));
         });
     }

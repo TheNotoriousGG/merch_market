@@ -149,7 +149,11 @@ public final class CatalogApiController implements CatalogApi {
                 toDto(item.primaryMedia()),
                 item.publishedAt(),
                 item.variantOptions().stream().map(CatalogApiController::toDto).toList())
-                .priceMinor(item.priceMinor());
+                .priceMinor(item.priceMinor())
+                .newArrival(item.newArrival())
+                .onSale(item.onSale())
+                .salePercent(item.salePercent())
+                .featured(item.featured());
     }
 
     private static CatalogVariantOptionDto toDto(CatalogProductPage.VariantOption option) {

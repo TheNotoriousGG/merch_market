@@ -21,6 +21,10 @@ public record CatalogProductPage(List<Item> items, Metadata page, String etag) {
             String name,
             String shortDescription,
             @Nullable Long priceMinor,
+            boolean newArrival,
+            boolean onSale,
+            @Nullable Integer salePercent,
+            boolean featured,
             Media primaryMedia,
             Instant publishedAt,
             List<VariantOption> variantOptions) {

@@ -67,6 +67,10 @@ public class ListCatalogProducts {
                 product.name(),
                 product.shortDescription(),
                 product.priceMinor(),
+                product.newArrival(),
+                product.onSale(),
+                product.salePercent(),
+                product.featured(),
                 publicMedia,
                 product.publishedAt(),
                 options);
@@ -85,6 +89,10 @@ public class ListCatalogProducts {
                     .add(item.name())
                     .add(item.shortDescription())
                     .add(item.priceMinor() == null ? 0 : item.priceMinor())
+                    .add(item.newArrival() ? 1 : 0)
+                    .add(item.onSale() ? 1 : 0)
+                    .add(item.salePercent() == null ? 0 : item.salePercent())
+                    .add(item.featured() ? 1 : 0)
                     .add(item.publishedAt());
             var media = item.primaryMedia();
             hash.add(media.id())

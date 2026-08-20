@@ -1,7 +1,7 @@
 type: object
 description: Управляемое каталог-менеджером продвижение товара на витрине.
 additionalProperties: false
-required: [newArrival, onSale]
+required: [newArrival, onSale, featured]
 properties:
   newArrival:
     type: boolean
@@ -20,3 +20,6 @@ properties:
     maximum: 90
     nullable: true
     description: Процент скидки; обязателен для товара на распродаже.
+  featured:
+    type: boolean
+    description: Показывать товар в редакционном блоке «Товары недели».
