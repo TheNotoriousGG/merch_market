@@ -19,6 +19,8 @@ properties:
   characteristics:
     type: array
     items: {$ref: catalog-attribute-value.yaml}
+  merchandising:
+    $ref: product-merchandising.yaml
   variants:
     type: array
     description: Variants currently managed inside the product aggregate.

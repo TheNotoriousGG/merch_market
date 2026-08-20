@@ -125,6 +125,8 @@ components:
       $ref: components/schemas/create-product-request.yaml
     UpdateProductRequest:
       $ref: components/schemas/update-product-request.yaml
+    ProductMerchandising:
+      $ref: components/schemas/product-merchandising.yaml
     AdminVariant:
       $ref: components/schemas/admin-variant.yaml
     CreateVariantRequest:

@@ -29,6 +29,7 @@ public final class Product {
     private final List<AttributeValue> characteristics;
     private final List<ProductVariant> variants;
     private final List<ProductMedia> media;
+    private final ProductMerchandising merchandising;
     private final @Nullable Instant publishedAt;
     private final long version;
 
@@ -44,6 +45,7 @@ public final class Product {
             List<AttributeValue> characteristics,
             List<ProductVariant> variants,
             List<ProductMedia> media,
+            ProductMerchandising merchandising,
             @Nullable Instant publishedAt,
             long version) {
         this.id = id;
@@ -72,6 +74,7 @@ public final class Product {
         this.characteristics = validateCharacteristics(characteristics);
         this.variants = validateVariants(variants);
         this.media = validateMedia(media, this.variants);
+        this.merchandising = Objects.requireNonNull(merchandising, "merchandising");
         if ((status == ProductStatus.DRAFT && publishedAt != null)
                 || (status == ProductStatus.ACTIVE && publishedAt == null)) {
             throw invalidTransition("Publication time must exist for active products and be absent for drafts");
@@ -105,6 +108,7 @@ public final class Product {
                 characteristics,
                 List.of(),
                 List.of(),
+                ProductMerchandising.none(),
                 null,
                 0);
     }
@@ -122,6 +126,7 @@ public final class Product {
             List<AttributeValue> characteristics,
             List<ProductVariant> variants,
             List<ProductMedia> media,
+            ProductMerchandising merchandising,
             @Nullable Instant publishedAt,
             long version) {
         return new Product(
@@ -136,8 +141,19 @@ public final class Product {
                 characteristics,
                 variants,
                 media,
+                merchandising,
                 publishedAt,
                 version);
+    }
+
+    /** Backwards-compatible persistence/test restoration for products without merchandising data. */
+    public static Product restore(
+            ProductId id, ProductSlug slug, Set<ProductSlug> aliases, ProductContent content, ProductStatus status,
+            CategoryId primaryCategoryId, Set<CategoryId> categoryIds, Set<CollectionId> collectionIds,
+            List<AttributeValue> characteristics, List<ProductVariant> variants, List<ProductMedia> media,
+            @Nullable Instant publishedAt, long version) {
+        return restore(id, slug, aliases, content, status, primaryCategoryId, categoryIds, collectionIds,
+                characteristics, variants, media, ProductMerchandising.none(), publishedAt, version);
     }
 
     /** Changes the canonical slug and records the previous slug as a direct historical alias. */
@@ -174,6 +190,18 @@ public final class Product {
             Set<CategoryId> newCategoryIds,
             Set<CollectionId> newCollectionIds,
             List<AttributeValue> newCharacteristics) {
+        return revise(newSlug, newContent, newPrimaryCategoryId, newCategoryIds, newCollectionIds,
+                newCharacteristics, merchandising);
+    }
+
+    public Product revise(
+            ProductSlug newSlug,
+            ProductContent newContent,
+            CategoryId newPrimaryCategoryId,
+            Set<CategoryId> newCategoryIds,
+            Set<CollectionId> newCollectionIds,
+            List<AttributeValue> newCharacteristics,
+            ProductMerchandising newMerchandising) {
         requireMutable();
         var newAliases = new HashSet<>(aliases);
         if (!slug.equals(newSlug)) {
@@ -188,21 +216,12 @@ public final class Product {
                 && primaryCategoryId.equals(newPrimaryCategoryId)
                 && categoryIds.equals(newCategoryIds)
                 && collectionIds.equals(newCollectionIds)
-                && characteristics.equals(newCharacteristics)) {
+                && characteristics.equals(newCharacteristics)
+                && merchandising.equals(newMerchandising)) {
             return this;
         }
-        return copy(
-                newSlug,
-                newAliases,
-                newContent,
-                status,
-                newPrimaryCategoryId,
-                newCategoryIds,
-                newCollectionIds,
-                newCharacteristics,
-                variants,
-                media,
-                publishedAt);
+        return new Product(id, newSlug, newAliases, newContent, status, newPrimaryCategoryId, newCategoryIds,
+                newCollectionIds, newCharacteristics, variants, media, newMerchandising, publishedAt, version + 1);
     }
 
     /** Adds a variant after checking immutable SKU and defining-combination uniqueness. */
@@ -222,6 +241,14 @@ public final class Product {
                 updated,
                 media,
                 publishedAt);
+    }
+
+    /** Changes storefront promotion settings without coupling them to publication lifecycle. */
+    public Product reviseMerchandising(ProductMerchandising newMerchandising) {
+        requireMutable();
+        if (merchandising.equals(newMerchandising)) return this;
+        return new Product(id, slug, aliases, content, status, primaryCategoryId, categoryIds, collectionIds,
+                characteristics, variants, media, newMerchandising, publishedAt, version + 1);
     }
 
     /** Adds ordered media metadata and protects the single-primary-image invariant. */
@@ -469,6 +496,10 @@ public final class Product {
         return Optional.ofNullable(publishedAt);
     }
 
+    public ProductMerchandising merchandising() {
+        return merchandising;
+    }
+
     public long version() {
         return version;
     }
@@ -497,6 +528,7 @@ public final class Product {
                 newCharacteristics,
                 newVariants,
                 newMedia,
+                merchandising,
                 newPublishedAt,
                 version + 1);
     }

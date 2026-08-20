@@ -41,6 +41,7 @@ import ru.amra.market.catalog.domain.CollectionStatus;
 import ru.amra.market.catalog.domain.MediaId;
 import ru.amra.market.catalog.domain.ProductContent;
 import ru.amra.market.catalog.domain.ProductId;
+import ru.amra.market.catalog.domain.ProductMerchandising;
 import ru.amra.market.catalog.domain.ProductInvariantViolation;
 import ru.amra.market.catalog.domain.ProductSlug;
 import ru.amra.market.catalog.domain.Sku;
@@ -281,7 +282,12 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                             : CatalogAdministrationDtoMapper.collections(request.getCollectionIds()),
                     request.getCharacteristics() == null
                             ? null
-                            : CatalogAdministrationDtoMapper.attributes(request.getCharacteristics(), false)));
+                            : CatalogAdministrationDtoMapper.attributes(request.getCharacteristics(), false),
+                    request.getMerchandising() == null ? null : new ProductMerchandising(
+                            requireNonNull(request.getMerchandising().getNewArrival()),
+                            request.getMerchandising().getNewUntil(),
+                            requireNonNull(request.getMerchandising().getOnSale()),
+                            request.getMerchandising().getSalePercent())));
             return ResponseEntity.ok().eTag(updated.etag()).body(CatalogAdministrationDtoMapper.product(updated));
         });
     }

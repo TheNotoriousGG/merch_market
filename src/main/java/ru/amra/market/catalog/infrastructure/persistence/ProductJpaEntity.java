@@ -45,6 +45,18 @@ class ProductJpaEntity {
     @Column(name = "published_at")
     private @Nullable Instant publishedAt;
 
+    @Column(name = "new_arrival", nullable = false)
+    private boolean newArrival;
+
+    @Column(name = "new_until")
+    private @Nullable Instant newUntil;
+
+    @Column(name = "on_sale", nullable = false)
+    private boolean onSale;
+
+    @Column(name = "sale_percent")
+    private @Nullable Integer salePercent;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.EPOCH;
@@ -72,6 +84,10 @@ class ProductJpaEntity {
         status = product.status();
         primaryCategoryId = product.primaryCategoryId().value();
         publishedAt = product.publishedAt().orElse(null);
+        newArrival = product.merchandising().newArrival();
+        newUntil = product.merchandising().newUntil();
+        onSale = product.merchandising().onSale();
+        salePercent = product.merchandising().salePercent();
         updatedAt = Instant.now();
     }
 
@@ -106,6 +122,11 @@ class ProductJpaEntity {
     @Nullable Instant publishedAt() {
         return publishedAt;
     }
+
+    boolean newArrival() { return newArrival; }
+    @Nullable Instant newUntil() { return newUntil; }
+    boolean onSale() { return onSale; }
+    @Nullable Integer salePercent() { return salePercent; }
 
     long version() {
         return version;

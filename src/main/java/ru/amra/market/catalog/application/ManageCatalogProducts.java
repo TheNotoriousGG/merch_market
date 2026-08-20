@@ -23,6 +23,7 @@ import ru.amra.market.catalog.domain.ProductId;
 import ru.amra.market.catalog.domain.ProductInvariant;
 import ru.amra.market.catalog.domain.ProductInvariantViolation;
 import ru.amra.market.catalog.domain.ProductMedia;
+import ru.amra.market.catalog.domain.ProductMerchandising;
 import ru.amra.market.catalog.domain.ProductSlug;
 import ru.amra.market.catalog.domain.ProductStatus;
 import ru.amra.market.catalog.domain.ProductVariant;
@@ -119,7 +120,8 @@ public class ManageCatalogProducts {
                 command.primaryCategoryId() == null ? current.primaryCategoryId() : command.primaryCategoryId(),
                 command.categoryIds() == null ? current.categoryIds() : command.categoryIds(),
                 command.collectionIds() == null ? current.collectionIds() : command.collectionIds(),
-                command.characteristics() == null ? current.characteristics() : command.characteristics());
+                command.characteristics() == null ? current.characteristics() : command.characteristics(),
+                command.merchandising() == null ? current.merchandising() : command.merchandising());
         ensureActiveProductRemainsPublishable(changed);
         var saved = products.save(changed);
         audit.record(
@@ -496,7 +498,8 @@ public class ManageCatalogProducts {
             @Nullable CategoryId primaryCategoryId,
             @Nullable Set<CategoryId> categoryIds,
             @Nullable Set<CollectionId> collectionIds,
-            @Nullable List<AttributeValue> characteristics) {}
+            @Nullable List<AttributeValue> characteristics,
+            @Nullable ProductMerchandising merchandising) {}
 
     public record TransitionCommand(
             ProductId productId,

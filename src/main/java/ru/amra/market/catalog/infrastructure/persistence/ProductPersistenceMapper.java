@@ -4,6 +4,7 @@ import ru.amra.market.catalog.domain.CategoryId;
 import ru.amra.market.catalog.domain.Product;
 import ru.amra.market.catalog.domain.ProductContent;
 import ru.amra.market.catalog.domain.ProductId;
+import ru.amra.market.catalog.domain.ProductMerchandising;
 import ru.amra.market.catalog.domain.ProductSlug;
 
 final class ProductPersistenceMapper {
@@ -23,6 +24,7 @@ final class ProductPersistenceMapper {
                 children.characteristics(),
                 children.variants(),
                 children.media(),
+                new ProductMerchandising(entity.newArrival(), entity.newUntil(), entity.onSale(), entity.salePercent()),
                 entity.publishedAt(),
                 entity.version());
     }

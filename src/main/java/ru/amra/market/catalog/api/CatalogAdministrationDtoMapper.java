@@ -23,6 +23,7 @@ import ru.amra.market.platform.generated.model.AdminMediaDto;
 import ru.amra.market.platform.generated.model.AdminProductDto;
 import ru.amra.market.platform.generated.model.AdminVariantDto;
 import ru.amra.market.platform.generated.model.CatalogAttributeValueDto;
+import ru.amra.market.platform.generated.model.ProductMerchandisingDto;
 
 final class CatalogAdministrationDtoMapper {
 
@@ -51,6 +52,11 @@ final class CatalogAdministrationDtoMapper {
                         view.createdAt(),
                         view.updatedAt())
                 .publishedAt(product.publishedAt().orElse(null))
+                .merchandising(new ProductMerchandisingDto(
+                        product.merchandising().newArrival(),
+                        product.merchandising().onSale())
+                        .newUntil(product.merchandising().newUntil())
+                        .salePercent(product.merchandising().salePercent()))
                 .variants(product.variants().stream()
                         .map(CatalogAdministrationDtoMapper::variant)
                         .toList())

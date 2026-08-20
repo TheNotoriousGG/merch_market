@@ -21,3 +21,5 @@ properties:
     type: array
     nullable: true
     items: {$ref: catalog-attribute-value.yaml}
+  merchandising:
+    $ref: product-merchandising.yaml
