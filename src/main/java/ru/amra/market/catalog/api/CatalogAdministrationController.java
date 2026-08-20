@@ -222,6 +222,14 @@ public final class CatalogAdministrationController implements CatalogAdministrat
     }
 
     @Override
+    public ResponseEntity<Void> deleteCatalogCategory(UUID resourceId, String ifMatch, String csrf) {
+        return translate(() -> {
+            categories.delete(new CategoryId(resourceId), CatalogVersionEtag.parse(ifMatch));
+            return ResponseEntity.noContent().build();
+        });
+    }
+
+    @Override
     public ResponseEntity<AdminProductDto> createCatalogProduct(
             String idempotencyKey, String csrf, CreateProductRequestDto request) {
         return translate(() -> {

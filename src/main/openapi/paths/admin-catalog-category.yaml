@@ -43,3 +43,22 @@ patch:
     "412": {$ref: ../components/responses/precondition-failed.yaml}
     "428": {$ref: ../components/responses/precondition-required.yaml}
     "500": {$ref: ../components/responses/unexpected-error.yaml}
+delete:
+  tags: [Catalog administration]
+  summary: Permanently delete an unused archived category
+  operationId: deleteCatalogCategory
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/resource-id.yaml}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  responses:
+    "204": {description: Category permanently deleted.}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "412": {$ref: ../components/responses/precondition-failed.yaml}
+    "428": {$ref: ../components/responses/precondition-required.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

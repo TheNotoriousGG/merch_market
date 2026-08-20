@@ -11,8 +11,10 @@ import ru.amra.market.catalog.application.port.CategoryRepository;
 import ru.amra.market.catalog.domain.Category;
 import ru.amra.market.catalog.domain.CategoryHierarchy;
 import ru.amra.market.catalog.domain.CategoryId;
+import ru.amra.market.catalog.domain.CategoryInvariantViolation;
 import ru.amra.market.catalog.domain.CategoryName;
 import ru.amra.market.catalog.domain.CategorySlug;
+import ru.amra.market.catalog.domain.CategoryStatus;
 
 /** Transactional administrative category command/query facade. */
 @Service
@@ -116,6 +118,24 @@ public class ManageCatalogCategories {
                         "statusTo",
                         saved.status().name()));
         return get(saved.id());
+    }
+
+    /** Permanently removes an archived category when it has no children or product assignments. */
+    @Transactional
+    public void delete(CategoryId id, long expectedVersion) {
+        var current = categories.findById(id).orElseThrow(CatalogCategoryNotFoundException::new);
+        if (current.version() != expectedVersion) {
+            throw new StaleCatalogVersionException();
+        }
+        if (current.status() != CategoryStatus.ARCHIVED) {
+            throw new IllegalArgumentException("Only archived categories can be permanently deleted");
+        }
+        if (!categories.deleteIfUnused(id)) {
+            throw new CategoryInvariantViolation(
+                    ru.amra.market.catalog.domain.CategoryInvariant.ORPHAN_PARENT,
+                    "Category with children or products cannot be permanently deleted");
+        }
+        audit.record("CATEGORY", id.value(), "DELETED", current.version(), current.version(), Map.of());
     }
 
     private static AdminCategoryView view(AdminCategoryReader.Snapshot category) {

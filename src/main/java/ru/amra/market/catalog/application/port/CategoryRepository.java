@@ -16,4 +16,7 @@ public interface CategoryRepository {
 
     /** Loads the complete bounded hierarchy snapshot for invariant validation. */
     List<Category> findAll();
+
+    /** Deletes a category only when no hierarchy or product reference exists. */
+    boolean deleteIfUnused(CategoryId id);
 }

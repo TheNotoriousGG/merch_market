@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.amra.market.catalog.application.ConcurrentCatalogModificationException;
 import ru.amra.market.catalog.application.port.CategoryRepository;
 import ru.amra.market.catalog.domain.Category;
@@ -13,9 +14,11 @@ import ru.amra.market.catalog.domain.CategoryId;
 class JpaCategoryRepositoryAdapter implements CategoryRepository {
 
     private final CategoryJpaRepository repository;
+    private final JdbcTemplate jdbc;
 
-    JpaCategoryRepositoryAdapter(CategoryJpaRepository repository) {
+    JpaCategoryRepositoryAdapter(CategoryJpaRepository repository, JdbcTemplate jdbc) {
         this.repository = repository;
+        this.jdbc = jdbc;
     }
 
     @Override
@@ -53,6 +56,25 @@ class JpaCategoryRepositoryAdapter implements CategoryRepository {
         return repository.findAllByOrderByDisplayOrderAscIdAsc().stream()
                 .map(CategoryPersistenceMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteIfUnused(CategoryId id) {
+        var references = jdbc.queryForObject(
+                """
+                select exists(select 1 from catalog_categories where parent_id = ?)
+                    or exists(select 1 from catalog_product_categories where category_id = ?)
+                """,
+                Boolean.class,
+                id.value(),
+                id.value());
+        if (Boolean.TRUE.equals(references)) {
+            return false;
+        }
+        repository.deleteById(id.value());
+        repository.flush();
+        return true;
     }
 
     private static ConcurrentCatalogModificationException stale(Category category, long storedVersion) {

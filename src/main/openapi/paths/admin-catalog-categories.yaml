@@ -39,7 +39,7 @@ get:
       schema: {type: string, minLength: 1, maxLength: 160}
     - name: status
       in: query
-      schema: {type: string, enum: [ACTIVE, HIDDEN]}
+      schema: {type: string, enum: [ACTIVE, HIDDEN, ARCHIVED]}
   responses:
     "200":
       description: Administrative categories in stable tree order.
