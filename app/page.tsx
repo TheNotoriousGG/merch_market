@@ -58,6 +58,15 @@ const categoryLabels: Record<string, string> = {
 const catalogHref = (category: MenuKey, section?: string) =>
   `/catalog/${category}${section ? `?section=${encodeURIComponent(section)}` : ""}`;
 
+const menuColumns = (label: string, children: Array<{name:string}>) => {
+  if (children.length === 0) return [];
+  const size = Math.ceil(children.length / Math.min(3, Math.ceil(children.length / 3)));
+  return Array.from({length: Math.ceil(children.length / size)}, (_, index) => ({
+    title: index === 0 ? `Все разделы · ${label}` : "Ещё",
+    links: children.slice(index * size, (index + 1) * size).map((child) => child.name),
+  }));
+};
+
 const weeklyPicks = [
   {
     id: "soft-box", name: "Сумка Soft Box", price: "4 490 ₽", art: "bag", className: "weekly-pink",
@@ -147,7 +156,7 @@ export default function Home() {
           id: category.slug,
           label: category.name,
           icon: presentation?.icon ?? "shirt",
-          columns: category.children.length > 0 ? [{title: category.name, links: category.children.map((child) => child.name)}] : [],
+          columns: menuColumns(category.name, category.children),
           feature: presentation?.feature,
         };
       }));
