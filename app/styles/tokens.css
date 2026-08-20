@@ -1,0 +1,23 @@
+:root {
+  --color-ink: #17191c;
+  --color-ink-elevated: #202226;
+  --color-ink-soft: #303238;
+  --color-accent: #ffdd2d;
+  --color-accent-hover: #ffe45b;
+  --color-canvas: #f7f7f5;
+  --color-surface: #ffffff;
+  --color-muted: #73767c;
+  --color-border: rgba(23, 25, 28, 0.09);
+
+  --font-body: Manrope, Arial, sans-serif;
+  --font-display: "Montserrat Alternates", Manrope, sans-serif;
+
+  --radius-control: 13px;
+  --radius-card: 20px;
+  --radius-panel: 28px;
+  --shadow-panel: 0 20px 55px rgba(24, 27, 31, 0.13);
+
+  /* Compatibility aliases while legacy storefront styles are migrated. */
+  --ink: var(--color-ink);
+  --yellow: var(--color-accent);
+}
