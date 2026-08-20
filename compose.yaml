@@ -53,6 +53,8 @@ services:
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: ${AMRA_KEYCLOAK_DB_PASSWORD:-amra-keycloak-db-local}
+      KC_HOSTNAME: http://localhost:${AMRA_KEYCLOAK_PORT:-8081}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_BOOTSTRAP_ADMIN_USERNAME: ${AMRA_KEYCLOAK_ADMIN_USERNAME:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${AMRA_KEYCLOAK_ADMIN_PASSWORD:-amra-keycloak-admin-local}
       AMRA_OIDC_CLIENT_SECRET: ${AMRA_OIDC_CLIENT_SECRET:-amra-oidc-local-secret}
