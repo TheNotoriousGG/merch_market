@@ -1,6 +1,6 @@
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1";
 
-export type Category = { id:string; parentId?:string|null; slug:string; name:string; displayOrder:number; status:"ACTIVE"|"HIDDEN"; version:number; updatedAt:string };
+export type Category = { id:string; parentId?:string|null; slug:string; name:string; displayOrder:number; status:"ACTIVE"|"HIDDEN"|"ARCHIVED"; version:number; updatedAt:string };
 export type ProductSummary = { id:string; slug:string; name:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; variantCount:number; mediaCount:number; hasPrimaryMedia:boolean; version:number; updatedAt:string };
 export type Variant = { id:string; sku:string; label:string; status:"ACTIVE"|"ARCHIVED"; displayOrder:number; version:number };
 export type ProductMedia = { id:string; contentType:string; width:number; height:number; alt:string; displayOrder:number; primary:boolean; version:number };

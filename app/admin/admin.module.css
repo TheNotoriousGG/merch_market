@@ -41,6 +41,8 @@
 .metric { display: block; margin-bottom: 10px; font: 760 32px/1 var(--font-display); }
 .panel { padding: 22px; margin-bottom: 18px; }
 .panel h2 { margin: 0 0 18px; font-size: 19px; }
+.panelHeading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.panelHeading h2 { margin: 0; }
 .toolbar { display: grid; grid-template-columns: minmax(260px,1fr) 180px 190px auto; gap: 10px; margin-bottom: 16px; }
 .input, .select, .textarea { width: 100%; border: 1px solid #d9dad8; border-radius: 11px; background: white; color: var(--color-ink); padding: 11px 13px; font: inherit; }
 .textarea { min-height: 110px; resize: vertical; }
