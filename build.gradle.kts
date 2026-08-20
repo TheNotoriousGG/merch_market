@@ -49,6 +49,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-session-jdbc")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.springframework.modulith:spring-modulith-api")
+    implementation("io.minio:minio:9.0.1")
 
     compileOnly("jakarta.annotation:jakarta.annotation-api")
 

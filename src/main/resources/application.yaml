@@ -78,6 +78,13 @@ amra:
   catalog:
     media:
       public-base-url: ${AMRA_CATALOG_MEDIA_BASE_URL:https://cdn.amra-shop.invalid/media/}
+      storage:
+        endpoint: ${AMRA_S3_ENDPOINT:http://localhost:9000}
+        access-key: ${AMRA_S3_ACCESS_KEY:amra-local}
+        secret-key: ${AMRA_S3_SECRET_KEY:amra-local-secret}
+        bucket: ${AMRA_S3_BUCKET:amra-catalog}
+        upload-ttl: ${AMRA_S3_UPLOAD_TTL:15m}
+        max-size: ${AMRA_S3_MAX_SIZE:10485760}
   security:
     allowed-origins: ${AMRA_CORS_ALLOWED_ORIGINS:http://localhost:3001}
     customer-idle-timeout: 30m

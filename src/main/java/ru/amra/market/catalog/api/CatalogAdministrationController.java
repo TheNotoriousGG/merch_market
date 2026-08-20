@@ -28,6 +28,7 @@ import ru.amra.market.catalog.application.ListAdminCatalogProducts;
 import ru.amra.market.catalog.application.ManageCatalogCategories;
 import ru.amra.market.catalog.application.ManageCatalogCollections;
 import ru.amra.market.catalog.application.ManageCatalogProducts;
+import ru.amra.market.catalog.application.MediaUploadService;
 import ru.amra.market.catalog.application.StaleCatalogVersionException;
 import ru.amra.market.catalog.application.UpdateCatalogCategoryCommand;
 import ru.amra.market.catalog.domain.CategoryId;
@@ -57,8 +58,10 @@ import ru.amra.market.platform.generated.model.AdminVariantDto;
 import ru.amra.market.platform.generated.model.CreateCategoryRequestDto;
 import ru.amra.market.platform.generated.model.CreateCollectionRequestDto;
 import ru.amra.market.platform.generated.model.CreateMediaRequestDto;
+import ru.amra.market.platform.generated.model.CreateMediaUploadRequestDto;
 import ru.amra.market.platform.generated.model.CreateProductRequestDto;
 import ru.amra.market.platform.generated.model.CreateVariantRequestDto;
+import ru.amra.market.platform.generated.model.MediaUploadDto;
 import ru.amra.market.platform.generated.model.PageMetadataDto;
 import ru.amra.market.platform.generated.model.UpdateCategoryRequestDto;
 import ru.amra.market.platform.generated.model.UpdateCollectionProductsRequestDto;
@@ -76,18 +79,41 @@ public final class CatalogAdministrationController implements CatalogAdministrat
     private final ManageCatalogCollections collections;
     private final ListAdminCatalogCategories categoryList;
     private final ListAdminCatalogProducts productList;
+    private final MediaUploadService mediaUploads;
 
     public CatalogAdministrationController(
             ManageCatalogCategories categories,
             ManageCatalogProducts products,
             ManageCatalogCollections collections,
             ListAdminCatalogCategories categoryList,
-            ListAdminCatalogProducts productList) {
+            ListAdminCatalogProducts productList,
+            MediaUploadService mediaUploads) {
         this.categories = categories;
         this.products = products;
         this.collections = collections;
         this.categoryList = categoryList;
         this.productList = productList;
+        this.mediaUploads = mediaUploads;
+    }
+
+    @Override
+    public ResponseEntity<MediaUploadDto> createCatalogProductMediaUpload(
+            UUID resourceId, String csrf, CreateMediaUploadRequestDto request) {
+        return translate(() -> {
+            products.get(new ProductId(resourceId));
+            var upload = mediaUploads.prepare(
+                    new ProductId(resourceId),
+                    requireNonNull(request.getFileName()),
+                    requireNonNull(request.getContentType()).getValue(),
+                    requireNonNull(request.getSize()));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MediaUploadDto(
+                            upload.objectKey(),
+                            upload.uploadUrl(),
+                            upload.expiresAt(),
+                            upload.contentType(),
+                            upload.maxSize()));
+        });
     }
 
     @Override
@@ -315,6 +341,10 @@ public final class CatalogAdministrationController implements CatalogAdministrat
     public ResponseEntity<AdminMediaDto> createCatalogProductMedia(
             UUID resourceId, String ifMatch, String idempotencyKey, String csrf, CreateMediaRequestDto request) {
         return translate(() -> {
+            if (requireNonNull(request.getObjectKey()).startsWith("products/" + resourceId + "/uploads/")) {
+                mediaUploads.verify(
+                        new ProductId(resourceId), request.getObjectKey(), requireNonNull(request.getContentType()));
+            }
             var created = products.createMedia(new ManageCatalogProducts.CreateMediaCommand(
                     new ProductId(resourceId),
                     CatalogVersionEtag.parse(ifMatch),

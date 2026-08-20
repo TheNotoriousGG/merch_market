@@ -67,6 +67,26 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${AMRA_S3_ACCESS_KEY:-amra-local}
+      MINIO_ROOT_PASSWORD: ${AMRA_S3_SECRET_KEY:-amra-local-secret}
+      MINIO_API_CORS_ALLOW_ORIGIN: ${AMRA_CORS_ALLOWED_ORIGINS:-http://localhost:3001}
+    ports:
+      - "${AMRA_MINIO_PORT:-9000}:9000"
+      - "${AMRA_MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
 volumes:
   postgres-data:
   keycloak-postgres-data:
+  minio-data:

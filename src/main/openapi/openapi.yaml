@@ -48,6 +48,8 @@ paths:
     $ref: paths/admin-catalog-product-variant.yaml
   /admin/catalog/products/{resourceId}/media:
     $ref: paths/admin-catalog-product-media.yaml
+  /admin/catalog/products/{resourceId}/media/uploads:
+    $ref: paths/admin-catalog-product-media-uploads.yaml
   /admin/catalog/products/{resourceId}/media/{mediaId}:
     $ref: paths/admin-catalog-product-media-item.yaml
   /admin/catalog/collections:
@@ -157,6 +159,10 @@ components:
       $ref: components/schemas/receive-stock-request.yaml
     AdjustStockRequest:
       $ref: components/schemas/adjust-stock-request.yaml
+    CreateMediaUploadRequest:
+      $ref: components/schemas/create-media-upload-request.yaml
+    MediaUpload:
+      $ref: components/schemas/media-upload.yaml
   parameters:
     Page:
       $ref: components/parameters/page.yaml

@@ -1,0 +1,7 @@
+type: object
+additionalProperties: false
+required: [fileName, contentType, size]
+properties:
+  fileName: {type: string, minLength: 1, maxLength: 180}
+  contentType: {type: string, enum: [image/jpeg, image/png, image/webp]}
+  size: {type: integer, format: int64, minimum: 1, maximum: 10485760}
