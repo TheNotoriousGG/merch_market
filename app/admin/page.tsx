@@ -1,0 +1,6 @@
+import Link from "next/link"; import styles from "./admin.module.css";
+export default function AdminOverview(){return <><div className={styles.heading}><div><p className={styles.eyebrow}>Рабочий обзор</p><h1>Управление магазином</h1><p>Без декоративной аналитики: только действия, необходимые для запуска каталога.</p></div><Link className={styles.primary} href="/admin/catalog/products/new">Добавить товар</Link></div><div className={styles.grid}>
+  <section className={styles.card}><span className={styles.metric}>01</span><h2>Соберите каталог</h2><p>Создайте категории, затем черновики товаров и варианты с неизменяемыми SKU.</p><Link className={styles.secondary} href="/admin/categories">Категории</Link></section>
+  <section className={styles.card}><span className={styles.metric}>02</span><h2>Подготовьте публикацию</h2><p>Заполните контент, варианты и primary-медиа, после чего опубликуйте товар.</p><Link className={styles.secondary} href="/admin/catalog">Товары</Link></section>
+  <section className={styles.card}><span className={styles.metric}>03</span><h2>Примите остаток</h2><p>Остаток меняется только документированной приёмкой или физической сверкой.</p><Link className={styles.secondary} href="/admin/inventory">Склад</Link></section>
+  </div></>}
