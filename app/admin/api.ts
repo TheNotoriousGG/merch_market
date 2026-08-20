@@ -3,7 +3,7 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhos
 export type Category = { id:string; parentId?:string|null; slug:string; name:string; displayOrder:number; status:"ACTIVE"|"HIDDEN"|"ARCHIVED"; version:number; updatedAt:string };
 export type ProductSummary = { id:string; slug:string; name:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; variantCount:number; mediaCount:number; hasPrimaryMedia:boolean; version:number; updatedAt:string };
 export type Variant = { id:string; sku:string; label:string; status:"ACTIVE"|"ARCHIVED"; displayOrder:number; version:number };
-export type ProductMedia = { id:string; contentType:string; width:number; height:number; alt:string; displayOrder:number; primary:boolean; version:number };
+export type ProductMedia = { id:string; objectKey:string; deliveryUrl:string; contentType:string; width:number; height:number; alt:string; displayOrder:number; primary:boolean; version:number };
 export type ProductMerchandising = { newArrival:boolean; newUntil?:string|null; onSale:boolean; salePercent?:number|null };
 export type Product = { id:string; slug:string; name:string; shortDescription:string; description:string; priceMinor?:number|null; currency?:"RUB"; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; categoryIds:string[]; collectionIds:string[]; characteristics:unknown[]; merchandising?:ProductMerchandising; variants:Variant[]; media:ProductMedia[]; version:number; updatedAt:string };
 export type ProductPage = { items:ProductSummary[]; page:{page:number;size:number;totalElements:number;totalPages:number} };
@@ -27,7 +27,11 @@ export async function api<T>(path:string, init:RequestInit = {}):Promise<{data:T
       .replace(/namespace conflicts?/gi, "конфликтов адреса")
       .replace(/slug/gi, "адреса страницы")
       .replace(/sku/gi, "артикула");
-    throw new Error(friendly);
+    const localized = friendly.replace(
+      /Choose another (?:primary image|главной фотографии) before deleting the current (?:primary image|главной фотографии)/i,
+      "Сначала назначьте другую фотографию главной, затем удалите текущую.",
+    );
+    throw new Error(localized);
   }
   const data = response.status === 204 ? undefined as T : await response.json() as T;
   return {data, etag:response.headers.get("ETag")};
