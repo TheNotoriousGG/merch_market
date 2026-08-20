@@ -82,6 +82,11 @@
 .hint { color: var(--color-muted); font-size: 12px; line-height: 1.5; }
 .categoryRow { display: grid; grid-template-columns: minmax(220px,1fr) 120px auto; align-items: center; gap: 16px; min-height: 58px; padding: 9px 8px; border-top: 1px solid var(--color-border); }
 .categoryRow:first-of-type { border-top: 0; }
+.categoryIdentity { display: flex; align-items: center; gap: 8px; min-width: 0; transition: padding .18s ease; }
+.categoryIdentity > div { display: grid; gap: 3px; }.categoryIdentity small { color: var(--color-muted); font-size: 11px; }
+.treeToggle { display: grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; border: 1px solid var(--color-border); border-radius: 8px; background: white; color: var(--color-ink); font-size: 20px; cursor: pointer; }
+.treeToggle:hover { background: #f2f2ef; }.treeSpacer { flex: 0 0 28px; width: 28px; }
+.blockedAction { color: var(--color-muted); font-size: 11px; cursor: help; }
 .rowActions { display: flex; justify-content: flex-end; gap: 12px; }
 .textButton { border: 0; padding: 4px; background: transparent; color: var(--color-ink); font: inherit; font-size: 12px; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .textButton:disabled { opacity: .45; cursor: wait; }

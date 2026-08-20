@@ -17,6 +17,7 @@ export default function Categories() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   const load = async () => { try { setItems((await api<{items: Category[]}>("/admin/catalog/categories")).data.items); } catch (reason) { setError((reason as Error).message); } };
   useEffect(() => { void load(); }, []);
@@ -64,6 +65,19 @@ export default function Categories() {
   };
 
   const visibleItems = items.filter((item) => showArchive ? item.status === "ARCHIVED" : item.status !== "ARCHIVED");
+  const visibleIds = new Set(visibleItems.map((item) => item.id));
+  const childrenOf = (id: string) => visibleItems.filter((item) => item.parentId === id);
+  const isVisibleInTree = (item: Category) => {
+    let parentId = item.parentId;
+    while (parentId && visibleIds.has(parentId)) {
+      if (collapsed.has(parentId)) return false;
+      parentId = items.find((candidate) => candidate.id === parentId)?.parentId;
+    }
+    return true;
+  };
+  const treeItems = visibleItems.filter(isVisibleInTree);
+  const depthOf = (item: Category) => { let depth=0, parentId=item.parentId; while(parentId&&visibleIds.has(parentId)){depth++;parentId=items.find(candidate=>candidate.id===parentId)?.parentId} return depth; };
+  const toggleTree = (id:string) => setCollapsed((current)=>{const next=new Set(current);if(next.has(id))next.delete(id);else next.add(id);return next});
 
   return <>
     <div className={styles.heading}><div><p className={styles.eyebrow}>Каталог</p><h1>Категории</h1><p>Разделы, по которым покупатели находят товары.</p></div></div>
@@ -73,10 +87,10 @@ export default function Categories() {
       <div className={styles.field}><label>В каком разделе</label><select className={styles.select} value={parentId} onChange={(event) => setParentId(event.target.value)}><option value="">Основная категория</option>{items.filter(item=>item.status!=="ARCHIVED").map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div>
     </div><div className={styles.sectionActions}><button disabled={busy} className={styles.primary}>{busy ? "Добавляем…" : "Добавить категорию"}</button></div></form></section>
     <nav className={styles.viewTabs} aria-label="Разделы категорий"><button className={!showArchive?styles.viewTabActive:undefined} onClick={()=>setShowArchive(false)}>Рабочие категории</button><button className={showArchive?styles.viewTabActive:undefined} onClick={()=>setShowArchive(true)}>Архив <span>{items.filter(item=>item.status==="ARCHIVED").length}</span></button></nav>
-    <section className={styles.panel}><div className={styles.panelHeading}><h2>{showArchive?"Архив":"Структура каталога"}</h2></div>{visibleItems.map((item) => <div className={styles.categoryRow} key={item.id}>
-      <div>{editingId === item.id ? <input autoFocus className={styles.input} value={editingName} onChange={(event) => setEditingName(event.target.value)}/> : <strong>{item.parentId ? "↳ " : ""}{item.name}</strong>}</div>
+    <section className={styles.panel}><div className={styles.panelHeading}><h2>{showArchive?"Архив":"Структура каталога"}</h2><span className={styles.hint}>{visibleItems.length} категорий</span></div>{treeItems.map((item) => {const children=childrenOf(item.id),depth=depthOf(item);return <div className={styles.categoryRow} key={item.id}>
+      <div className={styles.categoryIdentity} style={{paddingLeft:`${depth*24}px`}}>{children.length>0?<button className={styles.treeToggle} aria-label={collapsed.has(item.id)?"Раскрыть подразделы":"Свернуть подразделы"} aria-expanded={!collapsed.has(item.id)} onClick={()=>toggleTree(item.id)}>{collapsed.has(item.id)?"›":"⌄"}</button>:<span className={styles.treeSpacer}/>}<div>{editingId === item.id ? <input autoFocus className={styles.input} value={editingName} onChange={(event) => setEditingName(event.target.value)}/> : <><strong>{item.name}</strong>{children.length>0&&<small>{children.length} {children.length===1?"подраздел":"подраздела"}</small>}</>}</div></div>
       <span className={`${styles.badge} ${item.status === "ACTIVE" ? styles.active : styles.draft}`}>{item.status === "ACTIVE" ? "На витрине" : item.status === "ARCHIVED"?"В архиве":"Скрыта"}</span>
-      <div className={styles.rowActions}>{item.status==="ARCHIVED"?<><button disabled={busy} className={styles.textButton} onClick={()=>void restore(item)}>Восстановить</button><button disabled={busy} className={styles.textButton} onClick={()=>void remove(item)}>Удалить навсегда</button></>:editingId === item.id ? <><button disabled={busy} className={styles.textButton} onClick={() => void rename(item)}>Сохранить</button><button className={styles.textButton} onClick={() => setEditingId("")}>Отмена</button></> : <><button className={styles.textButton} onClick={() => {setEditingId(item.id);setEditingName(item.name)}}>Переименовать</button><button disabled={busy} className={styles.textButton} onClick={() => void toggle(item)}>{item.status === "ACTIVE" ? "Скрыть" : "Показать"}</button><button disabled={busy} className={styles.textButton} onClick={()=>void archive(item)}>В архив</button></>}</div>
-    </div>)}{visibleItems.length === 0 && <div className={styles.empty}>{showArchive?"Архив пуст.":"Категорий пока нет. Добавьте первую категорию выше."}</div>}</section>
+      <div className={styles.rowActions}>{item.status==="ARCHIVED"?<><button disabled={busy} className={styles.textButton} onClick={()=>void restore(item)}>Восстановить</button>{children.length>0?<span className={styles.blockedAction} title="Сначала удалите или перенесите подразделы">Есть подразделы</span>:<button disabled={busy} className={styles.textButton} onClick={()=>void remove(item)}>Удалить навсегда</button>}</>:editingId === item.id ? <><button disabled={busy} className={styles.textButton} onClick={() => void rename(item)}>Сохранить</button><button className={styles.textButton} onClick={() => setEditingId("")}>Отмена</button></> : <><button className={styles.textButton} onClick={() => {setEditingId(item.id);setEditingName(item.name)}}>Переименовать</button><button disabled={busy} className={styles.textButton} onClick={() => void toggle(item)}>{item.status === "ACTIVE" ? "Скрыть" : "Показать"}</button><button disabled={busy} className={styles.textButton} onClick={()=>void archive(item)}>В архив</button></>}</div>
+    </div>})}{visibleItems.length === 0 && <div className={styles.empty}>{showArchive?"Архив пуст.":"Категорий пока нет. Добавьте первую категорию выше."}</div>}</section>
   </>;
 }
