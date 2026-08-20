@@ -393,13 +393,22 @@ public final class Product {
         requireMutable();
         var removed = media.stream().filter(item -> item.id().equals(mediaId)).findFirst()
                 .orElseThrow(() -> new ProductInvariantViolation(ProductInvariant.INVALID_ID, "Media does not belong to product"));
-        if (status == ProductStatus.ACTIVE && removed.primary()) {
+        var remaining = media.stream().filter(item -> !item.id().equals(mediaId)).toList();
+        if (status == ProductStatus.ACTIVE && remaining.isEmpty()) {
             throw new ProductInvariantViolation(
                     ProductInvariant.PRODUCT_NOT_PUBLISHABLE,
-                    "Choose another primary image before deleting the current primary image");
+                    "An active product must retain a primary image");
+        }
+        if (removed.primary() && !remaining.isEmpty()) {
+            var successor = remaining.stream().min(MEDIA_ORDER).orElseThrow();
+            remaining = remaining.stream()
+                    .map(item -> item.id().equals(successor.id())
+                            ? item.revise(item.variantId().orElse(null), item.alt(), item.displayOrder(), true)
+                            : item)
+                    .toList();
         }
         return copy(slug, aliases, content, status, primaryCategoryId, categoryIds, collectionIds,
-                characteristics, variants, media.stream().filter(item -> !item.id().equals(mediaId)).toList(), publishedAt);
+                characteristics, variants, remaining, publishedAt);
     }
 
     /** Archives a variant without releasing its immutable SKU or defining combination. */
