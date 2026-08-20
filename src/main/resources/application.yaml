@@ -83,6 +83,7 @@ amra:
         upload-endpoint: ${AMRA_S3_UPLOAD_ENDPOINT:${AMRA_S3_ENDPOINT:http://localhost:9000}}
         access-key: ${AMRA_S3_ACCESS_KEY:amra-local}
         secret-key: ${AMRA_S3_SECRET_KEY:amra-local-secret}
+        region: ${AMRA_S3_REGION:us-east-1}
         bucket: ${AMRA_S3_BUCKET:amra-catalog}
         upload-ttl: ${AMRA_S3_UPLOAD_TTL:15m}
         max-size: ${AMRA_S3_MAX_SIZE:10485760}

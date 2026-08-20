@@ -33,6 +33,7 @@ class MinioMediaUploadService implements MediaUploadService {
         this.uploadSigner = MinioClient.builder()
                 .endpoint(properties.uploadEndpoint())
                 .credentials(properties.accessKey(), properties.secretKey())
+                .region(properties.region())
                 .build();
     }
 

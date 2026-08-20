@@ -9,6 +9,7 @@ record MediaStorageProperties(
         String uploadEndpoint,
         String accessKey,
         String secretKey,
+        String region,
         String bucket,
         Duration uploadTtl,
         long maxSize) {}
