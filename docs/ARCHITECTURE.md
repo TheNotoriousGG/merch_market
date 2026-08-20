@@ -50,8 +50,9 @@ Backend не размещается внутри этого репозитори
 | `app/components/ShopState.tsx` | Корзина, избранное, суммы и синхронизация с `localStorage` |
 | `app/components/ShopProductDialog.tsx` | Универсальное подробное окно товара |
 | `app/components/ShopIcons.tsx` | Общие иконки избранного и кнопки корзины |
-| `app/catalog/[category]/page.tsx` | Данные каталога, фильтры, пагинация и каталоговое окно товара |
+| `app/catalog/[category]/page.tsx` | URL state, фильтры, сортировка и пагинация каталога |
 | `app/catalog/catalog-data.ts` | Временные типизированные fixtures каталога до API-интеграции |
+| `app/catalog/components/` | Карточка и подробный диалог каталога |
 | `app/cart/page.tsx` | Корзина и изменение количества |
 | `app/favorites/page.tsx` | Избранное |
 | `app/account/page.tsx` | Профиль и история заказов |
