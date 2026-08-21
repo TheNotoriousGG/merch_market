@@ -33,9 +33,9 @@ export default function StoreHeader({
   }, []);
 
   return <header className={`site-header ${isScrolled ? "is-scrolled" : ""}`}>
-    <a className="logo amra-logo" href="/" aria-label="Amra Merch Shop, на главную">
+    <a className="logo amra-logo" href="/" aria-label="Амра Шоп, на главную">
       <span className="amra-mark"><Image src="/amra-brand-reference.png" alt="" width={510} height={136} priority /></span>
-      <span className="amra-wordmark">merch shop</span>
+      <span className="amra-wordmark">амра шоп</span>
     </a>
     <button className="mobile-toggle" onClick={onMobileToggle} aria-expanded={mobileOpen}>
       {mobileOpen ? "Закрыть" : "Меню"}

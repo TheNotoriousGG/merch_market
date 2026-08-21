@@ -15,15 +15,15 @@ import CatalogProductDialog from "./catalog/components/CatalogProductDialog";
 type MenuKey = string;
 
 type MenuItem = {
-  id: MenuKey; label: string; image: string;
+  id: MenuKey; label: string; icon: string;
   columns: Array<{ title: string; links: Array<{ slug:string; name:string }> }>;
 };
 
-const categoryImages: Record<string, string> = {
-  clothes: "/amra-category-clothes-v2.png",
-  accessories: "/amra-category-accessories-v2.png",
-  bags: "/amra-category-bags-v2.png",
-  pants: "/amra-category-pants-v2.png",
+const categoryIcons: Record<string, string> = {
+  clothes: "shirt",
+  accessories: "watch",
+  bags: "bag",
+  pants: "pants",
 };
 
 const catalogHref = (category: MenuKey, section?: string) =>
@@ -79,7 +79,7 @@ export default function Home() {
         return {
           id: category.slug,
           label: category.name,
-          image: categoryImages[category.slug] ?? "/amra-category-clothes-v2.png",
+          icon: categoryIcons[category.slug] ?? "shirt",
           columns: menuColumns(category.children),
         };
       }));
@@ -124,7 +124,7 @@ export default function Home() {
   const salePageCount = Math.max(1, Math.ceil(saleProducts.length / salePageSize));
   const visibleSaleProducts = saleProducts.slice(salePage * salePageSize, (salePage + 1) * salePageSize);
 
-  return <main className="storefront-home">
+  return <main>
     <StoreHeader
       mobileOpen={mobileOpen}
       onMobileToggle={() => setMobileOpen((value) => !value)}
@@ -163,11 +163,7 @@ export default function Home() {
               aria-expanded={active === item.id} aria-controls={`panel-${item.id}`}
               aria-pressed={active === item.id}
               onClick={() => setActive((current) => current === item.id ? null : item.id)}>
-              <span className="menu-icon" aria-hidden="true">
-                <Image className="menu-category-image" src={item.image} alt="" width={96} height={96} />
-              </span>
-              <span className="menu-category-label">{item.label}</span>
-              <span className="menu-category-arrow" aria-hidden="true"><ArrowIcon /></span>
+              <span className="menu-icon" aria-hidden="true"><span className={`glyph glyph-${item.icon}`} /></span><span>{item.label}</span>
             </button>)}
           </nav>
           {activeItem && <section className="mega-panel" id={`panel-${activeItem.id}`} aria-label={`Разделы категории ${activeItem.label}`}>
