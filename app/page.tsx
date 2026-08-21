@@ -182,7 +182,7 @@ export default function Home() {
         </div>
       </div>
       <div className="hero-art" aria-hidden="true">
-        <Image className="campaign-hero-image" src="/amra-hero-hoodies-v1.png" alt="" fill priority sizes="100vw" />
+        <Image className="campaign-hero-image" src="/amra-hero-hoodies-v2.png" alt="" fill priority sizes="100vw" />
         <div className="sun"/><div className="shirt"><span>А</span></div>
         <div className="weekly-product"><i /></div><div className="sale-type">40</div>
       </div>
