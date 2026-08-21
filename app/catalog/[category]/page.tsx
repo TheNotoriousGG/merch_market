@@ -28,9 +28,14 @@ export default function CatalogPage() {
   const [newOnly, setNewOnly] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [apiProducts, setApiProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   useEffect(() => {
     let active = true;
-    void loadStorefrontProducts({ category: requestedCategory }).then((items) => active && setApiProducts(items)).catch(() => active && setApiProducts([]));
+    setProductsLoading(true);
+    void loadStorefrontProducts({ category: requestedCategory })
+      .then((items) => active && setApiProducts(items))
+      .catch(() => active && setApiProducts([]))
+      .finally(() => active && setProductsLoading(false));
     return () => { active = false; };
   }, [requestedCategory]);
 
@@ -54,24 +59,31 @@ export default function CatalogPage() {
     if (scrollToGrid) window.requestAnimationFrame(() => document.querySelector(".catalog-toolbar")?.scrollIntoView({ behavior:"smooth", block:"start" }));
   };
 
+  const navigateSection = (slug:string) => {
+    if (slug === (selectedSection?.slug ?? "")) return;
+    setProductsLoading(true);
+    router.push(slug ? `/catalog/${key}?section=${slug}` : `/catalog/${key}`, { scroll:false });
+  };
+
   return <main className="catalog-page">
     <StoreHeader />
     <div className="catalog-page-body">
       <div className="catalog-breadcrumbs"><a href="/">Главная</a><span>·</span><span>{current.label}</span></div>
       <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{categoriesLoaded&&!category?"Категория скрыта":title}</h1></div><span>{products.length} товара</span></div>
       <nav className="catalog-chips" aria-label={`Подкатегории: ${current.label}`}>
-        {category&&current.sections.map((item) => <a className={item.slug === (selectedSection?.slug ?? "") ? "active" : ""} href={item.slug?`/catalog/${key}?section=${item.slug}`:`/catalog/${key}`} key={item.slug||key}>{item.name}</a>)}
+        {category&&current.sections.map((item) => <button type="button" className={item.slug === (selectedSection?.slug ?? "") ? "active" : ""} onClick={()=>navigateSection(item.slug)} key={item.slug||key}>{item.name}</button>)}
       </nav>
       <div className="catalog-toolbar">
         <button aria-expanded={filterOpen} onClick={() => setFilterOpen((value) => !value)}>Фильтры <span>{filterOpen ? "−" : "+"}</span></button>
         <label>Сортировка <select value={sort} onChange={(event) => { setSort(event.target.value); updatePage(1, false); }}><option value="popular">По популярности</option><option value="new">Сначала новые</option><option value="price">Сначала дешевле</option></select></label>
       </div>
       {filterOpen && <aside className="catalog-filter-panel"><label><input type="checkbox" checked={newOnly} onChange={(event) => { setNewOnly(event.target.checked); updatePage(1, false); }} /> Только новинки</label><button onClick={() => { setNewOnly(false); updatePage(1, false); }}>Сбросить</button></aside>}
-      <section className="catalog-product-grid" aria-label={`Товары: ${title}`}>
+      <section className={`catalog-product-grid ${productsLoading?"is-loading":""}`} aria-busy={productsLoading} aria-label={`Товары: ${title}`}>
         {visibleProducts.map((product) => <CatalogProductCard product={product} onOpen={() => setSelectedProduct(product)} key={product.id} />)}
       </section>
-      {products.length === 0 && <p className="catalog-empty">В этой подборке пока нет товаров.</p>}
-      {products.length > 0 && totalPages > 1 && <nav className="catalog-pagination" aria-label="Страницы каталога">
+      {productsLoading&&<p className="catalog-loading" role="status">Загружаем подборку…</p>}
+      {!productsLoading&&products.length === 0 && <p className="catalog-empty">В этой подборке пока нет товаров.</p>}
+      {!productsLoading&&products.length > 0 && totalPages > 1 && <nav className="catalog-pagination" aria-label="Страницы каталога">
         <button className="pagination-arrow pagination-arrow-prev" onClick={() => updatePage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} aria-label="Предыдущая страница"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12.5 4.5-5.5 5.5 5.5 5.5" /></svg></button>
         {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => <button className={page === currentPage ? "active" : ""} onClick={() => updatePage(page)} aria-current={page === currentPage ? "page" : undefined} key={page}>{page}</button>)}
         <button className="pagination-arrow pagination-arrow-next" onClick={() => updatePage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} aria-label="Следующая страница"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4.5 5.5 5.5-5.5 5.5" /></svg></button>
