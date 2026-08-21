@@ -15,7 +15,7 @@ type MenuKey = string;
 
 type MenuItem = {
   id: MenuKey; label: string; icon: string;
-  columns: Array<{ title: string; links: string[] }>;
+  columns: Array<{ title: string; links: Array<{ slug:string; name:string }> }>;
 };
 
 const categoryIcons: Record<string, string> = {
@@ -28,12 +28,12 @@ const categoryIcons: Record<string, string> = {
 const catalogHref = (category: MenuKey, section?: string) =>
   `/catalog/${category}${section ? `?section=${encodeURIComponent(section)}` : ""}`;
 
-const menuColumns = (children: Array<{name:string}>) => {
+const menuColumns = (children: Array<{slug:string;name:string}>) => {
   if (children.length === 0) return [];
   const size = Math.ceil(children.length / Math.min(3, Math.ceil(children.length / 3)));
   return Array.from({length: Math.ceil(children.length / size)}, (_, index) => ({
     title: index === 0 ? "Разделы" : "Ещё",
-    links: children.slice(index * size, (index + 1) * size).map((child) => child.name),
+    links: children.slice(index * size, (index + 1) * size).map((child) => ({slug:child.slug,name:child.name})),
   }));
 };
 
@@ -171,7 +171,7 @@ export default function Home() {
             <div className="mega-content">
               <nav className="mega-category-links" aria-label={`Подкатегории раздела ${activeItem.label}`}>
                 {activeItem.columns.flatMap((column) => column.links).map((link) => (
-                  <a href={catalogHref(activeItem.id, link)} key={link}>{link}</a>
+                  <a href={catalogHref(activeItem.id, link.slug)} key={link.slug}>{link.name}</a>
                 ))}
               </nav>
             </div>

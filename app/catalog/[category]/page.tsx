@@ -19,8 +19,11 @@ export default function CatalogPage() {
   const [category, setCategory] = useState<StorefrontCategory | null>(null);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   useEffect(() => { void loadStorefrontCategories().then((items) => setCategory(items.find((item) => item.slug === key) ?? null)).finally(() => setCategoriesLoaded(true)); }, [key]);
-  const current = { label: category?.name ?? "Каталог", sections: category ? [category.name, ...category.children.map((child) => child.name)] : [] };
-  const title = searchParams.get("section") || current.label;
+  const sectionSlug = searchParams.get("section");
+  const selectedSection = category?.children.find((child) => child.slug === sectionSlug || child.name === sectionSlug) ?? null;
+  const current = { label: category?.name ?? "Каталог", sections: category ? [{slug:"",name:category.name}, ...category.children.map((child) => ({slug:child.slug,name:child.name}))] : [] };
+  const title = selectedSection?.name ?? current.label;
+  const requestedCategory = selectedSection?.slug ?? key;
   const [sort, setSort] = useState("popular");
   const [filterOpen, setFilterOpen] = useState(false);
   const [newOnly, setNewOnly] = useState(false);
@@ -28,9 +31,9 @@ export default function CatalogPage() {
   const [apiProducts, setApiProducts] = useState<Product[]>([]);
   useEffect(() => {
     let active = true;
-    void loadStorefrontProducts({ category: key }).then((items) => active && setApiProducts(items)).catch(() => active && setApiProducts([]));
+    void loadStorefrontProducts({ category: requestedCategory }).then((items) => active && setApiProducts(items)).catch(() => active && setApiProducts([]));
     return () => { active = false; };
-  }, [key]);
+  }, [requestedCategory]);
 
   const products = useMemo(() => {
     const result = newOnly ? apiProducts.filter((product) => product.isNew) : [...apiProducts];
@@ -58,7 +61,7 @@ export default function CatalogPage() {
       <div className="catalog-breadcrumbs"><a href="/">Главная</a><span>·</span><span>{current.label}</span></div>
       <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{categoriesLoaded&&!category?"Категория скрыта":title}</h1></div><span>{products.length} товара</span></div>
       <nav className="catalog-chips" aria-label={`Подкатегории: ${current.label}`}>
-        {category&&current.sections.map((item) => <Link className={item === title ? "active" : ""} href={`/catalog/${key}?section=${encodeURIComponent(item)}`} key={item}>{item}</Link>)}
+        {category&&current.sections.map((item) => <Link className={item.slug === (selectedSection?.slug ?? "") ? "active" : ""} href={item.slug?`/catalog/${key}?section=${item.slug}`:`/catalog/${key}`} key={item.slug||key}>{item.name}</Link>)}
       </nav>
       <div className="catalog-toolbar">
         <button aria-expanded={filterOpen} onClick={() => setFilterOpen((value) => !value)}>Фильтры <span>{filterOpen ? "−" : "+"}</span></button>
