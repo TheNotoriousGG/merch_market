@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import StoreHeader from "../../components/StoreHeader";
@@ -61,7 +60,7 @@ export default function CatalogPage() {
       <div className="catalog-breadcrumbs"><a href="/">Главная</a><span>·</span><span>{current.label}</span></div>
       <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{categoriesLoaded&&!category?"Категория скрыта":title}</h1></div><span>{products.length} товара</span></div>
       <nav className="catalog-chips" aria-label={`Подкатегории: ${current.label}`}>
-        {category&&current.sections.map((item) => <Link className={item.slug === (selectedSection?.slug ?? "") ? "active" : ""} href={item.slug?`/catalog/${key}?section=${item.slug}`:`/catalog/${key}`} key={item.slug||key}>{item.name}</Link>)}
+        {category&&current.sections.map((item) => <a className={item.slug === (selectedSection?.slug ?? "") ? "active" : ""} href={item.slug?`/catalog/${key}?section=${item.slug}`:`/catalog/${key}`} key={item.slug||key}>{item.name}</a>)}
       </nav>
       <div className="catalog-toolbar">
         <button aria-expanded={filterOpen} onClick={() => setFilterOpen((value) => !value)}>Фильтры <span>{filterOpen ? "−" : "+"}</span></button>
