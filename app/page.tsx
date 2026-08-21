@@ -41,11 +41,11 @@ const menuColumns = (children: Array<{slug:string;name:string}>) => {
 const campaigns = [
   {
     id: "catalog",
-    eyebrow: "Амра шоп",
-    title: <>Актуальный<br />каталог</>,
-    description: <>Только опубликованные товары<br />из каталога магазина.</>,
-    link: "Смотреть новинки",
-    tag: "AMRA",
+    eyebrow: "На каждый день",
+    title: <>Худи и<br />свитшоты</>,
+    description: <>Базовые модели свободного кроя<br />в спокойных оттенках.</>,
+    link: "Перейти в раздел",
+    href: "/catalog/clothes?section=hoodies",
   },
 ] as const;
 
@@ -142,7 +142,7 @@ export default function Home() {
           <span className="hero-label">{campaign.eyebrow}</span>
           <h1>{campaign.title}</h1>
           <p>{campaign.description}</p>
-          <a className="campaign-link" href="#new">{campaign.link}<LinkArrow /></a>
+          <a className="campaign-link" href={campaign.href}>{campaign.link}<LinkArrow /></a>
         </div>
         <div className="campaign-controls">
           <div className="campaign-dots" aria-label={`История ${campaignIndex + 1} из ${campaigns.length}`}>
@@ -182,9 +182,9 @@ export default function Home() {
         </div>
       </div>
       <div className="hero-art" aria-hidden="true">
+        <Image className="campaign-hero-image" src="/amra-hero-hoodies-v1.png" alt="" fill priority sizes="100vw" />
         <div className="sun"/><div className="shirt"><span>А</span></div>
         <div className="weekly-product"><i /></div><div className="sale-type">40</div>
-        <div className="tag">{campaign.tag}</div>
       </div>
     </section>
 

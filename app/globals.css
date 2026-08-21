@@ -795,3 +795,35 @@ a:hover>.link-arrow { background:#ffe45b; transform:translateX(2px); }
 .favorite-visual>button:not(.product-open-hit) { position:absolute; z-index:5; top:14px; right:14px; display:grid; place-items:center; width:38px; height:38px; padding:0; color:#fff; background:#202226; border:0; border-radius:12px; cursor:pointer; }.favorite-visual>button:not(.product-open-hit):hover { color:#202226; background:#ffdd2d; }
 .favorite-copy h2 { margin:0; }.cart-line-main h2 { margin:0; }
 @media (max-width:760px) { .quick-add { opacity:1; transform:none; }.weekly-title-button h3 { font-size:39px; }.cart-action-icon { width:32px; height:32px; flex-basis:32px; } }
+
+/* Реалистичная категорийная кампания первого экрана */
+.campaign-catalog { background:#191b1e; }
+.campaign-catalog .hero-art::before {
+  content:"";
+  position:absolute;
+  z-index:2;
+  inset:0;
+  display:block;
+  background:linear-gradient(90deg,rgba(15,17,19,.88) 0%,rgba(15,17,19,.7) 31%,rgba(15,17,19,.18) 59%,rgba(15,17,19,.08) 100%);
+}
+.campaign-hero-image {
+  position:absolute;
+  z-index:1;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+.campaign-catalog .hero-label {
+  color:#ffdd2d;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+}
+.campaign-catalog .campaign-copy { text-shadow:0 2px 20px rgba(0,0,0,.24); }
+.campaign-catalog .campaign-link { text-shadow:none; }
+@media (max-width:760px) {
+  .campaign-catalog .hero-art::before { background:linear-gradient(180deg,rgba(14,16,18,.35),rgba(14,16,18,.82) 68%,rgba(14,16,18,.96)); }
+  .campaign-hero-image { object-position:64% center; }
+}
