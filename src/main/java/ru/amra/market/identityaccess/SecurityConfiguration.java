@@ -63,7 +63,10 @@ public class SecurityConfiguration {
                                 "/api/v1/",
                                 "/api/v1/session",
                                 "/api/v1/catalog/**",
+                                "/api/v1/customer/account",
                                 "/actuator/health/**")
+                        .permitAll()
+                        .requestMatchers("/api/v1/customer/auth/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/inventory/availability")
                         .permitAll()

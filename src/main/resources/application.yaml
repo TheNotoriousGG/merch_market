@@ -68,6 +68,9 @@ server:
         same-site: lax
 
 amra:
+  customer:
+    phone-auth:
+      expose-development-code: ${AMRA_CUSTOMER_PHONE_AUTH_EXPOSE_DEVELOPMENT_CODE:false}
   inventory:
     expiry:
       enabled: ${AMRA_INVENTORY_EXPIRY_ENABLED:true}
