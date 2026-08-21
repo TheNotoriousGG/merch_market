@@ -18,6 +18,13 @@ type MenuItem = {
   columns: Array<{ title: string; links: string[] }>;
 };
 
+const categoryIcons: Record<string, string> = {
+  clothes: "shirt",
+  accessories: "watch",
+  bags: "bag",
+  pants: "pants",
+};
+
 const catalogHref = (category: MenuKey, section?: string) =>
   `/catalog/${category}${section ? `?section=${encodeURIComponent(section)}` : ""}`;
 
@@ -69,7 +76,7 @@ export default function Home() {
         return {
           id: category.slug,
           label: category.name,
-          icon: "shirt",
+          icon: categoryIcons[category.slug] ?? "shirt",
           columns: menuColumns(category.children),
         };
       }));
