@@ -140,6 +140,7 @@ services:
       AMRA_LOGIN_SUCCESS_URL: http://localhost:3001/admin
       AMRA_SESSION_COOKIE_SECURE: "false"
       AMRA_ADMIN_MFA_ACR_VALUES: "0,1,2"
+      AMRA_CUSTOMER_PHONE_AUTH_EXPOSE_DEVELOPMENT_CODE: "true"
       AMRA_S3_ENDPOINT: http://minio:9000
       AMRA_S3_UPLOAD_ENDPOINT: http://localhost:${AMRA_MINIO_PORT:-9000}
       AMRA_S3_ACCESS_KEY: ${AMRA_S3_ACCESS_KEY:-amra-local}
