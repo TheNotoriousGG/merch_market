@@ -795,3 +795,47 @@ a:hover>.link-arrow { background:#ffe45b; transform:translateX(2px); }
 .favorite-visual>button:not(.product-open-hit) { position:absolute; z-index:5; top:14px; right:14px; display:grid; place-items:center; width:38px; height:38px; padding:0; color:#fff; background:#202226; border:0; border-radius:12px; cursor:pointer; }.favorite-visual>button:not(.product-open-hit):hover { color:#202226; background:#ffdd2d; }
 .favorite-copy h2 { margin:0; }.cart-line-main h2 { margin:0; }
 @media (max-width:760px) { .quick-add { opacity:1; transform:none; }.weekly-title-button h3 { font-size:39px; }.cart-action-icon { width:32px; height:32px; flex-basis:32px; } }
+
+/* Полноширинная стеклянная навигация Amra */
+.site-header,.site-header.is-scrolled {
+  position:sticky;
+  top:0;
+  z-index:100;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  width:100%;
+  height:76px;
+  padding:0 clamp(18px,4.5vw,74px);
+  color:#f7f7f8;
+  background:linear-gradient(110deg,rgba(32,34,39,.76),rgba(44,46,51,.62));
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.17);
+  box-shadow:0 10px 36px rgba(13,15,18,.16),inset 0 1px 0 rgba(255,255,255,.12);
+  -webkit-backdrop-filter:saturate(175%) blur(24px);
+  backdrop-filter:saturate(175%) blur(24px);
+}
+.site-header::before { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(90deg,rgba(255,255,255,.06),transparent 38%,rgba(255,255,255,.035)); pointer-events:none; }
+.amra-logo { position:relative; z-index:2; min-width:max-content; color:#fff; }
+.amra-mark { flex-basis:44px; width:44px; height:44px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16); border-radius:14px; box-shadow:inset 0 1px 0 rgba(255,255,255,.17),0 8px 22px rgba(0,0,0,.13); }
+.logo .amra-wordmark { margin-left:11px; color:#fff; font-family:Manrope,Arial,sans-serif; font-size:20px; font-weight:720; letter-spacing:-.7px; text-transform:lowercase; }
+.header-center,.site-header.is-scrolled .header-center { justify-self:stretch; display:flex; align-items:center; justify-content:flex-end; min-width:0; gap:clamp(15px,2.2vw,34px); padding:0; background:transparent; border:0; border-radius:0; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
+.header-nav { gap:clamp(14px,2vw,30px); }.header-nav a { color:rgba(255,255,255,.78); font-size:12px; font-weight:650; }.header-nav a:hover { color:#fff; }.header-nav a::after { bottom:-27px; height:2px; background:#ffdd2d; }.header-nav .sale-link { color:#ffe67e; }
+.site-header .header-actions { padding:4px; background:rgba(255,255,255,.075); border:1px solid rgba(255,255,255,.105); border-radius:15px; box-shadow:inset 0 1px 0 rgba(255,255,255,.07); }
+.site-header .header-actions .header-icon { color:rgba(255,255,255,.82); background:transparent; }.site-header .header-actions .header-icon:hover { color:#fff; background:rgba(255,255,255,.12); }
+.site-header .header-actions .bag-icon { color:#17191c; background:rgba(255,221,45,.94); border-color:rgba(255,235,134,.75); }.site-header .header-actions .bag-icon:hover { background:#ffe45b; }
+
+/* Стеклянный мегабар с визуальными знаками категорий */
+.hero .menu-shell { width:min(1120px,calc(100vw - 48px)); }
+.hero .menu-nav { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); width:100%; height:auto; gap:7px; padding:7px; overflow:hidden; background:linear-gradient(120deg,rgba(255,255,255,.17),rgba(255,255,255,.08)); border:1px solid rgba(255,255,255,.22); border-radius:24px; box-shadow:0 22px 60px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.22); -webkit-backdrop-filter:saturate(165%) blur(25px); backdrop-filter:saturate(165%) blur(25px); }
+.hero .menu-nav button { display:grid; grid-template-columns:64px minmax(0,1fr); align-items:center; gap:13px; min-width:0; min-height:78px; padding:8px 14px 8px 8px; color:rgba(255,255,255,.84); background:rgba(20,22,26,.2); border:1px solid rgba(255,255,255,.08); border-radius:17px; text-align:left; transition:background .2s ease,border-color .2s ease,transform .2s ease,color .2s ease; }
+.hero .menu-nav button::after { display:none; }.hero .menu-nav button:hover { color:#fff; background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.2); transform:translateY(-1px); }.hero .menu-nav button.active { color:#202226; background:rgba(255,255,255,.9); border-color:rgba(255,255,255,.96); box-shadow:0 9px 26px rgba(0,0,0,.15); }
+.hero .menu-nav button>span:last-child { overflow:hidden; font-size:12px; font-weight:750; text-overflow:ellipsis; white-space:nowrap; }
+.hero .menu-icon { display:grid; place-items:center; width:64px; height:60px; color:#ffdf3d; background:linear-gradient(145deg,rgba(25,27,31,.75),rgba(54,56,61,.56)); border:1px solid rgba(255,255,255,.14); border-radius:15px; box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 8px 20px rgba(0,0,0,.14); }
+.hero .menu-nav button.active .menu-icon { color:#202226; background:#ffdd2d; border-color:#ffe986; }.hero .glyph { transform:scale(.76); }
+.hero .mega-panel { top:auto; bottom:calc(100% + 12px); width:min(1120px,calc(100vw - 48px)); overflow:hidden; color:#f8f8f9; background:linear-gradient(125deg,rgba(35,37,42,.88),rgba(51,53,59,.75)); border:1px solid rgba(255,255,255,.2); border-radius:26px; box-shadow:0 32px 90px rgba(4,6,9,.38),inset 0 1px 0 rgba(255,255,255,.15); -webkit-backdrop-filter:saturate(170%) blur(30px); backdrop-filter:saturate(170%) blur(30px); }
+.mega-panel-head { border-color:rgba(255,255,255,.12); }.mega-panel-head span { color:rgba(255,255,255,.52); }.mega-panel-head h2 { color:#fff; }.mega-panel-head>a { color:#fff; }.mega-panel-head>a .link-arrow { color:#202226; background:#ffdd2d; }
+.mega-category-links a { color:rgba(255,255,255,.9); background:rgba(255,255,255,.075); border:1px solid rgba(255,255,255,.08); }.mega-category-links a::after { color:rgba(255,255,255,.5); }.mega-category-links a:hover { color:#202226; background:rgba(255,255,255,.91); border-color:rgba(255,255,255,.95); transform:translateY(-1px); }
+@media (max-width:900px) { .site-header,.site-header.is-scrolled { padding:0 18px; }.header-nav { gap:13px; }.header-nav a { font-size:11px; }.hero .menu-nav button { grid-template-columns:52px minmax(0,1fr); }.hero .menu-icon { width:52px; height:54px; } }
+@media (max-width:760px) { .site-header,.site-header.is-scrolled { grid-template-columns:1fr auto; height:68px; padding:0 14px; }.logo .amra-wordmark { font-size:18px; }.amra-mark { flex-basis:40px; width:40px; height:40px; }.mobile-toggle { display:block; color:#fff; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.14); }.header-center { display:none; }.hero .menu-shell { right:10px; bottom:10px; left:10px; width:auto; }.hero .menu-shell.mobile-open { display:block; }.hero .menu-nav { grid-template-columns:repeat(2,minmax(0,1fr)); padding:6px; border-radius:20px; }.hero .menu-nav button { grid-template-columns:46px minmax(0,1fr); min-height:62px; padding:6px 9px 6px 6px; }.hero .menu-icon { width:46px; height:48px; border-radius:13px; }.hero .mega-panel { right:0; bottom:calc(100% + 9px); left:0; width:100%; color:#fff; border-radius:22px; }.mega-panel-head { padding:18px; }.hero .mega-content { padding:18px; }.mega-category-links { grid-template-columns:1fr 1fr; } }
+@media (max-width:480px) { .hero .menu-nav button>span:last-child { font-size:10px; }.mega-category-links { grid-template-columns:1fr; } }
