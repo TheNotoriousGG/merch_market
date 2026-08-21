@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StoreHeader from "./components/StoreHeader";
 import { useShop } from "./components/ShopState";
 import { CartButtonContent, FavoriteIcon } from "./components/ShopIcons";
@@ -58,6 +59,7 @@ function LinkArrow({ external = false }: { external?: boolean }) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [active, setActive] = useState<MenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -68,7 +70,8 @@ export default function Home() {
   const [salePage, setSalePage] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
   const [publishedProducts, setPublishedProducts] = useState<CatalogProduct[]>([]);
-  const { addToCart, toggleFavorite, isFavorite } = useShop();
+  const { addToCart, toggleFavorite, isFavorite, isInCart } = useShop();
+  const cartAction = (product: CatalogProduct) => isInCart(product.id) ? router.push("/cart") : addToCart(toShopProduct(product));
   const menuShellRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     void loadStorefrontCategories().then((categories) => {
@@ -223,7 +226,7 @@ export default function Home() {
           <p>{weeklyProduct.description}</p>
           <div className="weekly-facts"><span>Цвет <b>{weeklyProduct.color}</b></span><strong>{weeklyProduct.price.toLocaleString("ru-RU")} ₽</strong></div>
           <div className="weekly-actions">
-            <button className="weekly-buy cart-action-button" onClick={()=>addToCart(toShopProduct(weeklyProduct))}><CartButtonContent/></button>
+            <button className={`weekly-buy cart-action-button ${isInCart(weeklyProduct.id)?"is-added":""}`} onClick={()=>cartAction(weeklyProduct)}><CartButtonContent added={isInCart(weeklyProduct.id)} label={isInCart(weeklyProduct.id)?"В корзине · Перейти":"В корзину"}/></button>
             <button className={`weekly-like ${isFavorite(weeklyProduct.id)?"liked":""}`} onClick={()=>toggleFavorite(toShopProduct(weeklyProduct))} aria-pressed={isFavorite(weeklyProduct.id)} aria-label="Добавить товар недели в избранное"><FavoriteIcon active={isFavorite(weeklyProduct.id)}/></button>
           </div>
           {weeklyProducts.length>1&&<div className="weekly-selectors" aria-label="Другие товары недели">{weeklyProducts.map((product,index)=><button key={product.id} className={index===weeklyIndex?"active":""} onClick={()=>setWeeklyIndex(index)} aria-pressed={index===weeklyIndex}><i style={product.imageUrl?{backgroundImage:`url(${product.imageUrl})`,backgroundSize:"cover"}:undefined}/><span>{product.name}</span><b>{String(index+1).padStart(2,"0")}</b></button>)}</div>}
@@ -255,7 +258,7 @@ export default function Home() {
             <button className="sale-title-button" onClick={()=>setSelectedProduct(product)}><h3>{product.name}</h3></button>
             <div className="sale-prices"><strong>{product.price.toLocaleString("ru-RU")} ₽</strong>{product.originalPrice&&<del>{product.originalPrice.toLocaleString("ru-RU")} ₽</del>}</div>
             <div className="sale-sizes"><span>Размеры:</span>{product.sizes.map((size)=><i key={size}>{size}</i>)}</div>
-            <button className="cart-action-button" onClick={()=>addToCart(toShopProduct(product))}><CartButtonContent/></button>
+            <button className={`cart-action-button ${isInCart(product.id)?"is-added":""}`} onClick={()=>cartAction(product)}><CartButtonContent added={isInCart(product.id)} label={isInCart(product.id)?"В корзине · Перейти":"В корзину"}/></button>
           </div>
         </article>)}</div>
       </div>

@@ -81,10 +81,8 @@ export function ShopStateProvider({ children }: { children: React.ReactNode }) {
     favoriteCount: favorites.length,
     cartTotal: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     addToCart: (product) => setCart((current) => {
-      const existing = current.find((item) => item.id === product.id);
-      return existing
-        ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
-        : [...current, { ...product, quantity: 1 }];
+      if (current.some((item) => item.id === product.id)) return current;
+      return [...current, { ...product, quantity: 1 }];
     }),
     removeFromCart: (id) => setCart((current) => current.filter((item) => item.id !== id)),
     setQuantity: (id, quantity) => setCart((current) => quantity <= 0 ? current.filter((item) => item.id !== id) : current.map((item) => item.id === id ? { ...item, quantity } : item)),
