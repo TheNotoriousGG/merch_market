@@ -1,0 +1,11 @@
+type: object
+required: [id, label, recipientName, phone, postalCode, city, street]
+properties:
+  id: {type: string, format: uuid}
+  label: {type: string, maxLength: 80}
+  recipientName: {type: string, maxLength: 160}
+  phone: {type: string, pattern: '^\+[1-9][0-9]{7,14}$'}
+  postalCode: {type: string, maxLength: 20}
+  city: {type: string, maxLength: 120}
+  street: {type: string, maxLength: 240}
+  apartment: {type: string, nullable: true, maxLength: 40}

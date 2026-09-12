@@ -25,11 +25,27 @@ tags:
     description: Public storefront merchandising content.
   - name: Storefront administration
     description: MFA-protected storefront banner authoring.
+  - name: Customer
+    description: Guest and authenticated profile, favorites and cart flows.
 paths:
   /:
     $ref: paths/platform.yaml
   /session:
     $ref: paths/session.yaml
+  /customer/context:
+    $ref: paths/customer-context.yaml
+  /customer/profile:
+    $ref: paths/customer-profile.yaml
+  /customer/addresses:
+    $ref: paths/customer-addresses.yaml
+  /customer/addresses/{resourceId}:
+    $ref: paths/customer-address.yaml
+  /customer/favorites/{productId}:
+    $ref: paths/customer-favorite.yaml
+  /customer/cart:
+    $ref: paths/customer-cart.yaml
+  /customer/cart/items/{variantId}:
+    $ref: paths/customer-cart-item.yaml
   /catalog/categories:
     $ref: paths/catalog-categories.yaml
   /catalog/products:
@@ -97,6 +113,24 @@ components:
       $ref: components/schemas/cursor-metadata.yaml
     CurrentSession:
       $ref: components/schemas/current-session.yaml
+    CustomerContext:
+      $ref: components/schemas/customer-context.yaml
+    CustomerProfile:
+      $ref: components/schemas/customer-profile.yaml
+    CustomerAddress:
+      $ref: components/schemas/customer-address.yaml
+    UpdateCustomerProfileRequest:
+      $ref: components/schemas/update-customer-profile-request.yaml
+    SaveCustomerAddressRequest:
+      $ref: components/schemas/save-customer-address-request.yaml
+    Cart:
+      $ref: components/schemas/cart.yaml
+    CartItem:
+      $ref: components/schemas/cart-item.yaml
+    CartNotice:
+      $ref: components/schemas/cart-notice.yaml
+    SetCartItemRequest:
+      $ref: components/schemas/set-cart-item-request.yaml
     CatalogCategoryNode:
       $ref: components/schemas/catalog-category-node.yaml
     CatalogCategoryTree:

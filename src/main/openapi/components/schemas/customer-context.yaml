@@ -1,0 +1,9 @@
+type: object
+required: [authenticated, favoriteProductIds]
+properties:
+  authenticated: {type: boolean}
+  customerId: {type: string, format: uuid, nullable: true}
+  favoriteProductIds:
+    type: array
+    uniqueItems: true
+    items: {type: string, format: uuid}

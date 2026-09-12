@@ -1,0 +1,9 @@
+get:
+  tags: [Customer]
+  summary: Resolve anonymous or authenticated shopping context
+  operationId: getCustomerContext
+  responses:
+    '200':
+      description: Shopping context. Creates a secure guest cookie when needed.
+      content: {application/json: {schema: {$ref: ../components/schemas/customer-context.yaml}}}
+    '500': {$ref: ../components/responses/unexpected-error.yaml}

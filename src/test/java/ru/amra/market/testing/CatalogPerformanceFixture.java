@@ -144,6 +144,9 @@ public final class CatalogPerformanceFixture {
     public void clear() {
         jdbc.execute("""
                 truncate table
+                    customer_cart_items,
+                    customer_carts,
+                    customer_favorites,
                     catalog_audit_events,
                     catalog_command_idempotency,
                     catalog_variant_attribute_values,

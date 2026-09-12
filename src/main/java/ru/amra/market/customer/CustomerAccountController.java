@@ -1,5 +1,6 @@
 package ru.amra.market.customer;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -21,9 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 final class CustomerAccountController {
 
     private final CustomerPhoneAuthentication authentication;
+    private final CustomerShoppingService shopping;
 
-    CustomerAccountController(CustomerPhoneAuthentication authentication) {
+    CustomerAccountController(CustomerPhoneAuthentication authentication, CustomerShoppingService shopping) {
         this.authentication = authentication;
+        this.shopping = shopping;
     }
 
     @PostMapping("/auth/phone/start")
@@ -34,8 +37,12 @@ final class CustomerAccountController {
     }
 
     @PostMapping("/auth/phone/verify")
-    AccountResponse verify(@Valid @RequestBody VerifyRequest request, HttpSession session) {
-        return account(authentication.verify(request.challengeId(), request.code(), session));
+    AccountResponse verify(
+            @Valid @RequestBody VerifyRequest request, HttpSession session, HttpServletRequest servletRequest) {
+        var customer = authentication.verify(request.challengeId(), request.code(), session);
+        shopping.mergeGuestIntoCustomer(
+                CustomerShoppingService.cookie(servletRequest, CustomerShoppingService.GUEST_COOKIE), customer.id());
+        return account(customer);
     }
 
     @GetMapping("/account")

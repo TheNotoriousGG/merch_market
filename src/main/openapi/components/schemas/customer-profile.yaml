@@ -1,0 +1,11 @@
+type: object
+required: [id, phone, emailVerified, addresses]
+properties:
+  id: {type: string, format: uuid}
+  phone: {type: string, pattern: '^\+[1-9][0-9]{7,14}$'}
+  displayName: {type: string, nullable: true, maxLength: 120}
+  email: {type: string, format: email, nullable: true, maxLength: 320}
+  emailVerified: {type: boolean}
+  addresses:
+    type: array
+    items: {$ref: ./customer-address.yaml}

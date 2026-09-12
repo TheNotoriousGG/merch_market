@@ -1,0 +1,11 @@
+type: object
+required: [variantId, productId, slug, name, variantLabel, quantity, unitPriceMinor, available]
+properties:
+  variantId: {type: string, format: uuid}
+  productId: {type: string, format: uuid}
+  slug: {type: string}
+  name: {type: string}
+  variantLabel: {type: string}
+  quantity: {type: integer, minimum: 1, maximum: 99}
+  unitPriceMinor: {type: integer, format: int64, minimum: 1}
+  available: {type: boolean}

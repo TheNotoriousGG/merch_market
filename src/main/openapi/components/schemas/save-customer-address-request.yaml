@@ -1,0 +1,10 @@
+type: object
+required: [label, recipientName, phone, postalCode, city, street]
+properties:
+  label: {type: string, minLength: 1, maxLength: 80}
+  recipientName: {type: string, minLength: 1, maxLength: 160}
+  phone: {type: string, pattern: '^\+[1-9][0-9]{7,14}$'}
+  postalCode: {type: string, minLength: 1, maxLength: 20}
+  city: {type: string, minLength: 1, maxLength: 120}
+  street: {type: string, minLength: 1, maxLength: 240}
+  apartment: {type: string, nullable: true, maxLength: 40}

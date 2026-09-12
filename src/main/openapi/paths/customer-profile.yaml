@@ -1,0 +1,18 @@
+get:
+  tags: [Customer]
+  operationId: getCustomerProfile
+  summary: Read the authenticated customer profile
+  security: [{SessionCookie: []}]
+  responses:
+    '200': {description: Customer profile, content: {application/json: {schema: {$ref: ../components/schemas/customer-profile.yaml}}}}
+    '401': {$ref: ../components/responses/unauthorized.yaml}
+put:
+  tags: [Customer]
+  operationId: updateCustomerProfile
+  summary: Update profile fields; changing email resets verification
+  security: [{SessionCookie: []}]
+  parameters: [{$ref: ../components/parameters/csrf-token.yaml}]
+  requestBody: {required: true, content: {application/json: {schema: {$ref: ../components/schemas/update-customer-profile-request.yaml}}}}
+  responses:
+    '200': {description: Updated profile, content: {application/json: {schema: {$ref: ../components/schemas/customer-profile.yaml}}}}
+    '401': {$ref: ../components/responses/unauthorized.yaml}

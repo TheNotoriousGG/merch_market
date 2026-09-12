@@ -64,10 +64,18 @@ public class SecurityConfiguration {
                                 "/api/v1/session",
                                 "/api/v1/catalog/**",
                                 "/api/v1/storefront/**",
+                                "/api/v1/customer/context",
+                                "/api/v1/customer/cart",
                                 "/api/v1/customer/account",
                                 "/actuator/health/**")
                         .permitAll()
                         .requestMatchers("/api/v1/customer/auth/**")
+                        .permitAll()
+                        .requestMatchers(
+                                "/api/v1/customer/profile",
+                                "/api/v1/customer/addresses/**",
+                                "/api/v1/customer/favorites/**",
+                                "/api/v1/customer/cart/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/inventory/availability")
                         .permitAll()

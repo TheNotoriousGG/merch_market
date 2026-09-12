@@ -1,0 +1,13 @@
+type: object
+required: [id, version, items, subtotalMinor, currency, notices]
+properties:
+  id: {type: string, format: uuid}
+  version: {type: integer, format: int64, minimum: 0}
+  items:
+    type: array
+    items: {$ref: ./cart-item.yaml}
+  subtotalMinor: {type: integer, format: int64, minimum: 0}
+  currency: {type: string, enum: [RUB]}
+  notices:
+    type: array
+    items: {$ref: ./cart-notice.yaml}
