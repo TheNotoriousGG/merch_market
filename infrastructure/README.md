@@ -24,7 +24,7 @@ Compose-проект называется `amra-merch-market`. Он собира
 
 Образы приложений получают локальные имена `amra/merch-market-backend:local` и `amra/merch-market-frontend:local`. Метки `ru.amra.project` и `ru.amra.component` позволяют однозначно фильтровать ресурсы и дают понятное соответствие будущим Kubernetes workload labels.
 
-Тома данных пока имеют явные имена `amra-merch-market-*`, чтобы сохранять локальные данные независимо от расположения infra-репозитория. Сеть создаётся и изолируется самим Compose в рамках проекта.
+Тома данных имеют явные имена, чтобы сохранять локальные данные независимо от расположения репозитория. PostgreSQL монорепозитория использует `merch-market-monorepo-postgres-data`; старый sibling-volume сохраняется отдельно и не удаляется автоматически. Сеть создаётся и изолируется самим Compose в рамках проекта.
 
 Адреса: frontend `http://localhost:3001`, backend `http://localhost:8080`, Keycloak `http://localhost:8081`, MinIO `http://localhost:9000`, MinIO Console `http://localhost:9001`.
 

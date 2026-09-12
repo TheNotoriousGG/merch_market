@@ -186,6 +186,7 @@ services:
     ipc: host
 
 volumes:
-  postgres-data: {name: amra-merch-market-postgres-data}
+  # The monorepo uses a fresh schema history; the legacy sibling-repository volume is preserved.
+  postgres-data: {name: merch-market-monorepo-postgres-data}
   keycloak-db-data: {name: amra-merch-market-keycloak-postgres-data}
   minio-data: {name: amra-merch-market-minio-data}
