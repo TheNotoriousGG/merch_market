@@ -170,6 +170,20 @@ services:
       backend: {condition: service_started}
     restart: unless-stopped
 
+  e2e:
+    image: amra/merch-market-e2e:local
+    profiles: ["test"]
+    build:
+      context: ../amra-merch-market-frontend
+      dockerfile: Dockerfile.e2e
+    environment:
+      PLAYWRIGHT_USE_EXISTING_SERVER: "true"
+      PLAYWRIGHT_BASE_URL: http://frontend:3001
+    depends_on:
+      frontend: {condition: service_started}
+    init: true
+    ipc: host
+
 volumes:
   postgres-data: {name: amra-merch-market-postgres-data}
   keycloak-db-data: {name: amra-merch-market-keycloak-postgres-data}
