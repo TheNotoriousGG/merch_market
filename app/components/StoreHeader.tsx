@@ -65,6 +65,7 @@ export default function StoreHeader({
       </div>
     </div>
     {searchOpen && <div className="header-search-backdrop" role="presentation" onMouseDown={() => setSearchOpen(false)}>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <section className="header-search-panel" role="search" aria-label="Поиск по каталогу" onMouseDown={(event) => event.stopPropagation()}>
         <form action="/search" method="get">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>

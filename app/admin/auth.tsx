@@ -20,11 +20,12 @@ const navigation = [
   { href: "/admin", label: "Главная", icon: "⌂", permissions: ["CATALOG_MANAGER", "WAREHOUSE_MANAGER", "ADMIN"] },
   { href: "/admin/catalog", label: "Товары", icon: "□", permissions: ["CATALOG_MANAGER", "ADMIN"] },
   { href: "/admin/categories", label: "Категории", icon: "≡", permissions: ["CATALOG_MANAGER", "ADMIN"] },
+  { href: "/admin/banners", label: "Баннеры", icon: "▰", permissions: ["CATALOG_MANAGER", "ADMIN"] },
   { href: "/admin/inventory", label: "Остатки", icon: "↕", permissions: ["WAREHOUSE_MANAGER"] },
 ] as const;
 
 function Breadcrumbs({pathname}:{pathname:string}) {
-  const items = pathname === "/admin" ? [] : pathname === "/admin/catalog" ? ["Товары"] : pathname === "/admin/categories" ? ["Категории"] : pathname === "/admin/inventory" ? ["Остатки"] : pathname === "/admin/catalog/products/new" ? ["Товары", "Новый товар"] : pathname.startsWith("/admin/catalog/products/") ? ["Товары", "Редактирование"] : [];
+  const items = pathname === "/admin" ? [] : pathname === "/admin/catalog" ? ["Товары"] : pathname === "/admin/categories" ? ["Категории"] : pathname === "/admin/banners" ? ["Баннеры"] : pathname === "/admin/inventory" ? ["Остатки"] : pathname === "/admin/catalog/products/new" ? ["Товары", "Новый товар"] : pathname.startsWith("/admin/catalog/products/") ? ["Товары", "Редактирование"] : [];
   if (items.length === 0) return null;
   return <nav className={styles.breadcrumbs} aria-label="Путь"><a href="/admin">Главная</a>{items.map((item,index)=><span key={item}><b>›</b>{index===items.length-1?<strong>{item}</strong>:<a href="/admin/catalog">{item}</a>}</span>)}</nav>;
 }

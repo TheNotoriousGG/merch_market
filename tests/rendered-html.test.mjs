@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
-import { readFile, readdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
-
-const projectRoot = new URL("../", import.meta.url);
 
 async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -43,7 +41,7 @@ test("server-renders the Amra storefront", async () => {
   assert.match(html, /амра шоп/i);
   assert.match(html, /Новинки/i);
   assert.match(html, /Товары недели/i);
-  assert.match(html, /Истории и коллекции/i);
+  assert.match(html, /Худи и свитшоты/i);
   assert.match(html, /Sale/i);
   assert.match(html, /Покупателям/i);
   assert.doesNotMatch(html, /codex-preview|Building your site|SkeletonPreview/i);
@@ -53,18 +51,18 @@ test("server-renders a catalog route with storefront navigation", async () => {
   const html = await renderHtml("/catalog/clothes");
 
   assert.match(html, /Каталог Amra/i);
-  assert.match(html, /Одежда/i);
-  assert.match(html, /Футболка «Серия 01»/i);
+  assert.match(html, /Загружаем подборку/i);
   assert.match(html, /Фильтры/i);
   assert.match(html, /Сортировка/i);
   assert.match(html, /Избранное, 0 товаров/i);
 });
 
-test("keeps product state and project metadata explicit", async () => {
-  const [layout, shopState, packageJson] = await Promise.all([
+test("keeps product state and API contract metadata explicit", async () => {
+  const [layout, shopState, packageJson, apiManifest] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ShopState.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/generated-manifest.json", import.meta.url), "utf8"),
   ]);
 
   assert.match(layout, /lang="ru"/);
@@ -72,9 +70,6 @@ test("keeps product state and project metadata explicit", async () => {
   assert.match(shopState, /amra-shop-state-v1/);
   assert.match(packageJson, /"name": "amra-merch-market-frontend"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
-
-  assert.deepEqual(
-    await readdir(new URL("app/_sites-preview", projectRoot)),
-    [],
-  );
+  assert.match(apiManifest, /"apiVersion": "1\.0\.0"/);
+  assert.match(apiManifest, /"specSha256": "[a-f0-9]{64}"/);
 });

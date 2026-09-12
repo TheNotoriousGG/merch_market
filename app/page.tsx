@@ -11,6 +11,7 @@ import { loadStorefrontCategories, loadStorefrontProducts } from "./catalog/cata
 import { toShopProduct, type CatalogProduct } from "./catalog/catalog-data";
 import CatalogProductCard from "./catalog/components/CatalogProductCard";
 import CatalogProductDialog from "./catalog/components/CatalogProductDialog";
+import { loadStorefrontBanners } from "./storefront/banner-api";
 
 type MenuKey = string;
 
@@ -42,10 +43,10 @@ const campaigns = [
   {
     id: "catalog",
     eyebrow: "На каждый день",
-    title: <>Худи и<br />свитшоты</>,
-    description: <>Базовые модели свободного кроя<br />в спокойных оттенках.</>,
-    link: "Перейти в раздел",
-    href: "/catalog/clothes?section=hoodies",
+    title: "Худи и свитшоты",
+    description: "Базовые модели свободного кроя в спокойных оттенках.",
+    desktopImageUrl: "/amra-hero-hoodies-v2.png",
+    mobileImageUrl: null as string | null,
   },
 ] as const;
 
@@ -64,6 +65,7 @@ export default function Home() {
   const [active, setActive] = useState<MenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [campaignIndex, setCampaignIndex] = useState(0);
+  const [heroCampaigns, setHeroCampaigns] = useState<Array<{id:string;eyebrow:string;title:string;description:string;desktopImageUrl:string;mobileImageUrl:string|null}>>([...campaigns]);
   const [campaignPaused, setCampaignPaused] = useState(false);
   const [newOffset, setNewOffset] = useState(0);
   const [weeklyIndex, setWeeklyIndex] = useState(0);
@@ -89,6 +91,13 @@ export default function Home() {
     void loadStorefrontProducts().then(setPublishedProducts).catch(() => setPublishedProducts([]));
   }, []);
   useEffect(() => {
+    void loadStorefrontBanners().then((items) => {
+      if (items.length === 0) return;
+      setHeroCampaigns(items.map((item) => ({...item, mobileImageUrl:item.mobileImageUrl ?? null})));
+      setCampaignIndex(0);
+    }).catch(() => undefined);
+  }, []);
+  useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") { setActive(null); setMobileOpen(false); }
     };
@@ -106,13 +115,13 @@ export default function Home() {
   useEffect(() => {
     if (campaignPaused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = window.setInterval(() => {
-      setCampaignIndex((index) => (index + 1) % campaigns.length);
+      setCampaignIndex((index) => (index + 1) % heroCampaigns.length);
     }, 7000);
     return () => window.clearInterval(timer);
-  }, [campaignPaused]);
+  }, [campaignPaused, heroCampaigns.length]);
 
   const activeItem = menu.find((item) => item.id === active);
-  const campaign = campaigns[campaignIndex];
+  const campaign = heroCampaigns[campaignIndex];
   const filteredProducts = publishedProducts.filter((product) => product.isNew);
   const visibleProducts = filteredProducts.length <= 4
     ? filteredProducts
@@ -142,11 +151,10 @@ export default function Home() {
           <span className="hero-label">{campaign.eyebrow}</span>
           <h1>{campaign.title}</h1>
           <p>{campaign.description}</p>
-          <a className="campaign-link" href={campaign.href}>{campaign.link}<LinkArrow /></a>
         </div>
         <div className="campaign-controls">
-          <div className="campaign-dots" aria-label={`История ${campaignIndex + 1} из ${campaigns.length}`}>
-            {campaigns.map((item, index) => (
+          <div className="campaign-dots" aria-label={`История ${campaignIndex + 1} из ${heroCampaigns.length}`}>
+            {heroCampaigns.map((item, index) => (
               <button
                 key={item.id}
                 className={index === campaignIndex ? "active" : ""}
@@ -182,7 +190,7 @@ export default function Home() {
         </div>
       </div>
       <div className="hero-art" aria-hidden="true">
-        <Image className="campaign-hero-image" src="/amra-hero-hoodies-v2.png" alt="" fill priority sizes="100vw" />
+        <Image className="campaign-hero-image" src={campaign.desktopImageUrl} alt="" fill priority unoptimized sizes="100vw" />
         <div className="sun"/><div className="shirt"><span>А</span></div>
         <div className="weekly-product"><i /></div><div className="sale-type">40</div>
       </div>

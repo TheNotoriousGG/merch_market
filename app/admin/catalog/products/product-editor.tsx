@@ -40,8 +40,7 @@ export default function ProductEditor({ id }: { id?:string }) {
     const slug=id?form.slug:catalogSlug(form.name);if(!slug)throw new Error("Введите название товара");
     const price=Number(form.price.replace(",","."));
     if(!Number.isFinite(price)||price<=0||Math.round(price*100)!==price*100)throw new Error("Укажите корректную цену, не больше двух знаков после запятой");
-    const {price:_price,...productFields}=form;
-    const base={...productFields,name:form.name.trim(),slug,priceMinor:Math.round(price*100),categoryIds:[form.primaryCategoryId],collectionIds:[],characteristics:[]};
+    const base={name:form.name.trim(),slug,shortDescription:form.shortDescription,description:form.description,primaryCategoryId:form.primaryCategoryId,priceMinor:Math.round(price*100),categoryIds:[form.primaryCategoryId],collectionIds:[],characteristics:[]};
     if(id){const salePercent=merchandising.onSale?Number(merchandising.salePercent):null;if(merchandising.onSale&&(!Number.isInteger(salePercent)||Number(salePercent)<1||Number(salePercent)>90))throw new Error("Укажите скидку от 1 до 90%");const body={...base,merchandising:{newArrival:merchandising.newArrival,newUntil:merchandising.newArrival&&merchandising.newUntil?new Date(merchandising.newUntil).toISOString():null,onSale:merchandising.onSale,salePercent,featured:merchandising.featured}};const response=await api<Product>(`/admin/catalog/products/${id}`,{method:"PATCH",headers:commandHeaders(etag),body:JSON.stringify(body)});setEtag(response.etag);setMessage("Изменения сохранены")}else{const response=await api<Product>("/admin/catalog/products",{method:"POST",headers:commandHeaders(),body:JSON.stringify(base)});window.location.assign(`/admin/catalog/products/${response.data.id}`)}
   })};
   const colorOf=(item:Variant)=>item.attributes.find(attribute=>attribute.type==="COLOR");
@@ -71,11 +70,11 @@ export default function ProductEditor({ id }: { id?:string }) {
   </>;
 }
 
-function Field({label,full=false,children}:{label:string;full?:boolean;children:React.ReactNode}){return <div className={`${styles.field} ${full?styles.full:""}`}><label>{label}</label>{children}</div>}
+function Field({label,full=false,children}:{label:string;full?:boolean;children:React.ReactNode}){return <label className={`${styles.field} ${full?styles.full:""}`}><span>{label}</span>{children}</label>}
 
 function CollapsibleSection({title,children}:{title:string;children:React.ReactNode}){const [open,setOpen]=useState(true);return <section className={`${styles.panel} ${styles.collapsiblePanel}`}><button type="button" className={styles.collapsibleTrigger} aria-expanded={open} onClick={()=>setOpen(current=>!current)}><h2>{title}</h2><span aria-hidden="true">⌄</span></button>{open&&<div className={styles.collapsibleContent}>{children}</div>}</section>}
 
-function toLocalDateTime(value:string){const date=new Date(value);const offset=date.getTimezoneOffset()*60_000;return new Date(date.getTime()-offset).toISOString().slice(0,16)}
+function toLocalDateTime(value:string|Date){const date=new Date(value);const offset=date.getTimezoneOffset()*60_000;return new Date(date.getTime()-offset).toISOString().slice(0,16)}
 
 function formatFileSize(bytes:number){return bytes>=1024*1024?`${(bytes/1024/1024).toFixed(1)} МБ`:`${Math.ceil(bytes/1024)} КБ`}
 

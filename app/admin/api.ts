@@ -1,14 +1,30 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1";
+import type {
+  AdminCategory,
+  AdminMedia,
+  AdminProduct,
+  AdminProductPage,
+  AdminProductSummary,
+  AdminStorefrontBanner,
+  AdminStorefrontBannerList,
+  AdminVariant,
+  CatalogAttributeValue,
+  InventoryBalance,
+  ProductMerchandising,
+} from "../api/generated";
+import { API_BASE } from "../api/client";
 
-export type Category = { id:string; parentId?:string|null; slug:string; name:string; displayOrder:number; status:"ACTIVE"|"HIDDEN"|"ARCHIVED"; version:number; updatedAt:string };
-export type ProductSummary = { id:string; slug:string; name:string; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; variantCount:number; mediaCount:number; hasPrimaryMedia:boolean; version:number; updatedAt:string };
-export type VariantAttribute = { definitionCode:string; definitionName:string; type:"TEXT"|"COLOR"|"SIZE"|"DIMENSION"; valueCode:string; label:string; colorHex?:string|null };
-export type Variant = { id:string; sku:string; label:string; status:"ACTIVE"|"ARCHIVED"; displayOrder:number; attributes:VariantAttribute[]; version:number };
-export type ProductMedia = { id:string; variantId?:string|null; objectKey:string; deliveryUrl:string; contentType:string; width:number; height:number; alt:string; displayOrder:number; primary:boolean; version:number };
-export type ProductMerchandising = { newArrival:boolean; newUntil?:string|null; onSale:boolean; salePercent?:number|null; featured:boolean };
-export type Product = { id:string; slug:string; name:string; shortDescription:string; description:string; priceMinor?:number|null; currency?:"RUB"; status:"DRAFT"|"ACTIVE"|"ARCHIVED"; primaryCategoryId:string; categoryIds:string[]; collectionIds:string[]; characteristics:unknown[]; merchandising?:ProductMerchandising; variants:Variant[]; media:ProductMedia[]; version:number; updatedAt:string };
-export type ProductPage = { items:ProductSummary[]; page:{page:number;size:number;totalElements:number;totalPages:number} };
-export type Balance = { warehouseCode:string; variantId:string; onHand:number; reserved:number; available:number; version:number; updatedAt:string };
+export { API_BASE };
+export type Category = AdminCategory;
+export type ProductSummary = AdminProductSummary;
+export type VariantAttribute = CatalogAttributeValue;
+export type Variant = AdminVariant;
+export type ProductMedia = AdminMedia;
+export type { ProductMerchandising };
+export type Product = AdminProduct;
+export type ProductPage = AdminProductPage;
+export type Balance = InventoryBalance;
+export type StorefrontBanner = AdminStorefrontBanner;
+export type StorefrontBannerList = AdminStorefrontBannerList;
 
 function cookie(name:string) { if (typeof document === "undefined") return ""; return document.cookie.split("; ").find(v=>v.startsWith(`${name}=`))?.split("=").slice(1).join("=") ?? ""; }
 export async function api<T>(path:string, init:RequestInit = {}):Promise<{data:T;etag:string|null}> {

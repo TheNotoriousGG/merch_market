@@ -6,7 +6,9 @@
 - Vinext/Vite с Next-совместимой структурой `app` router.
 - Общие design tokens/reset в `app/styles`; локальные стили компонентов — CSS Modules.
 - `app/globals.css` временно содержит legacy-стили витрины и уменьшается по мере безопасной миграции.
-- React Context и `localStorage` для локального состояния магазина.
+- React Context и `localStorage` временно используются для корзины и избранного до backend-этапа Customer/Cart.
+- TypeScript Fetch client генерируется из canonical backend OpenAPI и синхронизируется командой `npm run api:sync`.
+- Playwright проверяет критические browser-сценарии в воспроизводимом Chromium-контейнере.
 - OpenAI Sites / Cloudflare-совместимая сборка через `@openai/sites-vite-plugin`.
 - D1 и R2 в frontend-проекте не подключены: оба значения в `.openai/hosting.json` равны `null`.
 
@@ -41,6 +43,7 @@ Backend не размещается внутри этого репозитори
 | `/admin/catalog/products/[id]` | Секционный редактор товара |
 | `/admin/categories` | Дерево категорий |
 | `/admin/collections` | Редакционные коллекции |
+| `/admin/banners` | Баннеры главной: контент, переходы, изображения, порядок и публикация |
 | `/admin/inventory` | Остатки, приёмка и сверка |
 
 ## Ключевые файлы
@@ -57,7 +60,10 @@ Backend не размещается внутри этого репозитори
 | `app/components/ShopProductDialog.tsx` | Универсальное подробное окно товара |
 | `app/components/ShopIcons.tsx` | Общие иконки избранного и кнопки корзины |
 | `app/catalog/[category]/page.tsx` | URL state, фильтры, сортировка и пагинация каталога |
-| `app/catalog/catalog-data.ts` | Временные типизированные fixtures каталога до API-интеграции |
+| `app/catalog/catalog-data.ts` | Временные типизированные fixtures оставшихся storefront-секций до API-интеграции |
+| `app/api/generated/` | Не редактируемый вручную TypeScript-клиент canonical OpenAPI |
+| `app/api/generated-manifest.json` | Версия API и SHA-256 контракта/артефакта |
+| `app/storefront/banner-api.ts` | Публичный read model баннеров через generated client |
 | `app/catalog/components/` | Карточка и подробный диалог каталога |
 | `app/cart/page.tsx` | Корзина и изменение количества |
 | `app/favorites/page.tsx` | Избранное |
@@ -107,6 +113,9 @@ type ShopProduct = {
 
 ```bash
 npm run build
+npm run typecheck
+npm run lint
+npm run e2e
 ```
 
 При изменениях интерактивности дополнительно проверить: открытие карточки, выбор размера, добавление в корзину, переход по состоянию `В корзине · N`, лайк, счётчики хедера и внутренние маршруты.

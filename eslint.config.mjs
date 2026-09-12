@@ -13,6 +13,7 @@ const eslintConfig = defineConfig([
     "dist/**",
     "out/**",
     "build/**",
+    "app/api/generated/**",
     "next-env.d.ts",
   ]),
   eslint.configs.recommended,
@@ -34,6 +35,15 @@ const eslintConfig = defineConfig([
       react: {
         version: "detect",
       },
+    },
+    rules: {
+      // Client routes update local view state after remote requests complete.
+      "react-hooks/set-state-in-effect": "off",
+      // Vinext supports plain internal anchors and performs its own navigation handling.
+      "@next/next/no-html-link-for-pages": "off",
+      // Focus is used only when an explicit editor or search surface opens.
+      "jsx-a11y/no-autofocus": "off",
+      "jsx-a11y/label-has-associated-control": ["error", { "depth": 4 }],
     },
   },
 ]);
