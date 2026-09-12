@@ -2,6 +2,7 @@
 /* eslint-disable */
 export * from './CatalogApi';
 export * from './CatalogAdministrationApi';
+export * from './CustomerApi';
 export * from './IdentityApi';
 export * from './InventoryApi';
 export * from './InventoryAdministrationApi';

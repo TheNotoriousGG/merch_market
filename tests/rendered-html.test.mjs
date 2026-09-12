@@ -67,7 +67,9 @@ test("keeps product state and API contract metadata explicit", async () => {
 
   assert.match(layout, /lang="ru"/);
   assert.match(layout, /<ShopStateProvider>\{children\}<\/ShopStateProvider>/);
-  assert.match(shopState, /amra-shop-state-v1/);
+  assert.match(shopState, /customerApi\.getCustomerContext/);
+  assert.match(shopState, /ifMatch: etag/);
+  assert.doesNotMatch(shopState, /localStorage/);
   assert.match(packageJson, /"name": "amra-merch-market-frontend"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   assert.match(apiManifest, /"apiVersion": "1\.0\.0"/);

@@ -6,7 +6,7 @@ import { formatPrice, type ShopProduct, useShop } from "../components/ShopState"
 import ShopProductDialog from "../components/ShopProductDialog";
 
 export default function CartPage() {
-  const { cart, cartCount, cartTotal, setQuantity, removeFromCart, toggleFavorite, isFavorite } = useShop();
+  const { cart, cartCount, cartTotal, cartNotices, setQuantity, removeFromCart, toggleFavorite, isFavorite } = useShop();
   const [selectedProduct, setSelectedProduct] = useState<ShopProduct | null>(null);
   const delivery = cartTotal >= 5000 || cartTotal === 0 ? 0 : 490;
   const positionLabel = cartCount % 10 === 1 && cartCount % 100 !== 11 ? "позиция" : cartCount % 10 >= 2 && cartCount % 10 <= 4 && (cartCount % 100 < 12 || cartCount % 100 > 14) ? "позиции" : "позиций";
@@ -16,6 +16,9 @@ export default function CartPage() {
     <div className="utility-shell">
       <div className="utility-breadcrumbs"><a href="/">Главная</a><span>·</span><span>Корзина</span></div>
       <header className="utility-heading"><div><span className="section-kicker">Ваш заказ</span><h1>Корзина</h1></div><span>{cartCount} {positionLabel}</span></header>
+      {cartNotices.length > 0 && <section className="cart-notices" aria-label="Изменения в корзине">
+        {cartNotices.map((notice) => <p key={notice}>{notice}</p>)}
+      </section>}
 
       {cart.length === 0 ? <section className="utility-empty">
         <span className="empty-symbol empty-bag">□</span><h2>Корзина ждёт вещей</h2><p>Добавьте товары из новых поступлений или редакционной подборки.</p>

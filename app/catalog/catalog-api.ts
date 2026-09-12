@@ -29,6 +29,7 @@ export async function loadStorefrontProducts(options: { category?: string; query
     const price = salePercent > 0 ? Math.round(originalPrice * (100 - salePercent)) / 100 : originalPrice;
     return {
       id: item.id,
+      slug: item.slug,
       name: item.name,
       price,
       priceAvailable: (item.priceMinor ?? 0) > 0,

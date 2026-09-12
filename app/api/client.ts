@@ -1,12 +1,13 @@
 import {
   CatalogApi,
   Configuration,
+  CustomerApi,
   StorefrontApi,
 } from "./generated";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1";
 
-function cookie(name: string) {
+export function cookie(name: string) {
   if (typeof document === "undefined") return "";
   return document.cookie
     .split("; ")
@@ -30,4 +31,5 @@ const configuration = new Configuration({
 });
 
 export const catalogApi = new CatalogApi(configuration);
+export const customerApi = new CustomerApi(configuration);
 export const storefrontApi = new StorefrontApi(configuration);

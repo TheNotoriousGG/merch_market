@@ -28,3 +28,14 @@ export const loadAccount = () => request<CustomerAccount>("/customer/account");
 export const startPhoneAuthentication = (phone:string) => request<PhoneChallenge>("/customer/auth/phone/start", {method:"POST",body:JSON.stringify({phone})});
 export const verifyPhone = (challengeId:string, code:string) => request<CustomerAccount>("/customer/auth/phone/verify", {method:"POST",body:JSON.stringify({challengeId,code})});
 export const logoutCustomer = () => request<void>("/customer/auth/logout", {method:"POST"});
+export const loadCustomerProfile = (): Promise<CustomerProfile> => customerApi.getCustomerProfile();
+export const saveCustomerAddress = (address: SaveCustomerAddressRequest) => customerApi.createCustomerAddress({
+  xAMRACSRF: browserCookie("AMRA_CSRF") || "browser-csrf-token",
+  saveCustomerAddressRequest: address,
+});
+export const removeCustomerAddress = (resourceId: string) => customerApi.deleteCustomerAddress({
+  resourceId,
+  xAMRACSRF: browserCookie("AMRA_CSRF") || "browser-csrf-token",
+});
+import type { CustomerProfile, SaveCustomerAddressRequest } from "../api/generated";
+import { cookie as browserCookie, customerApi } from "../api/client";
