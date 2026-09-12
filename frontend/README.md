@@ -7,7 +7,7 @@
 Frontend собирается и запускается вместе с backend, PostgreSQL, Keycloak и MinIO из соседнего infra-репозитория:
 
 ```bash
-cd ../amra-merch-market-infra
+cd ../infrastructure
 docker compose up --build
 ```
 

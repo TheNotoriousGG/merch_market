@@ -3,7 +3,7 @@ set -euo pipefail
 
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 frontend_dir=$(CDPATH= cd -- "$script_dir/.." && pwd)
-backend_dir=${AMRA_BACKEND_DIR:-"$frontend_dir/../amra-merch-market-backend"}
+backend_dir=${AMRA_BACKEND_DIR:-"$frontend_dir/../backend"}
 artifact="$backend_dir/build/distributions/amra-shop-api-client-0.1.0.zip"
 spec="$backend_dir/src/main/openapi/openapi.yaml"
 target="$frontend_dir/app/api/generated"

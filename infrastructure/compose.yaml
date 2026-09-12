@@ -15,7 +15,7 @@ services:
     ports: ["${AMRA_POSTGRES_PORT:-5432}:5432"]
     volumes:
       - postgres-data:/var/lib/postgresql/18/docker
-      - ../amra-merch-market-backend/database/bootstrap/01-roles.sh:/docker-entrypoint-initdb.d/01-roles.sh:ro
+      - ../backend/database/bootstrap/01-roles.sh:/docker-entrypoint-initdb.d/01-roles.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready --dbname=amra_market --username=amra_runtime"]
       interval: 5s
@@ -60,7 +60,7 @@ services:
       AMRA_OIDC_CLIENT_SECRET: ${AMRA_OIDC_CLIENT_SECRET:-amra-oidc-local-secret}
     ports: ["${AMRA_KEYCLOAK_PORT:-8081}:8080"]
     volumes:
-      - ../amra-merch-market-backend/identity/keycloak/amra-shop-realm.json:/opt/keycloak/data/import/amra-shop-realm.json:ro
+      - ../backend/identity/keycloak/amra-shop-realm.json:/opt/keycloak/data/import/amra-shop-realm.json:ro
     depends_on:
       keycloak-db: {condition: service_healthy}
     healthcheck:
@@ -121,7 +121,7 @@ services:
       ru.amra.project: amra-merch-market
       ru.amra.component: backend
     build:
-      context: ../amra-merch-market-backend
+      context: ../backend
       dockerfile: Dockerfile.compose
     environment:
       AMRA_DB_URL: jdbc:postgresql://postgres:5432/amra_market?currentSchema=amra_shop&ApplicationName=amra-merch-market-backend
@@ -141,6 +141,7 @@ services:
       AMRA_SESSION_COOKIE_SECURE: "false"
       AMRA_ADMIN_MFA_ACR_VALUES: "0,1,2"
       AMRA_CUSTOMER_PHONE_AUTH_EXPOSE_DEVELOPMENT_CODE: "true"
+      AMRA_CUSTOMER_EMAIL_AUTH_EXPOSE_DEVELOPMENT_CODE: "true"
       AMRA_S3_ENDPOINT: http://minio:9000
       AMRA_S3_UPLOAD_ENDPOINT: http://localhost:${AMRA_MINIO_PORT:-9000}
       AMRA_S3_ACCESS_KEY: ${AMRA_S3_ACCESS_KEY:-amra-local}
@@ -161,7 +162,7 @@ services:
       ru.amra.project: amra-merch-market
       ru.amra.component: frontend
     build:
-      context: ../amra-merch-market-frontend
+      context: ../frontend
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:${AMRA_BACKEND_PORT:-8080}/api/v1
@@ -174,7 +175,7 @@ services:
     image: amra/merch-market-e2e:local
     profiles: ["test"]
     build:
-      context: ../amra-merch-market-frontend
+      context: ../frontend
       dockerfile: Dockerfile.e2e
     environment:
       PLAYWRIGHT_USE_EXISTING_SERVER: "true"

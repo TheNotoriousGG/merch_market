@@ -53,7 +53,7 @@ Integration tests используют PostgreSQL 18.4 через Testcontainers
 ## Локальный full-stack
 
 ```shell
-cd ../amra-merch-market-infra
+cd ../infrastructure
 docker compose up --build --detach
 ```
 
