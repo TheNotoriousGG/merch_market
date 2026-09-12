@@ -1,5 +1,10 @@
 # Amra Merch Market
 
+[**Открыть документацию магазина →**](https://thenotoriousgg.github.io/merch_market/)
+
+Интерактивное руководство по клиентской и административной частям: запуск,
+тестовые роли, пошаговые сценарии и чек-лист приёмки.
+
 Monorepo интернет-магазина Amra:
 
 - `backend` — Spring Boot, PostgreSQL, OpenAPI и backend tests;
@@ -29,9 +34,9 @@ Production infrastructure будет добавлена после выбора 
 
 ## Руководство по проверке
 
-Интерактивная HTML-документация клиентской и административной частей находится в
-[`docs/index.html`](docs/index.html). Её можно открыть как обычный файл или запустить
-локальный сервер из корня репозитория:
+Опубликованная версия доступна на
+[GitHub Pages](https://thenotoriousgg.github.io/merch_market/). Исходники находятся
+в [`docs/index.html`](docs/index.html); их также можно открыть локально:
 
 ```bash
 python3 -m http.server 8090 --directory docs
