@@ -6,10 +6,10 @@
 
 | Область | Состояние |
 | --- | --- |
-| Backend stages 0–10 | Завершены локально; Pricing находится в feature-ветке монорепозитория |
-| Реализованные product slices | Catalog, Inventory, Customer/Favorites/Cart, Pricing/Promotions |
-| Последний закрытый acceptance | 213 tests, OpenAPI compatibility, JaCoCo и frontend production build |
-| Следующий разрешённый этап | 11. Ordering и checkout |
+| Backend stages 0–10 | Завершены локально и находятся в `main` монорепозитория |
+| Реализованные product slices | Catalog, Inventory, Customer/Favorites/Cart, Pricing и базовый Ordering |
+| Последний закрытый acceptance | Этап 10; Ordering проходит промежуточные backend/frontend gates |
+| Текущий разрешённый этап | 11. Ordering и checkout — в работе |
 | Frontend/backend integration | Catalog, banners, profile, addresses, verified email, favorites и cart используют backend/generated client |
 | Production-only решения | platform, Secret Manager, real providers и GitLab activation отложены |
 
@@ -218,6 +218,13 @@ percent/fixed-line/multi-buy акции и их targets. Расчёт tax-inclus
 `HALF_UP`, выбирает одну лучшую акцию и детерминированно распределяет остаток.
 Корзина возвращает сумму и скидку каждой строки; frontend показывает название акции.
 Полный backend gate зелёный: 213 тестов, 90,3% lines и 70,3% branches.
+
+Ordering/Checkout находится в работе. V21–V22 добавляют immutable order snapshots,
+owner-scoped checkout commands, lifecycle events и outbox. Checkout выполняет
+revalidation, создаёт reservation, фиксирует `PENDING`, коммитит stock и переводит
+заказ в `CONFIRMED` в одной транзакции. Frontend сохраняет idempotency key до
+однозначного ответа и открывает восстанавливаемый маршрут заказа. Payment boundary,
+cancellation и single-shipment acceptance ещё не закрыты, поэтому этап 12 не разрешён.
 
 Локальный admin browser flow завершает OIDC-контур: frontend проверяет backend-managed session до показа `/admin`, а конфигурируемый `amra.security.login-success-url` возвращает браузер из backend OAuth callback в административный интерфейс. Авторизация admin API по-прежнему выполняется только backend.
 

@@ -1,9 +1,9 @@
 package ru.amra.market.ordering;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
@@ -35,6 +35,7 @@ public class OrderingService {
     private final PricingService pricing;
     private final InventoryReservationOperations reservations;
     private final Clock clock;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     public OrderingService(
             NamedParameterJdbcTemplate jdbc,
@@ -109,30 +110,25 @@ public class OrderingService {
         var warehouse = Objects.requireNonNull(jdbc.getJdbcTemplate()
                 .queryForObject("select id from amra_shop.inventory_warehouses where code = 'PRIMARY'", UUID.class));
         var orderId = nextId();
-        reservations.create(new CreateInventoryReservationRequest(
+        var reservationId = reservations.createId(new CreateInventoryReservationRequest(
                 orderId,
                 "checkout-reserve-" + key,
                 rawLines.stream()
                         .map(line -> new ReservationRequestLine(warehouse, line.variantId(), line.quantity()))
                         .toList()));
-        var reservationId = Objects.requireNonNull(jdbc.getJdbcTemplate()
-                .queryForObject(
-                        "select id from amra_shop.inventory_reservations where owner_reference = ?",
-                        UUID.class,
-                        orderId));
-        reservations.commit(new ReservationCommandRequest(orderId, reservationId, "checkout-commit-" + key));
-
         var now = clock.instant();
         var publicNumber =
                 "AMR-" + nextId().toString().replace("-", "").substring(0, 12).toUpperCase(Locale.ROOT);
-        var token = owner.customer() ? null : guestToken(orderId, owner.id());
+        var token = owner.customer() ? null : guestToken();
         var subtotal = lines.stream()
                 .mapToLong(line -> line.unitPrice() * line.quantity())
                 .sum();
         var discount = lines.stream().mapToLong(Line::discount).sum();
         insertOrder(orderId, publicNumber, owner, reservationId, token, subtotal, discount, checkout, now);
         insertLines(orderId, lines);
-        insertEventAndOutbox(orderId, publicNumber, now);
+        insertPendingEvent(orderId, now);
+        reservations.commit(new ReservationCommandRequest(orderId, reservationId, "checkout-commit-" + key));
+        confirm(orderId, publicNumber, now);
         jdbc.update("delete from customer_cart_items where cart_id = :cart", Map.of("cart", cart.id()));
         jdbc.update(
                 "update customer_carts set version = version + 1, updated_at = :now where id = :cart",
@@ -148,12 +144,16 @@ public class OrderingService {
                         .addValue("fingerprint", fingerprint)
                         .addValue("order", orderId)
                         .addValue("now", Timestamp.from(now)));
-        return get(owner, publicNumber, token);
+        return load(owner, publicNumber, token, null);
     }
 
     /** Reads an order using its owner session or a scoped guest token. */
     @Transactional(readOnly = true)
     public Order get(Owner owner, String publicNumber, @Nullable String suppliedToken) {
+        return load(owner, publicNumber, null, suppliedToken);
+    }
+
+    private Order load(Owner owner, String publicNumber, @Nullable String issuedToken, @Nullable String suppliedToken) {
         var orders = jdbc.query(
                 """
                 select id, public_number, owner_type, owner_id, status, subtotal_minor, discount_minor,
@@ -205,7 +205,7 @@ public class OrderingService {
                 found.city(),
                 found.street(),
                 found.apartment(),
-                found.ownerType().equals("GUEST") ? guestToken(found.id(), found.ownerId()) : null,
+                issuedToken,
                 loadLines(found.id()),
                 found.createdAt());
     }
@@ -240,7 +240,7 @@ public class OrderingService {
                     id, public_number, owner_type, owner_id, status, reservation_id, guest_access_token_hash,
                     currency, subtotal_minor, discount_minor, total_minor, email, recipient_name, phone,
                     postal_code, city, street, apartment, created_at, updated_at)
-                values (:id, :number, :type, :owner, 'CONFIRMED', :reservation, :token, 'RUB', :subtotal,
+                values (:id, :number, :type, :owner, 'PENDING', :reservation, :token, 'RUB', :subtotal,
                     :discount, :total, :email, :recipient, :phone, :postal, :city, :street, :apartment, :now, :now)
                 """,
                 new MapSqlParameterSource(owner.parameters())
@@ -286,11 +286,23 @@ public class OrderingService {
         }
     }
 
-    private void insertEventAndOutbox(UUID orderId, String publicNumber, Instant now) {
-        var timestamp = Timestamp.from(now);
+    private void insertPendingEvent(UUID orderId, Instant now) {
         jdbc.update("""
                 insert into ordering_events(id, order_id, event_type, to_status, occurred_at)
-                values (:id, :order, 'ORDER_CONFIRMED', 'CONFIRMED', :now)
+                values (:id, :order, 'ORDER_PENDING', 'PENDING', :now)
+                """, Map.of("id", nextId(), "order", orderId, "now", Timestamp.from(now)));
+    }
+
+    private void confirm(UUID orderId, String publicNumber, Instant now) {
+        OrderStatus.PENDING.transitionTo(OrderStatus.CONFIRMED);
+        var timestamp = Timestamp.from(now);
+        jdbc.update("""
+                update customer_orders set status = 'CONFIRMED', version = version + 1, updated_at = :now
+                where id = :order and status = 'PENDING'
+                """, Map.of("order", orderId, "now", timestamp));
+        jdbc.update("""
+                insert into ordering_events(id, order_id, event_type, from_status, to_status, occurred_at)
+                values (:id, :order, 'ORDER_CONFIRMED', 'PENDING', 'CONFIRMED', :now)
                 """, Map.of("id", nextId(), "order", orderId, "now", timestamp));
         jdbc.update(
                 """
@@ -336,13 +348,10 @@ public class OrderingService {
         return new ResponseStatusException(HttpStatus.NOT_FOUND, "Заказ не найден");
     }
 
-    private static String guestToken(UUID orderId, UUID ownerId) {
-        var buffer = ByteBuffer.allocate(32)
-                .putLong(orderId.getMostSignificantBits())
-                .putLong(orderId.getLeastSignificantBits())
-                .putLong(ownerId.getMostSignificantBits())
-                .putLong(ownerId.getLeastSignificantBits());
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(digest(buffer.array()));
+    private String guestToken() {
+        var random = new byte[32];
+        secureRandom.nextBytes(random);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(random);
     }
 
     private static String fingerprint(Checkout value) {

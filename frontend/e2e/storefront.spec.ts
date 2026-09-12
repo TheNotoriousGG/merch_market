@@ -76,7 +76,12 @@ test("покупатель оформляет корзину и получает
     expect(request.headers()["idempotency-key"]).toBeTruthy();
     expect(request.postDataJSON().cartVersion).toBe(4);
     cartItems = [];
-    await route.fulfill({ status: 201, json: { id: "01999999-9999-7999-8999-999999999984", publicNumber: "AMR-TEST00000001", status: "CONFIRMED", currency: "RUB", subtotalMinor: 590000, discountMinor: 0, totalMinor: 590000, email: "buyer@example.com", recipientName: "Анна Амра", phone: "+79991234567", postalCode: "101000", city: "Москва", street: "Тверская, 1", lines: [], createdAt: "2026-09-13T00:00:00Z" } });
+    await route.fulfill({ status: 201, json: order });
+  });
+  const order = { id: "01999999-9999-7999-8999-999999999984", publicNumber: "AMR-TEST00000001", status: "CONFIRMED", currency: "RUB", subtotalMinor: 590000, discountMinor: 0, totalMinor: 590000, email: "buyer@example.com", recipientName: "Анна Амра", phone: "+79991234567", postalCode: "101000", city: "Москва", street: "Тверская, 1", guestAccessToken: "guest-order-token", lines: [{ variantId, sku: "AMRA-HOODIE-L", productName: "Худи Amra", variantLabel: "L", quantity: 1, unitPriceMinor: 590000, discountMinor: 0, totalMinor: 590000 }], createdAt: "2026-09-13T00:00:00Z" };
+  await page.route("**/api/v1/customer/orders/AMR-TEST00000001", route => {
+    expect(route.request().headers()["x-guest-order-token"]).toBe("guest-order-token");
+    return route.fulfill({ json: { ...order, guestAccessToken: undefined } });
   });
 
   await page.goto("/cart");
@@ -88,6 +93,7 @@ test("покупатель оформляет корзину и получает
   await page.getByLabel("Город").fill("Москва");
   await page.getByLabel("Улица и дом").fill("Тверская, 1");
   await page.getByRole("button", { name: /Подтвердить заказ/ }).click();
+  await expect(page).toHaveURL(/\/orders\/AMR-TEST00000001/);
   await expect(page.getByText("AMR-TEST00000001")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Спасибо за заказ" })).toBeVisible();
 });

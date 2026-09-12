@@ -97,6 +97,12 @@ public class ManageInventoryReservations implements InventoryReservationOperatio
     }
 
     @Override
+    @Transactional
+    public UUID createId(CreateInventoryReservationRequest request) {
+        return create(request).id().value();
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public InventoryReservation get(UUID ownerReference, UUID reservationId) {
         var owner = new ReservationOwnerReference(ownerReference);

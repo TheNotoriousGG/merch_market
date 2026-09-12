@@ -22,7 +22,7 @@
 | Admin Catalog integration | Завершён | contract, MinIO media, banners, generated client, admin UI и browser acceptance зелёные |
 | 9. Customer, favorites и cart | Завершён | profile/email/address, guest merge, favorites, cart locking/revalidation и retention готовы |
 | 10. Pricing и promotions | Завершён | SKU periods, bounded promotions, cart integration и acceptance готовы |
-| 11. Ordering и checkout | Следующий разрешённый | начинается после merge этапа 10 |
+| 11. Ordering и checkout | В работе | atomic checkout и snapshots готовы; payment/cancellation/shipment gates открыты |
 | 12–15 | Ожидают | начинаются только после gate предыдущего этапа |
 
 Параллельное состояние frontend и последовательность замены fixtures зафиксированы в [плане frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Владелец отдельно разрешил ограниченный Admin Catalog integration по ADR-0008 до этапа 9; он расширяет готовые Catalog/Inventory contracts и не начинает следующий business module.
@@ -209,6 +209,12 @@ tests входят в полный quality gate.
 - Retry, duplicate command, transaction/outbox crash и invalid-transition tests.
 
 Выход: retry или crash не создаёт duplicate order и не теряет stock.
+
+Статус: в работе с 13 сентября 2026 года. Реализованы атомарные revalidation,
+reservation, `PENDING → CONFIRMED`, immutable snapshot, public number,
+owner-scoped idempotency, случайный guest-order token, audit events и transactional
+outbox record. До закрытия этапа остаются payment boundary, cancellation rules,
+single-shipment model и их failure/concurrency acceptance.
 
 ## Этап 12. Returns и integration ports
 

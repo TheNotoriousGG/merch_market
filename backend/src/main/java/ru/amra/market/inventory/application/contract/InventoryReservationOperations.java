@@ -8,6 +8,9 @@ public interface InventoryReservationOperations {
     /** Creates or replays an all-or-nothing reservation. */
     InventoryReservation create(CreateInventoryReservationRequest request);
 
+    /** Creates or replays a reservation and exposes only its opaque identifier to other modules. */
+    UUID createId(CreateInventoryReservationRequest request);
+
     /** Reads a reservation only inside its opaque owner scope. */
     InventoryReservation get(UUID ownerReference, UUID reservationId);
 

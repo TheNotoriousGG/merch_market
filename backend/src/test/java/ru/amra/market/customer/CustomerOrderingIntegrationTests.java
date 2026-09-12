@@ -95,7 +95,8 @@ class CustomerOrderingIntegrationTests extends PostgreSqlIntegrationTest {
 
         checkout(guest, "buyer@example.com")
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.publicNumber").value(publicNumber));
+                .andExpect(jsonPath("$.publicNumber").value(publicNumber))
+                .andExpect(jsonPath("$.guestAccessToken").doesNotExist());
         mockMvc.perform(get("/api/v1/customer/orders/{number}", publicNumber).header("X-Guest-Order-Token", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("buyer@example.com"));
