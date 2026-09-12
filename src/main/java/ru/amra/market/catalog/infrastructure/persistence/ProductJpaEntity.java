@@ -13,8 +13,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.jspecify.annotations.Nullable;
 import ru.amra.market.catalog.domain.Product;
-import ru.amra.market.catalog.domain.ProductStatus;
 import ru.amra.market.catalog.domain.ProductPrice;
+import ru.amra.market.catalog.domain.ProductStatus;
 
 @Entity
 @Table(name = "catalog_products")
@@ -132,13 +132,29 @@ class ProductJpaEntity {
         return publishedAt;
     }
 
-    @Nullable Long priceMinor() { return priceMinor; }
+    @Nullable Long priceMinor() {
+        return priceMinor;
+    }
 
-    boolean newArrival() { return newArrival; }
-    @Nullable Instant newUntil() { return newUntil; }
-    boolean onSale() { return onSale; }
-    @Nullable Integer salePercent() { return salePercent; }
-    boolean featured() { return featured; }
+    boolean newArrival() {
+        return newArrival;
+    }
+
+    @Nullable Instant newUntil() {
+        return newUntil;
+    }
+
+    boolean onSale() {
+        return onSale;
+    }
+
+    @Nullable Integer salePercent() {
+        return salePercent;
+    }
+
+    boolean featured() {
+        return featured;
+    }
 
     long version() {
         return version;

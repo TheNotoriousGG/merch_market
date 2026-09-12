@@ -23,6 +23,7 @@ import ru.amra.market.catalog.domain.Product;
 import ru.amra.market.catalog.domain.ProductContent;
 import ru.amra.market.catalog.domain.ProductId;
 import ru.amra.market.catalog.domain.ProductMedia;
+import ru.amra.market.catalog.domain.ProductMerchandising;
 import ru.amra.market.catalog.domain.ProductSlug;
 import ru.amra.market.catalog.domain.ProductVariant;
 import ru.amra.market.catalog.domain.Sku;
@@ -70,10 +71,20 @@ public final class CatalogTestData {
                 new ProductId(uuidV7()),
                 new ProductSlug(slug),
                 new ProductContent(name, "Кратко: " + name, "Подробное описание: " + name),
+                new ru.amra.market.catalog.domain.ProductPrice(549_000),
                 category.id(),
                 Set.of(category.id()),
                 collections,
                 List.of(new AttributeValue("material", "Материал", AttributeType.TEXT, "Хлопок", false, 0))));
+        draft = products.save(draft.revise(
+                draft.slug(),
+                draft.content(),
+                draft.primaryCategoryId(),
+                draft.categoryIds(),
+                draft.collectionIds(),
+                draft.characteristics(),
+                new ProductMerchandising(true, null, false, null, false),
+                draft.price().orElseThrow()));
         var current = draft;
         for (var variant : variants) {
             current = products.save(current.addVariant(variant));

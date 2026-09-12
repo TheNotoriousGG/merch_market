@@ -21,6 +21,10 @@ tags:
     description: Public batch availability without exact stock disclosure.
   - name: Inventory administration
     description: MFA-protected warehouse balance and stock movement commands.
+  - name: Storefront
+    description: Public storefront merchandising content.
+  - name: Storefront administration
+    description: MFA-protected storefront banner authoring.
 paths:
   /:
     $ref: paths/platform.yaml
@@ -32,6 +36,14 @@ paths:
     $ref: paths/catalog-products.yaml
   /catalog/products/{slug}:
     $ref: paths/catalog-product-by-slug.yaml
+  /storefront/banners:
+    $ref: paths/storefront-banners.yaml
+  /admin/storefront/banners:
+    $ref: paths/admin-storefront-banners.yaml
+  /admin/storefront/banners/{resourceId}:
+    $ref: paths/admin-storefront-banner.yaml
+  /admin/storefront/banners/{resourceId}/uploads:
+    $ref: paths/admin-storefront-banner-uploads.yaml
   /admin/catalog/categories:
     $ref: paths/admin-catalog-categories.yaml
   /admin/catalog/categories/{resourceId}:
@@ -165,6 +177,16 @@ components:
       $ref: components/schemas/create-media-upload-request.yaml
     MediaUpload:
       $ref: components/schemas/media-upload.yaml
+    StorefrontBanner:
+      $ref: components/schemas/storefront-banner.yaml
+    StorefrontBannerList:
+      $ref: components/schemas/storefront-banner-list.yaml
+    AdminStorefrontBanner:
+      $ref: components/schemas/admin-storefront-banner.yaml
+    AdminStorefrontBannerList:
+      $ref: components/schemas/admin-storefront-banner-list.yaml
+    SaveStorefrontBannerRequest:
+      $ref: components/schemas/save-storefront-banner-request.yaml
   parameters:
     Page:
       $ref: components/parameters/page.yaml

@@ -1,0 +1,10 @@
+get:
+  tags: [Storefront]
+  summary: List currently published storefront banners
+  operationId: listStorefrontBanners
+  responses:
+    "200":
+      description: Ordered banners active at backend time.
+      headers: {X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}}
+      content: {application/json: {schema: {$ref: ../components/schemas/storefront-banner-list.yaml}}}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

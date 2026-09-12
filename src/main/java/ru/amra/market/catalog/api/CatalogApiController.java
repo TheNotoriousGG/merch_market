@@ -141,14 +141,16 @@ public final class CatalogApiController implements CatalogApi {
 
     private static CatalogProductSummaryDto toDto(CatalogProductPage.Item item) {
         return new CatalogProductSummaryDto(
-                item.id(),
-                item.slug(),
-                item.name(),
-                item.shortDescription(),
-                CatalogProductSummaryDto.CurrencyEnum.RUB,
-                toDto(item.primaryMedia()),
-                item.publishedAt(),
-                item.variantOptions().stream().map(CatalogApiController::toDto).toList())
+                        item.id(),
+                        item.slug(),
+                        item.name(),
+                        item.shortDescription(),
+                        toDto(item.primaryMedia()),
+                        item.publishedAt(),
+                        item.variantOptions().stream()
+                                .map(CatalogApiController::toDto)
+                                .toList())
+                .currency(CatalogProductSummaryDto.CurrencyEnum.RUB)
                 .priceMinor(item.priceMinor())
                 .newArrival(item.newArrival())
                 .onSale(item.onSale())

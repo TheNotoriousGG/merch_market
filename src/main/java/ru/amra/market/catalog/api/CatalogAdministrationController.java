@@ -42,9 +42,9 @@ import ru.amra.market.catalog.domain.CollectionStatus;
 import ru.amra.market.catalog.domain.MediaId;
 import ru.amra.market.catalog.domain.ProductContent;
 import ru.amra.market.catalog.domain.ProductId;
+import ru.amra.market.catalog.domain.ProductInvariantViolation;
 import ru.amra.market.catalog.domain.ProductMerchandising;
 import ru.amra.market.catalog.domain.ProductPrice;
-import ru.amra.market.catalog.domain.ProductInvariantViolation;
 import ru.amra.market.catalog.domain.ProductSlug;
 import ru.amra.market.catalog.domain.Sku;
 import ru.amra.market.catalog.domain.VariantId;
@@ -245,7 +245,7 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                             requireNonNull(request.getName()),
                             requireNonNull(request.getShortDescription()),
                             requireNonNull(request.getDescription())),
-                    new ProductPrice(requireNonNull(request.getPriceMinor())),
+                    request.getPriceMinor() == null ? null : new ProductPrice(request.getPriceMinor()),
                     new CategoryId(requireNonNull(request.getPrimaryCategoryId())),
                     CatalogAdministrationDtoMapper.categories(requireNonNull(request.getCategoryIds())),
                     CatalogAdministrationDtoMapper.collections(request.getCollectionIds()),
@@ -264,7 +264,9 @@ public final class CatalogAdministrationController implements CatalogAdministrat
     public ResponseEntity<AdminProductDto> getAdminCatalogProduct(UUID resourceId) {
         return translate(() -> {
             var product = products.get(new ProductId(resourceId));
-            return ResponseEntity.ok().eTag(product.etag()).body(CatalogAdministrationDtoMapper.product(product, mediaUrls));
+            return ResponseEntity.ok()
+                    .eTag(product.etag())
+                    .body(CatalogAdministrationDtoMapper.product(product, mediaUrls));
         });
     }
 
@@ -290,13 +292,17 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                     request.getCharacteristics() == null
                             ? null
                             : CatalogAdministrationDtoMapper.attributes(request.getCharacteristics(), false),
-                    request.getMerchandising() == null ? null : new ProductMerchandising(
-                            requireNonNull(request.getMerchandising().getNewArrival()),
-                            request.getMerchandising().getNewUntil(),
-                            requireNonNull(request.getMerchandising().getOnSale()),
-                            request.getMerchandising().getSalePercent(),
-                            requireNonNull(request.getMerchandising().getFeatured()))));
-            return ResponseEntity.ok().eTag(updated.etag()).body(CatalogAdministrationDtoMapper.product(updated, mediaUrls));
+                    request.getMerchandising() == null
+                            ? null
+                            : new ProductMerchandising(
+                                    requireNonNull(request.getMerchandising().getNewArrival()),
+                                    request.getMerchandising().getNewUntil(),
+                                    requireNonNull(request.getMerchandising().getOnSale()),
+                                    request.getMerchandising().getSalePercent(),
+                                    requireNonNull(request.getMerchandising().getFeatured()))));
+            return ResponseEntity.ok()
+                    .eTag(updated.etag())
+                    .body(CatalogAdministrationDtoMapper.product(updated, mediaUrls));
         });
     }
 
@@ -315,7 +321,9 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                     },
                     actorScope(),
                     idempotencyKey));
-            return ResponseEntity.ok().eTag(changed.etag()).body(CatalogAdministrationDtoMapper.product(changed, mediaUrls));
+            return ResponseEntity.ok()
+                    .eTag(changed.etag())
+                    .body(CatalogAdministrationDtoMapper.product(changed, mediaUrls));
         });
     }
 
@@ -412,16 +420,16 @@ public final class CatalogAdministrationController implements CatalogAdministrat
                     request.getAlt(),
                     request.getDisplayOrder(),
                     request.getPrimary()));
-            return ResponseEntity.ok().eTag(updated.productEtag()).body(CatalogAdministrationDtoMapper.media(updated, mediaUrls));
+            return ResponseEntity.ok()
+                    .eTag(updated.productEtag())
+                    .body(CatalogAdministrationDtoMapper.media(updated, mediaUrls));
         });
     }
 
     @Override
-    public ResponseEntity<Void> deleteCatalogProductMedia(
-            UUID resourceId, UUID mediaId, String ifMatch, String csrf) {
+    public ResponseEntity<Void> deleteCatalogProductMedia(UUID resourceId, UUID mediaId, String ifMatch, String csrf) {
         return translate(() -> {
-            products.deleteMedia(
-                    new ProductId(resourceId), new MediaId(mediaId), CatalogVersionEtag.parse(ifMatch));
+            products.deleteMedia(new ProductId(resourceId), new MediaId(mediaId), CatalogVersionEtag.parse(ifMatch));
             return ResponseEntity.noContent().build();
         });
     }
@@ -492,15 +500,20 @@ public final class CatalogAdministrationController implements CatalogAdministrat
     }
 
     private static AdminCategoryDto toDto(AdminCategoryView category) {
+        var archived = category.status() == CategoryStatus.ARCHIVED;
         return new AdminCategoryDto(
                         category.id(),
                         category.slug(),
                         category.name(),
                         category.displayOrder(),
-                        AdminCategoryDto.StatusEnum.valueOf(category.status().name()),
+                        archived
+                                ? AdminCategoryDto.StatusEnum.HIDDEN
+                                : AdminCategoryDto.StatusEnum.valueOf(
+                                        category.status().name()),
                         category.version(),
                         category.updatedAt())
-                .parentId(category.parentId());
+                .parentId(category.parentId())
+                .archived(archived);
     }
 
     private static URI location(String path, UUID id) {

@@ -53,12 +53,14 @@ final class CatalogAdministrationDtoMapper {
                         view.createdAt(),
                         view.updatedAt())
                 .publishedAt(product.publishedAt().orElse(null))
-                .priceMinor(product.price().map(ru.amra.market.catalog.domain.ProductPrice::minorUnits).orElse(null))
+                .priceMinor(product.price()
+                        .map(ru.amra.market.catalog.domain.ProductPrice::minorUnits)
+                        .orElse(null))
                 .currency(AdminProductDto.CurrencyEnum.RUB)
                 .merchandising(new ProductMerchandisingDto(
-                        product.merchandising().newArrival(),
-                        product.merchandising().onSale(),
-                        product.merchandising().featured())
+                                product.merchandising().newArrival(),
+                                product.merchandising().onSale(),
+                                product.merchandising().featured())
                         .newUntil(product.merchandising().newUntil())
                         .salePercent(product.merchandising().salePercent()))
                 .variants(product.variants().stream()

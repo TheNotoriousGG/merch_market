@@ -27,7 +27,9 @@ class ListCatalogProductsTest {
             return new CatalogProductListReader.Result(List.of(product()), 25);
         };
         var useCase = new ListCatalogProducts(
-                reader, id -> URI.create("https://cdn.example/media/" + id), Clock.fixed(NOW, ZoneOffset.UTC));
+                reader,
+                (id, objectKey) -> URI.create("https://cdn.example/media/" + id),
+                Clock.fixed(NOW, ZoneOffset.UTC));
 
         var result = useCase.execute(criteria());
 
@@ -50,7 +52,7 @@ class ListCatalogProductsTest {
     void representsAnEmptyPageWithZeroTotalPages() {
         var useCase = new ListCatalogProducts(
                 (criteria, newAfter) -> new CatalogProductListReader.Result(List.of(), 0),
-                id -> URI.create("https://cdn.example/media/" + id),
+                (id, objectKey) -> URI.create("https://cdn.example/media/" + id),
                 Clock.fixed(NOW, ZoneOffset.UTC));
 
         var result = useCase.execute(criteria());
@@ -73,8 +75,13 @@ class ListCatalogProductsTest {
                 "hoodie",
                 "Худи",
                 "Краткое описание",
+                549_000L,
+                true,
+                false,
+                null,
+                true,
                 NOW,
-                new CatalogProductListReader.MediaRecord(MEDIA_ID, "Худи", 1200, 1500, 0),
+                new CatalogProductListReader.MediaRecord(MEDIA_ID, "products/hoodie.webp", "Худи", 1200, 1500, 0),
                 List.of(option));
     }
 }

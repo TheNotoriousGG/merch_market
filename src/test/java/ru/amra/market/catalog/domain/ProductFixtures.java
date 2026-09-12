@@ -21,7 +21,16 @@ final class ProductFixtures {
     }
 
     static Product completeDraft(long productId, String slug, String sku) {
-        return draft(productId, slug)
+        var draft = draft(productId, slug);
+        return draft.revise(
+                        draft.slug(),
+                        draft.content(),
+                        draft.primaryCategoryId(),
+                        draft.categoryIds(),
+                        draft.collectionIds(),
+                        draft.characteristics(),
+                        draft.merchandising(),
+                        new ProductPrice(549_000))
                 .addVariant(variant(productId, sku, "BLACK", "M"))
                 .addMedia(primaryMedia(productId, null));
     }

@@ -1,0 +1,12 @@
+type: object
+required: [id, eyebrow, title, description, buttonLabel, targetUrl, desktopImageUrl, displayOrder]
+properties:
+  id: {type: string, format: uuid}
+  eyebrow: {type: string, minLength: 1, maxLength: 80}
+  title: {type: string, minLength: 1, maxLength: 160}
+  description: {type: string, minLength: 1, maxLength: 300}
+  buttonLabel: {type: string, minLength: 1, maxLength: 80}
+  targetUrl: {type: string, maxLength: 500}
+  desktopImageUrl: {type: string, format: uri}
+  mobileImageUrl: {type: string, format: uri, nullable: true}
+  displayOrder: {type: integer, format: int32, minimum: 0}

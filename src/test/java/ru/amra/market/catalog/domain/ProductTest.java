@@ -29,16 +29,17 @@ class ProductTest {
                 .containsExactly(
                         "Primary category must be active",
                         "At least one active variant is required",
-                        "Exactly one primary image with alt text is required");
+                        "Exactly one primary image with alt text is required",
+                        "Product price is required");
         assertThatThrownBy(() -> product.publish(Set.of(), PUBLICATION_TIME))
                 .isInstanceOfSatisfying(ProductInvariantViolation.class, violation -> {
                     assertThat(violation.invariant()).isEqualTo(ProductInvariant.PRODUCT_NOT_PUBLISHABLE);
-                    assertThat(violation.violations()).hasSize(3);
+                    assertThat(violation.violations()).hasSize(4);
                 });
     }
 
     @Test
-    void publishesCompleteDraftAndArchivesOnlyFromActiveState() {
+    void publishesCompleteDraftAndSupportsDraftArchival() {
         var draft = ProductFixtures.completeDraft(1, "futbolka-seriya-01", "AMR-TS01-BLK-M");
 
         var active = draft.publish(Set.of(draft.primaryCategoryId()), PUBLICATION_TIME);
@@ -46,14 +47,14 @@ class ProductTest {
 
         assertThat(active.status()).isEqualTo(ProductStatus.ACTIVE);
         assertThat(active.publishedAt()).contains(PUBLICATION_TIME);
-        assertThat(active.version()).isEqualTo(3);
+        assertThat(active.version()).isEqualTo(4);
         assertThat(archived.status()).isEqualTo(ProductStatus.ARCHIVED);
         assertThatThrownBy(archived::archive)
                 .isInstanceOfSatisfying(
                         ProductInvariantViolation.class,
                         violation -> assertThat(violation.invariant())
                                 .isEqualTo(ProductInvariant.INVALID_LIFECYCLE_TRANSITION));
-        assertThatThrownBy(() -> draft.archive()).isInstanceOf(ProductInvariantViolation.class);
+        assertThat(draft.archive().status()).isEqualTo(ProductStatus.ARCHIVED);
     }
 
     @Test

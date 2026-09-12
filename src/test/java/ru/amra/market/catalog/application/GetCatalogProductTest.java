@@ -39,7 +39,8 @@ class GetCatalogProductTest {
         CatalogProductReferenceReader references = productId -> new CatalogProductReferenceReader.References(
                 List.of(new CatalogProductReferenceReader.CategoryRecord(CATEGORY_ID.value(), "clothes", "Одежда")),
                 List.of());
-        var useCase = new GetCatalogProduct(products, references, id -> URI.create("https://cdn.example/media/" + id));
+        var useCase = new GetCatalogProduct(
+                products, references, (id, objectKey) -> URI.create("https://cdn.example/media/" + id));
 
         var resolution = useCase.execute("product");
 
@@ -63,7 +64,7 @@ class GetCatalogProductTest {
         var useCase = new GetCatalogProduct(
                 products,
                 productId -> new CatalogProductReferenceReader.References(List.of(), List.of()),
-                id -> URI.create("https://cdn.example/media/" + id));
+                (id, objectKey) -> URI.create("https://cdn.example/media/" + id));
 
         assertThat(useCase.execute("old")).isEqualTo(new CatalogProductResolution.Redirect("product"));
         assertThatThrownBy(() -> useCase.execute("draft")).isInstanceOf(CatalogProductNotFoundException.class);
@@ -93,6 +94,7 @@ class GetCatalogProductTest {
                 new ProductId(uuid(2)),
                 new ProductSlug("product"),
                 new ProductContent("Товар", "Кратко", "Подробно"),
+                new ru.amra.market.catalog.domain.ProductPrice(549_000),
                 CATEGORY_ID,
                 Set.of(CATEGORY_ID),
                 Set.of(),

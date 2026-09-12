@@ -164,7 +164,11 @@ public class ManageCatalogProducts {
         audit.record(
                 "PRODUCT",
                 saved.id().value(),
-                switch (command.transition()) { case PUBLISH -> "PUBLISHED"; case ARCHIVE -> "ARCHIVED"; case RESTORE -> "RESTORED"; },
+                switch (command.transition()) {
+                    case PUBLISH -> "PUBLISHED";
+                    case ARCHIVE -> "ARCHIVED";
+                    case RESTORE -> "RESTORED";
+                },
                 current.version(),
                 saved.version(),
                 Map.of(
@@ -184,7 +188,8 @@ public class ManageCatalogProducts {
         if (current.status() != ProductStatus.ARCHIVED) {
             throw new IllegalArgumentException("Only archived products can be permanently deleted");
         }
-        mediaStorage.delete(current.media().stream().map(ProductMedia::objectKey).toList());
+        mediaStorage.delete(
+                current.media().stream().map(ProductMedia::objectKey).toList());
         products.delete(id);
         audit.record("PRODUCT", id.value(), "DELETED", current.version(), current.version(), Map.of());
     }
@@ -341,11 +346,18 @@ public class ManageCatalogProducts {
     @Transactional
     public void deleteMedia(ProductId productId, MediaId mediaId, long expectedVersion) {
         var current = loadExpected(productId, expectedVersion);
-        var item = current.media().stream().filter(candidate -> candidate.id().equals(mediaId)).findFirst()
+        var item = current.media().stream()
+                .filter(candidate -> candidate.id().equals(mediaId))
+                .findFirst()
                 .orElseThrow(CatalogProductChildNotFoundException::new);
         var saved = products.save(current.removeMedia(mediaId));
         mediaStorage.delete(List.of(item.objectKey()));
-        audit.record("PRODUCT_MEDIA", mediaId.value(), "DELETED", current.version(), saved.version(),
+        audit.record(
+                "PRODUCT_MEDIA",
+                mediaId.value(),
+                "DELETED",
+                current.version(),
+                saved.version(),
                 Map.of("productId", saved.id().value().toString()));
     }
 
@@ -447,7 +459,7 @@ public class ManageCatalogProducts {
             RepresentationHasher hash,
             ProductSlug slug,
             ProductContent content,
-            ProductPrice price,
+            @Nullable ProductPrice price,
             CategoryId primaryCategoryId,
             Set<CategoryId> categoryIds,
             Set<CollectionId> collectionIds,
@@ -456,7 +468,7 @@ public class ManageCatalogProducts {
                 .add(content.name())
                 .add(content.shortDescription())
                 .add(content.description())
-                .add(price.minorUnits())
+                .add(price == null ? 0 : price.minorUnits())
                 .add(primaryCategoryId.value());
         categoryIds.stream().map(CategoryId::value).sorted().forEach(hash::add);
         collectionIds.stream().map(CollectionId::value).sorted().forEach(hash::add);
@@ -499,7 +511,7 @@ public class ManageCatalogProducts {
     public record CreateCommand(
             ProductSlug slug,
             ProductContent content,
-            ProductPrice price,
+            @Nullable ProductPrice price,
             CategoryId primaryCategoryId,
             Set<CategoryId> categoryIds,
             Set<CollectionId> collectionIds,

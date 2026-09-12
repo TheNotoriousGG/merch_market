@@ -55,10 +55,15 @@ final class CustomerAccountController {
 
     record StartRequest(@NotBlank String phone) {}
 
-    record VerifyRequest(@NotNull UUID challengeId, @Pattern(regexp = "^[0-9]{6}$") String code) {}
+    record VerifyRequest(
+            @NotNull UUID challengeId,
+            @Pattern(regexp = "^[0-9]{6}$") String code) {}
 
     record ChallengeResponse(
-            UUID challengeId, String phone, long expiresInSeconds, @Nullable String developmentCode) {}
+            UUID challengeId,
+            String phone,
+            long expiresInSeconds,
+            @Nullable String developmentCode) {}
 
     record AccountResponse(UUID id, String phone, @Nullable String displayName) {}
 }

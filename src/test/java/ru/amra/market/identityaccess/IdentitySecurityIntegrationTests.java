@@ -97,10 +97,11 @@ class IdentitySecurityIntegrationTests extends PostgreSqlIntegrationTest {
         var customer = oidcLogin().idToken(token -> token.claim("email_verified", true));
 
         mockMvc.perform(post("/api/v1/session/logout").with(customer)).andExpect(status().isForbidden());
-        var csrfCookie = Objects.requireNonNull(mockMvc.perform(get("/api/v1/session").with(customer))
-                .andReturn()
-                .getResponse()
-                .getCookie("AMRA_CSRF"));
+        var csrfCookie =
+                Objects.requireNonNull(mockMvc.perform(get("/api/v1/session").with(customer))
+                        .andReturn()
+                        .getResponse()
+                        .getCookie("AMRA_CSRF"));
 
         mockMvc.perform(post("/api/v1/session/logout")
                         .with(customer)

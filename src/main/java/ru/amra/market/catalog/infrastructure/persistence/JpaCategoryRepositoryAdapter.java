@@ -2,9 +2,9 @@ package ru.amra.market.catalog.infrastructure.persistence;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.jdbc.core.JdbcTemplate;
 import ru.amra.market.catalog.application.ConcurrentCatalogModificationException;
 import ru.amra.market.catalog.application.port.CategoryRepository;
 import ru.amra.market.catalog.domain.Category;
@@ -61,14 +61,10 @@ class JpaCategoryRepositoryAdapter implements CategoryRepository {
     @Override
     @Transactional
     public boolean deleteIfUnused(CategoryId id) {
-        var references = jdbc.queryForObject(
-                """
+        var references = jdbc.queryForObject("""
                 select exists(select 1 from catalog_categories where parent_id = ?)
                     or exists(select 1 from catalog_product_categories where category_id = ?)
-                """,
-                Boolean.class,
-                id.value(),
-                id.value());
+                """, Boolean.class, id.value(), id.value());
         if (Boolean.TRUE.equals(references)) {
             return false;
         }

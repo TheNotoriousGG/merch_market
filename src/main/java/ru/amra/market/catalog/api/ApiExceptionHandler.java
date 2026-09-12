@@ -3,6 +3,8 @@ package ru.amra.market.catalog.api;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Locale;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,7 @@ import ru.amra.market.catalog.application.CatalogProductChildNotFoundException;
 import ru.amra.market.catalog.application.CatalogProductNotFoundException;
 import ru.amra.market.catalog.application.ConcurrentCatalogModificationException;
 import ru.amra.market.catalog.application.StaleCatalogVersionException;
+import ru.amra.market.catalog.application.StorefrontBannerNotFoundException;
 import ru.amra.market.catalog.domain.CategoryInvariantViolation;
 import ru.amra.market.catalog.domain.CollectionInvariantViolation;
 import ru.amra.market.catalog.domain.ProductInvariantViolation;
@@ -36,6 +39,7 @@ import ru.amra.market.platform.web.ApiProblemFactory;
 /** Converts transport and domain failures into stable, non-sensitive RFC 9457 responses. */
 @RestControllerAdvice
 public final class ApiExceptionHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
     private final ApiProblemFactory problems;
 
@@ -148,6 +152,7 @@ public final class ApiExceptionHandler {
         CatalogProductNotFoundException.class,
         CatalogProductChildNotFoundException.class,
         CatalogCollectionNotFoundException.class,
+        StorefrontBannerNotFoundException.class,
         StaleCatalogVersionException.class,
         ConcurrentCatalogModificationException.class,
         CatalogIdempotencyConflictException.class,
@@ -164,6 +169,7 @@ public final class ApiExceptionHandler {
     /** Produces a safe terminal response for unexpected failures. */
     @ExceptionHandler(Exception.class)
     ResponseEntity<ProblemDetailsDto> unexpected(Exception exception, HttpServletRequest request) {
+        LOG.error("Unexpected catalog API failure for {}", request.getRequestURI(), exception);
         return response(
                 new Descriptor(
                         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -195,6 +201,8 @@ public final class ApiExceptionHandler {
                 notFound("PRODUCT_NOT_FOUND", "Catalog product was not found.");
             case CatalogCollectionNotFoundException ignored ->
                 notFound("COLLECTION_NOT_FOUND", "Catalog collection was not found.");
+            case StorefrontBannerNotFoundException ignored ->
+                notFound("STOREFRONT_BANNER_NOT_FOUND", "Storefront banner was not found.");
             case StaleCatalogVersionException ignored -> staleVersion();
             case ConcurrentCatalogModificationException ignored -> staleVersion();
             case CatalogIdempotencyConflictException ignored ->

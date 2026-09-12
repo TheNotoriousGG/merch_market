@@ -258,6 +258,7 @@ class CatalogAdministrationProductApiTests extends PostgreSqlIntegrationTest {
                                   "name":"Товар AMRA",
                                   "shortDescription":"Короткое описание",
                                   "description":"Полное описание товара",
+                                  "priceMinor":549000,
                                   "primaryCategoryId":"%s",
                                   "categoryIds":["%s"]
                                 }

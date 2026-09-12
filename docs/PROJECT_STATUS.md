@@ -9,8 +9,8 @@
 | Backend stages 0–8 | Завершены локально и находятся в `main`; GitLab/package publication exceptions перечислены отдельно |
 | Реализованные product slices | Catalog и Inventory |
 | Последний закрытый acceptance | 173 tests, Inventory 12/12, container/client/reproducibility checks |
-| Следующий разрешённый этап | ограниченный Admin Catalog integration по ADR-0008; затем product stage 9 |
-| Frontend/backend integration | Admin Catalog UX/local MinIO baseline утверждён; storefront всё ещё использует fixtures/`localStorage` |
+| Следующий разрешённый этап | 9. Customer, favorites и cart |
+| Frontend/backend integration | Admin Catalog принят; storefront Catalog/Banners используют generated client, favorites/cart всё ещё используют `localStorage` |
 | Production-only решения | platform, Secret Manager, real providers и GitLab activation отложены |
 
 ## Завершено
@@ -209,7 +209,7 @@ GitLab activation остаётся обязательным deferred gate до �
 
 Local full-stack infrastructure acceptance закрыт: отдельный sibling-проект `amra-merch-market-infra` владеет единым Compose-проектом `amra-merch-market`, собирает frontend и backend из их Dockerfile и поднимает их вместе с PostgreSQL, Keycloak/PostgreSQL и MinIO. Контейнеры, сеть и persistent volumes имеют стабильные имена `amra-merch-market-*`; storefront, admin, backend health, OIDC discovery и MinIO health проверены через host HTTP endpoints. Локальные роли представлены импортируемыми пользователями `catalog-manager`, `warehouse-manager` и `amra-admin`.
 
-Admin Catalog integration по ADR-0008: paged admin queries, presigned media lifecycle с local MinIO, generated client и frontend admin flow. После его acceptance следующим product stage остаётся этап 9 — Customer, favorites и cart.
+Admin Catalog integration по ADR-0008 завершён: paged admin queries, presigned media lifecycle с local MinIO, generated client и frontend admin flow. Управляемый storefront banner slice включает protected CRUD, публикацию/архив, порядок и расписание в PostgreSQL, изображения в MinIO и anonymous read model витрины. Backend `qualityGate` проходит со 187 тестами и JaCoCo thresholds; frontend build, typecheck, SSR tests и три Playwright Chromium scenario зелёные. Следующий product stage — этап 9, Customer, favorites и cart.
 
 Локальный admin browser flow завершает OIDC-контур: frontend проверяет backend-managed session до показа `/admin`, а конфигурируемый `amra.security.login-success-url` возвращает браузер из backend OAuth callback в административный интерфейс. Авторизация admin API по-прежнему выполняется только backend.
 

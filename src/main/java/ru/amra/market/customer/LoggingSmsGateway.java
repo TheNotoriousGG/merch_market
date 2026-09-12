@@ -12,8 +12,7 @@ final class LoggingSmsGateway implements SmsGateway {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingSmsGateway.class);
     private final boolean localDevelopment;
 
-    LoggingSmsGateway(
-            @Value("${amra.customer.phone-auth.expose-development-code:false}") boolean localDevelopment) {
+    LoggingSmsGateway(@Value("${amra.customer.phone-auth.expose-development-code:false}") boolean localDevelopment) {
         this.localDevelopment = localDevelopment;
     }
 

@@ -43,7 +43,9 @@ delete:
     - {$ref: ../components/parameters/if-match.yaml}
     - {$ref: ../components/parameters/csrf-token.yaml}
   responses:
-    "204": {description: Media deleted.}
+    "204":
+      description: Media deleted.
+      headers: {X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}}
     "401": {$ref: ../components/responses/unauthorized.yaml}
     "403": {$ref: ../components/responses/forbidden.yaml}
     "404": {$ref: ../components/responses/not-found.yaml}

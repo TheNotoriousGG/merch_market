@@ -147,6 +147,7 @@ class ProductRepositoryIntegrationTest extends PostgreSqlIntegrationTest {
                 new ProductId(uuidV7()),
                 new ProductSlug(slug),
                 new ProductContent("Футболка", "Короткое описание", "Полное описание"),
+                new ru.amra.market.catalog.domain.ProductPrice(549_000),
                 categoryId,
                 Set.of(categoryId),
                 Set.of(),

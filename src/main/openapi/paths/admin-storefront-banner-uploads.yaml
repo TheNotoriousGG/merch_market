@@ -1,0 +1,21 @@
+post:
+  tags: [Storefront administration]
+  summary: Prepare a direct banner image upload
+  operationId: createStorefrontBannerUpload
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/resource-id.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content: {application/json: {schema: {$ref: ../components/schemas/create-media-upload-request.yaml}}}
+  responses:
+    "201":
+      description: Short-lived upload reservation created.
+      headers: {X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}}
+      content: {application/json: {schema: {$ref: ../components/schemas/media-upload.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

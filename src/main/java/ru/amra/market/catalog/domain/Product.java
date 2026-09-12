@@ -166,22 +166,69 @@ public final class Product {
 
     /** Backwards-compatible persistence/test restoration for products without merchandising data. */
     public static Product restore(
-            ProductId id, ProductSlug slug, Set<ProductSlug> aliases, ProductContent content, ProductStatus status,
-            CategoryId primaryCategoryId, Set<CategoryId> categoryIds, Set<CollectionId> collectionIds,
-            List<AttributeValue> characteristics, List<ProductVariant> variants, List<ProductMedia> media,
-            ProductMerchandising merchandising, @Nullable Instant publishedAt, long version) {
-        return restore(id, slug, aliases, content, null, status, primaryCategoryId, categoryIds, collectionIds,
-                characteristics, variants, media, merchandising, publishedAt, version);
+            ProductId id,
+            ProductSlug slug,
+            Set<ProductSlug> aliases,
+            ProductContent content,
+            ProductStatus status,
+            CategoryId primaryCategoryId,
+            Set<CategoryId> categoryIds,
+            Set<CollectionId> collectionIds,
+            List<AttributeValue> characteristics,
+            List<ProductVariant> variants,
+            List<ProductMedia> media,
+            ProductMerchandising merchandising,
+            @Nullable Instant publishedAt,
+            long version) {
+        return restore(
+                id,
+                slug,
+                aliases,
+                content,
+                null,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                media,
+                merchandising,
+                publishedAt,
+                version);
     }
 
     /** Backwards-compatible persistence/test restoration for products without merchandising data. */
     public static Product restore(
-            ProductId id, ProductSlug slug, Set<ProductSlug> aliases, ProductContent content, ProductStatus status,
-            CategoryId primaryCategoryId, Set<CategoryId> categoryIds, Set<CollectionId> collectionIds,
-            List<AttributeValue> characteristics, List<ProductVariant> variants, List<ProductMedia> media,
-            @Nullable Instant publishedAt, long version) {
-        return restore(id, slug, aliases, content, null, status, primaryCategoryId, categoryIds, collectionIds,
-                characteristics, variants, media, ProductMerchandising.none(), publishedAt, version);
+            ProductId id,
+            ProductSlug slug,
+            Set<ProductSlug> aliases,
+            ProductContent content,
+            ProductStatus status,
+            CategoryId primaryCategoryId,
+            Set<CategoryId> categoryIds,
+            Set<CollectionId> collectionIds,
+            List<AttributeValue> characteristics,
+            List<ProductVariant> variants,
+            List<ProductMedia> media,
+            @Nullable Instant publishedAt,
+            long version) {
+        return restore(
+                id,
+                slug,
+                aliases,
+                content,
+                null,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                media,
+                ProductMerchandising.none(),
+                publishedAt,
+                version);
     }
 
     /** Changes the canonical slug and records the previous slug as a direct historical alias. */
@@ -218,8 +265,15 @@ public final class Product {
             Set<CategoryId> newCategoryIds,
             Set<CollectionId> newCollectionIds,
             List<AttributeValue> newCharacteristics) {
-        return revise(newSlug, newContent, newPrimaryCategoryId, newCategoryIds, newCollectionIds,
-                newCharacteristics, merchandising, price);
+        return revise(
+                newSlug,
+                newContent,
+                newPrimaryCategoryId,
+                newCategoryIds,
+                newCollectionIds,
+                newCharacteristics,
+                merchandising,
+                price);
     }
 
     public Product revise(
@@ -230,8 +284,15 @@ public final class Product {
             Set<CollectionId> newCollectionIds,
             List<AttributeValue> newCharacteristics,
             ProductMerchandising newMerchandising) {
-        return revise(newSlug, newContent, newPrimaryCategoryId, newCategoryIds, newCollectionIds,
-                newCharacteristics, newMerchandising, price);
+        return revise(
+                newSlug,
+                newContent,
+                newPrimaryCategoryId,
+                newCategoryIds,
+                newCollectionIds,
+                newCharacteristics,
+                newMerchandising,
+                price);
     }
 
     public Product revise(
@@ -262,8 +323,22 @@ public final class Product {
                 && Objects.equals(price, newPrice)) {
             return this;
         }
-        return new Product(id, newSlug, newAliases, newContent, newPrice, status, newPrimaryCategoryId, newCategoryIds,
-                newCollectionIds, newCharacteristics, variants, media, newMerchandising, publishedAt, version + 1);
+        return new Product(
+                id,
+                newSlug,
+                newAliases,
+                newContent,
+                newPrice,
+                status,
+                newPrimaryCategoryId,
+                newCategoryIds,
+                newCollectionIds,
+                newCharacteristics,
+                variants,
+                media,
+                newMerchandising,
+                publishedAt,
+                version + 1);
     }
 
     /** Adds a variant after checking immutable SKU and defining-combination uniqueness. */
@@ -288,9 +363,25 @@ public final class Product {
     /** Changes storefront promotion settings without coupling them to publication lifecycle. */
     public Product reviseMerchandising(ProductMerchandising newMerchandising) {
         requireMutable();
-        if (merchandising.equals(newMerchandising)) return this;
-        return new Product(id, slug, aliases, content, price, status, primaryCategoryId, categoryIds, collectionIds,
-                characteristics, variants, media, newMerchandising, publishedAt, version + 1);
+        if (merchandising.equals(newMerchandising)) {
+            return this;
+        }
+        return new Product(
+                id,
+                slug,
+                aliases,
+                content,
+                price,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                media,
+                newMerchandising,
+                publishedAt,
+                version + 1);
     }
 
     /** Adds ordered media metadata and protects the single-primary-image invariant. */
@@ -364,8 +455,7 @@ public final class Product {
                 updated.add(replacement);
                 found = true;
             } else if (replacement.primary() && item.primary()) {
-                updated.add(item.revise(
-                        item.variantId().orElse(null), item.alt(), item.displayOrder(), false));
+                updated.add(item.revise(item.variantId().orElse(null), item.alt(), item.displayOrder(), false));
             } else {
                 updated.add(item);
             }
@@ -394,13 +484,16 @@ public final class Product {
     /** Removes one media item. Active products must retain their primary image. */
     public Product removeMedia(MediaId mediaId) {
         requireMutable();
-        var removed = media.stream().filter(item -> item.id().equals(mediaId)).findFirst()
-                .orElseThrow(() -> new ProductInvariantViolation(ProductInvariant.INVALID_ID, "Media does not belong to product"));
-        var remaining = media.stream().filter(item -> !item.id().equals(mediaId)).toList();
+        var removed = media.stream()
+                .filter(item -> item.id().equals(mediaId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new ProductInvariantViolation(ProductInvariant.INVALID_ID, "Media does not belong to product"));
+        var remaining =
+                media.stream().filter(item -> !item.id().equals(mediaId)).toList();
         if (status == ProductStatus.ACTIVE && remaining.isEmpty()) {
             throw new ProductInvariantViolation(
-                    ProductInvariant.PRODUCT_NOT_PUBLISHABLE,
-                    "An active product must retain a primary image");
+                    ProductInvariant.PRODUCT_NOT_PUBLISHABLE, "An active product must retain a primary image");
         }
         if (removed.primary() && !remaining.isEmpty()) {
             var successor = remaining.stream().min(MEDIA_ORDER).orElseThrow();
@@ -410,8 +503,18 @@ public final class Product {
                             : item)
                     .toList();
         }
-        return copy(slug, aliases, content, status, primaryCategoryId, categoryIds, collectionIds,
-                characteristics, variants, remaining, publishedAt);
+        return copy(
+                slug,
+                aliases,
+                content,
+                status,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                remaining,
+                publishedAt);
     }
 
     /** Archives a variant without releasing its immutable SKU or defining combination. */
@@ -497,8 +600,18 @@ public final class Product {
         if (status != ProductStatus.ARCHIVED) {
             throw invalidTransition("Only an archived product can be restored");
         }
-        return copy(slug, aliases, content, ProductStatus.DRAFT, primaryCategoryId, categoryIds,
-                collectionIds, characteristics, variants, media, null);
+        return copy(
+                slug,
+                aliases,
+                content,
+                ProductStatus.DRAFT,
+                primaryCategoryId,
+                categoryIds,
+                collectionIds,
+                characteristics,
+                variants,
+                media,
+                null);
     }
 
     /** Returns all failures that currently prevent publication. */

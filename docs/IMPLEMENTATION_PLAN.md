@@ -19,8 +19,8 @@
 | 6. Identity/access | Завершён | OIDC/session/security foundation находится в `main` |
 | 7. Catalog | Завершён | 12/12, release acceptance и merge в `main` |
 | 8. Inventory | Завершён | 12/12, release acceptance и merge в `main` |
-| Admin Catalog integration | Следующий разрешённый | ограниченный integration track ADR-0008; не меняет порядок product stages |
-| 9. Customer, favorites и cart | Ожидает admin integration gate | product implementation ещё не начат |
+| Admin Catalog integration | Завершён | contract, MinIO media, banners, generated client, admin UI и browser acceptance зелёные |
+| 9. Customer, favorites и cart | Следующий разрешённый | phone account foundation готов; favorites/cart ещё не реализованы |
 | 10–15 | Ожидают | начинаются только после gate предыдущего этапа |
 
 Параллельное состояние frontend и последовательность замены fixtures зафиксированы в [плане frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Владелец отдельно разрешил ограниченный Admin Catalog integration по ADR-0008 до этапа 9; он расширяет готовые Catalog/Inventory contracts и не начинает следующий business module.
@@ -249,7 +249,7 @@ Commit: `chore: initialize backend project`.
 
 Интеграция storefront выполняется инкрементально после появления соответствующего backend contract:
 
-1. Admin Catalog: list queries, local MinIO media lifecycle, generated client и admin UI по ADR-0008;
+1. Admin Catalog: list queries, local MinIO media lifecycle, storefront banner management, generated client и admin UI по ADR-0008;
 2. синхронизация storefront context и generated TypeScript client;
 3. воспроизводимый local stack, identity/data/media bootstrap;
 4. Catalog/Search/Inventory во frontend;

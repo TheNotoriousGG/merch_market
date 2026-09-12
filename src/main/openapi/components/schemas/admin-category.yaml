@@ -7,6 +7,12 @@ properties:
   slug: {type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 120}
   name: {type: string, minLength: 1, maxLength: 160}
   displayOrder: {type: integer, format: int32, minimum: 0}
-  status: {type: string, enum: [ACTIVE, HIDDEN, ARCHIVED]}
+  status:
+    type: string
+    enum: [ACTIVE, HIDDEN]
+    description: Storefront visibility. Archived categories are returned as HIDDEN.
+  archived:
+    type: boolean
+    description: Whether the category has been moved out of the working catalog.
   version: {type: integer, format: int64, minimum: 0}
   updatedAt: {type: string, format: date-time}

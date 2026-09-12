@@ -1,0 +1,43 @@
+get:
+  tags: [Storefront administration]
+  summary: Read a storefront banner
+  operationId: getAdminStorefrontBanner
+  security: [{SessionCookie: []}]
+  parameters: [{$ref: ../components/parameters/resource-id.yaml}]
+  responses:
+    "200":
+      description: Banner detail.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-storefront-banner.yaml}}}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}
+put:
+  tags: [Storefront administration]
+  summary: Replace a storefront banner configuration
+  operationId: updateStorefrontBanner
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/resource-id.yaml}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content: {application/json: {schema: {$ref: ../components/schemas/save-storefront-banner-request.yaml}}}
+  responses:
+    "200":
+      description: Banner updated.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-storefront-banner.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "412": {$ref: ../components/responses/precondition-failed.yaml}
+    "428": {$ref: ../components/responses/precondition-required.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

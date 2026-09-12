@@ -202,7 +202,10 @@ class JdbcCatalogProductListReader implements CatalogProductListReader {
                     """);
         }
         if (criteria.onlyNew()) {
-            relation.append("and product.new_arrival and (product.new_until is null or product.new_until > CURRENT_TIMESTAMP)\n");
+            relation.append("""
+                    and product.new_arrival
+                      and (product.new_until is null or product.new_until > CURRENT_TIMESTAMP)
+                    """);
         }
         if (criteria.search() != null) {
             parameters.addValue("search", criteria.search());

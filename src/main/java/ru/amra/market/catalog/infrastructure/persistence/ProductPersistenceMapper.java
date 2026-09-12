@@ -26,7 +26,12 @@ final class ProductPersistenceMapper {
                 children.characteristics(),
                 children.variants(),
                 children.media(),
-                new ProductMerchandising(entity.newArrival(), entity.newUntil(), entity.onSale(), entity.salePercent(), entity.featured()),
+                new ProductMerchandising(
+                        entity.newArrival(),
+                        entity.newUntil(),
+                        entity.onSale(),
+                        entity.salePercent(),
+                        entity.featured()),
                 entity.publishedAt(),
                 entity.version());
     }

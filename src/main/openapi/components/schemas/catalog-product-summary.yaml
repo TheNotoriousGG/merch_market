@@ -5,7 +5,6 @@ required:
   - slug
   - name
   - shortDescription
-  - currency
   - primaryMedia
   - publishedAt
   - variantOptions
@@ -44,6 +43,7 @@ properties:
   currency:
     type: string
     enum: [RUB]
+    nullable: true
   primaryMedia:
     $ref: catalog-media.yaml
   publishedAt:

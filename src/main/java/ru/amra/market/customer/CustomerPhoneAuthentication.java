@@ -14,16 +14,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import org.jspecify.annotations.Nullable;
 
 /** Phone challenge lifecycle and customer session boundary. */
 @Service
@@ -68,8 +68,7 @@ class CustomerPhoneAuthentication {
                         .addValue("allowedSince", Timestamp.from(now.minus(RESEND_INTERVAL))),
                 Long.class);
         if (recentChallenges != null && recentChallenges > 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.TOO_MANY_REQUESTS, "Новый код можно запросить через минуту");
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Новый код можно запросить через минуту");
         }
         try {
             jdbc.update(
@@ -103,7 +102,8 @@ class CustomerPhoneAuthentication {
                         Objects.requireNonNull(result.getString("phone")),
                         Objects.requireNonNull(result.getString("code_hash")),
                         result.getInt("attempts"),
-                        Objects.requireNonNull(result.getTimestamp("expires_at")).toInstant(),
+                        Objects.requireNonNull(result.getTimestamp("expires_at"))
+                                .toInstant(),
                         result.getTimestamp("consumed_at")));
         if (rows.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Код подтверждения не найден");
@@ -123,7 +123,8 @@ class CustomerPhoneAuthentication {
 
         var phone = row.phone();
         var now = clock.instant();
-        var customerId = jdbc.query(
+        var customerId = jdbc
+                .query(
                         "select id from customer_accounts where phone = :phone",
                         Map.of("phone", phone),
                         (result, rowNumber) -> result.getObject("id", UUID.class))
@@ -142,7 +143,8 @@ class CustomerPhoneAuthentication {
         if (!(value instanceof String customerId)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Войдите по номеру телефона");
         }
-        return jdbc.query(
+        return jdbc
+                .query(
                         "select id, phone, display_name from customer_accounts where id = :id",
                         Map.of("id", UUID.fromString(customerId)),
                         (result, row) -> new Customer(
@@ -160,12 +162,10 @@ class CustomerPhoneAuthentication {
 
     private UUID createCustomer(String phone, Instant now) {
         var id = UUID.randomUUID();
-        jdbc.update(
-                """
+        jdbc.update("""
                 insert into customer_accounts(id, phone, created_at, updated_at)
                 values (:id, :phone, :now, :now)
-                """,
-                Map.of("id", id, "phone", phone, "now", Timestamp.from(now)));
+                """, Map.of("id", id, "phone", phone, "now", Timestamp.from(now)));
         return id;
     }
 
@@ -184,13 +184,18 @@ class CustomerPhoneAuthentication {
 
     private static String hash(String value) {
         try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
+            return HexFormat.of()
+                    .formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException exception) {
             throw new IllegalStateException(exception);
         }
     }
 
-    record Challenge(UUID id, String phone, long expiresInSeconds, @Nullable String developmentCode) {}
+    record Challenge(
+            UUID id,
+            String phone,
+            long expiresInSeconds,
+            @Nullable String developmentCode) {}
 
     record Customer(UUID id, String phone, @Nullable String displayName) {}
 

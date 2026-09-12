@@ -68,7 +68,8 @@ class CatalogProductListApiContractTests extends PostgreSqlIntegrationTest {
                 .andExpect(jsonPath("$.items[0].id").value(product.id().value().toString()))
                 .andExpect(jsonPath("$.items[0].slug").value("hoodie-mono"))
                 .andExpect(jsonPath("$.items[0].primaryMedia.url")
-                        .value(matchesPattern("https://cdn\\.amra-shop\\.invalid/media/[0-9a-f-]+")))
+                        .value(matchesPattern(
+                                "https://cdn\\.amra-shop\\.invalid/media/catalog/[0-9a-f-]+/primary\\.webp")))
                 .andExpect(jsonPath("$.items[0].variantOptions.length()").value(2))
                 .andExpect(jsonPath("$.page.page").value(0))
                 .andExpect(jsonPath("$.page.size").value(24))

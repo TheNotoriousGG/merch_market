@@ -63,6 +63,7 @@ public class SecurityConfiguration {
                                 "/api/v1/",
                                 "/api/v1/session",
                                 "/api/v1/catalog/**",
+                                "/api/v1/storefront/**",
                                 "/api/v1/customer/account",
                                 "/actuator/health/**")
                         .permitAll()
@@ -71,6 +72,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/v1/inventory/availability")
                         .permitAll()
                         .requestMatchers("/api/v1/admin/catalog/**")
+                        .access(catalogManagerWithMfa(properties))
+                        .requestMatchers("/api/v1/admin/storefront/**")
                         .access(catalogManagerWithMfa(properties))
                         .requestMatchers("/api/v1/admin/inventory/**")
                         .access(warehouseManagerWithMfa(properties))

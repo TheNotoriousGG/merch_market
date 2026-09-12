@@ -84,6 +84,7 @@
 - Reservation expiry is a bounded scheduled application use case coordinated only by a PostgreSQL-time lease; candidates use the partial expiry index plus `FOR UPDATE SKIP LOCKED`, and deployment properties are fail-fast bounded.
 - Cache не внедряется заранее; Redis возможен через adapter после измерения и определения invalidation.
 - Admin integration до этапа 9 добавляет paged catalog queries и presigned media lifecycle; local S3-compatible adapter — MinIO, production provider остаётся отложенным решением (ADR-0008).
+- Редакционные баннеры витрины управляются через защищённый admin contract: тексты, переход, порядок, расписание и lifecycle хранятся в PostgreSQL, изображения — в S3-compatible storage. Публичная витрина получает только опубликованные активные записи; отдельный CMS на текущем масштабе не вводится.
 
 ## Customer, favorites и cart
 
