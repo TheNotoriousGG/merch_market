@@ -1,16 +1,16 @@
 # Текущее состояние backend
 
-Обновлено: 20 августа 2026 года.
+Обновлено: 12 сентября 2026 года.
 
 ## Короткий ответ
 
 | Область | Состояние |
 | --- | --- |
-| Backend stages 0–8 | Завершены локально и находятся в `main`; GitLab/package publication exceptions перечислены отдельно |
-| Реализованные product slices | Catalog и Inventory |
-| Последний закрытый acceptance | 173 tests, Inventory 12/12, container/client/reproducibility checks |
-| Следующий разрешённый этап | 9. Customer, favorites и cart |
-| Frontend/backend integration | Admin Catalog принят; storefront Catalog/Banners используют generated client, favorites/cart всё ещё используют `localStorage` |
+| Backend stages 0–9 | Завершены локально; этап 9 подготовлен к fast-forward merge |
+| Реализованные product slices | Catalog, Inventory, Customer/Favorites/Cart |
+| Последний закрытый acceptance | 193 tests, OpenAPI compatibility, JaCoCo и frontend Playwright 4/4 |
+| Следующий разрешённый этап | 10. Pricing и promotions |
+| Frontend/backend integration | Catalog, banners, profile, addresses, verified email, favorites и cart используют backend/generated client |
 | Production-only решения | platform, Secret Manager, real providers и GitLab activation отложены |
 
 ## Завершено
@@ -209,7 +209,9 @@ GitLab activation остаётся обязательным deferred gate до �
 
 Local full-stack infrastructure acceptance закрыт: отдельный sibling-проект `amra-merch-market-infra` владеет единым Compose-проектом `amra-merch-market`, собирает frontend и backend из их Dockerfile и поднимает их вместе с PostgreSQL, Keycloak/PostgreSQL и MinIO. Контейнеры, сеть и persistent volumes имеют стабильные имена `amra-merch-market-*`; storefront, admin, backend health, OIDC discovery и MinIO health проверены через host HTTP endpoints. Локальные роли представлены импортируемыми пользователями `catalog-manager`, `warehouse-manager` и `amra-admin`.
 
-Admin Catalog integration по ADR-0008 завершён: paged admin queries, presigned media lifecycle с local MinIO, generated client и frontend admin flow. Управляемый storefront banner slice включает protected CRUD, публикацию/архив, порядок и расписание в PostgreSQL, изображения в MinIO и anonymous read model витрины. Backend `qualityGate` проходит со 187 тестами и JaCoCo thresholds; frontend build, typecheck, SSR tests и три Playwright Chromium scenario зелёные. Следующий product stage — этап 9, Customer, favorites и cart.
+Admin Catalog integration по ADR-0008 завершён: paged admin queries, presigned media lifecycle с local MinIO, generated client и frontend admin flow. Управляемый storefront banner slice включает protected CRUD, публикацию/архив, порядок и расписание в PostgreSQL, изображения в MinIO и anonymous read model витрины.
+
+Customer/Favorites/Cart реализован как общий PostgreSQL-backed shopping context: гостевой токен хранится только в виде hash, избранное и корзина детерминированно объединяются после входа, а изменения корзины защищены `ETag`/`If-Match`. Backend повторно проверяет цену и остаток, возвращает понятные notices и очищает истёкшие guest/customer данные ограниченными пакетами. Личный кабинет поддерживает подтверждение email и сохранённые адреса. Frontend отказался от `localStorage` для shopping state и использует generated `CustomerApi`.
 
 Локальный admin browser flow завершает OIDC-контур: frontend проверяет backend-managed session до показа `/admin`, а конфигурируемый `amra.security.login-success-url` возвращает браузер из backend OAuth callback в административный интерфейс. Авторизация admin API по-прежнему выполняется только backend.
 

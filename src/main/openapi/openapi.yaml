@@ -36,6 +36,10 @@ paths:
     $ref: paths/customer-context.yaml
   /customer/profile:
     $ref: paths/customer-profile.yaml
+  /customer/email-verification:
+    $ref: paths/customer-email-verification.yaml
+  /customer/email-verification/{challengeId}:
+    $ref: paths/customer-email-verification-challenge.yaml
   /customer/addresses:
     $ref: paths/customer-addresses.yaml
   /customer/addresses/{resourceId}:
@@ -131,6 +135,12 @@ components:
       $ref: components/schemas/cart-notice.yaml
     SetCartItemRequest:
       $ref: components/schemas/set-cart-item-request.yaml
+    StartEmailVerificationRequest:
+      $ref: components/schemas/start-email-verification-request.yaml
+    EmailVerificationChallenge:
+      $ref: components/schemas/email-verification-challenge.yaml
+    VerifyEmailRequest:
+      $ref: components/schemas/verify-email-request.yaml
     CatalogCategoryNode:
       $ref: components/schemas/catalog-category-node.yaml
     CatalogCategoryTree:

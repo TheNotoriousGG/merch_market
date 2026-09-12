@@ -20,8 +20,9 @@
 | 7. Catalog | Завершён | 12/12, release acceptance и merge в `main` |
 | 8. Inventory | Завершён | 12/12, release acceptance и merge в `main` |
 | Admin Catalog integration | Завершён | contract, MinIO media, banners, generated client, admin UI и browser acceptance зелёные |
-| 9. Customer, favorites и cart | Следующий разрешённый | phone account foundation готов; favorites/cart ещё не реализованы |
-| 10–15 | Ожидают | начинаются только после gate предыдущего этапа |
+| 9. Customer, favorites и cart | Завершён | profile/email/address, guest merge, favorites, cart locking/revalidation и retention готовы |
+| 10. Pricing и promotions | Следующий разрешённый | начинается после merge этапа 9 |
+| 11–15 | Ожидают | начинаются только после gate предыдущего этапа |
 
 Параллельное состояние frontend и последовательность замены fixtures зафиксированы в [плане frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Владелец отдельно разрешил ограниченный Admin Catalog integration по ADR-0008 до этапа 9; он расширяет готовые Catalog/Inventory contracts и не начинает следующий business module.
 
@@ -173,6 +174,10 @@ Commit: `chore: initialize backend project`.
 - Guest/auth merge, expiry, concurrency и access-control tests.
 
 Выход: guest/auth flows одинаково работают на нескольких backend instances.
+
+Статус: завершён локально 12 сентября 2026 года. Контракт, PostgreSQL persistence,
+secure opaque guest cookie, deterministic merge, optimistic locking, revalidation,
+bounded retention cleanup, verified email и saved addresses покрыты integration tests.
 
 ## Этап 10. Pricing и promotions
 

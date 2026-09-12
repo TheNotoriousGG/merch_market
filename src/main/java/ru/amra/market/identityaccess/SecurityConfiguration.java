@@ -73,6 +73,7 @@ public class SecurityConfiguration {
                         .permitAll()
                         .requestMatchers(
                                 "/api/v1/customer/profile",
+                                "/api/v1/customer/email-verification/**",
                                 "/api/v1/customer/addresses/**",
                                 "/api/v1/customer/favorites/**",
                                 "/api/v1/customer/cart/**")

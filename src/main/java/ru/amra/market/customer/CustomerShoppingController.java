@@ -16,20 +16,28 @@ import ru.amra.market.platform.generated.model.CartNoticeDto;
 import ru.amra.market.platform.generated.model.CustomerAddressDto;
 import ru.amra.market.platform.generated.model.CustomerContextDto;
 import ru.amra.market.platform.generated.model.CustomerProfileDto;
+import ru.amra.market.platform.generated.model.EmailVerificationChallengeDto;
 import ru.amra.market.platform.generated.model.SaveCustomerAddressRequestDto;
 import ru.amra.market.platform.generated.model.SetCartItemRequestDto;
+import ru.amra.market.platform.generated.model.StartEmailVerificationRequestDto;
 import ru.amra.market.platform.generated.model.UpdateCustomerProfileRequestDto;
+import ru.amra.market.platform.generated.model.VerifyEmailRequestDto;
 
 /** Generated-contract adapter for customer shopping state. */
 @RestController
 final class CustomerShoppingController implements CustomerApi {
     private final CustomerShoppingService shopping;
+    private final CustomerEmailVerification emailVerification;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
     CustomerShoppingController(
-            CustomerShoppingService shopping, HttpServletRequest request, HttpServletResponse response) {
+            CustomerShoppingService shopping,
+            CustomerEmailVerification emailVerification,
+            HttpServletRequest request,
+            HttpServletResponse response) {
         this.shopping = shopping;
+        this.emailVerification = emailVerification;
         this.request = request;
         this.response = response;
     }
@@ -51,6 +59,22 @@ final class CustomerShoppingController implements CustomerApi {
     public ResponseEntity<CustomerProfileDto> updateCustomerProfile(
             String csrf, UpdateCustomerProfileRequestDto update) {
         return ResponseEntity.ok(profile(shopping.updateProfile(request, update.getDisplayName(), update.getEmail())));
+    }
+
+    @Override
+    public ResponseEntity<EmailVerificationChallengeDto> startEmailVerification(
+            String csrf, StartEmailVerificationRequestDto body) {
+        var challenge = emailVerification.start(request, requireNonNull(body.getEmail()));
+        var dto = new EmailVerificationChallengeDto(challenge.id(), challenge.email(), challenge.expiresInSeconds());
+        dto.setDevelopmentCode(challenge.developmentCode());
+        return ResponseEntity.ok(dto);
+    }
+
+    @Override
+    public ResponseEntity<CustomerProfileDto> verifyCustomerEmail(
+            UUID challengeId, String csrf, VerifyEmailRequestDto body) {
+        emailVerification.verify(request, challengeId, requireNonNull(body.getCode()));
+        return ResponseEntity.ok(profile(shopping.profile(request)));
     }
 
     @Override

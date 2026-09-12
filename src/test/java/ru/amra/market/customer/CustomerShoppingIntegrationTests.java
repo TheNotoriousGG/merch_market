@@ -31,7 +31,11 @@ import ru.amra.market.testing.PostgreSqlIntegrationTest;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = "amra.customer.phone-auth.expose-development-code=true")
+@TestPropertySource(
+        properties = {
+            "amra.customer.phone-auth.expose-development-code=true",
+            "amra.customer.email-auth.expose-development-code=true"
+        })
 @Transactional
 class CustomerShoppingIntegrationTests extends PostgreSqlIntegrationTest {
     private static final String CSRF = "customer-csrf-token-123456";
@@ -227,6 +231,43 @@ class CustomerShoppingIntegrationTests extends PostgreSqlIntegrationTest {
         assertThatThrownBy(() -> shopping.cleanupExpired(0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> shopping.cleanupExpired(1001)).isInstanceOf(IllegalArgumentException.class);
         assertThat(shopping.cleanupExpired(10)).isZero();
+    }
+
+    @Test
+    void verifiesEmailForTheAuthenticatedCustomer() throws Exception {
+        var session = customerSession("+79990000003");
+        var started = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(
+                                "/api/v1/customer/email-verification")
+                        .cookie(session)
+                        .with(csrf())
+                        .header("X-AMRA-CSRF", CSRF)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"Buyer@Example.com\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("buyer@example.com"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        var challengeId = (String) JsonPath.read(started, "$.challengeId");
+        var code = (String) JsonPath.read(started, "$.developmentCode");
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(
+                                "/api/v1/customer/email-verification/{id}", challengeId)
+                        .cookie(session)
+                        .with(csrf())
+                        .header("X-AMRA-CSRF", CSRF)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"000000\"}"))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(
+                                "/api/v1/customer/email-verification/{id}", challengeId)
+                        .cookie(session)
+                        .with(csrf())
+                        .header("X-AMRA-CSRF", CSRF)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"%s\"}".formatted(code)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.emailVerified").value(true));
     }
 
     private Cookie guestCookie() throws Exception {
