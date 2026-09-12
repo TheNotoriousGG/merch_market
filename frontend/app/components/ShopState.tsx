@@ -33,6 +33,7 @@ type ShopContextValue = {
   favoriteCount: number;
   cartTotal: number;
   cartNotices: string[];
+  cartVersion: number;
   loading: boolean;
   addToCart: (product: ShopProduct) => void;
   removeFromCart: (id: string) => void;
@@ -40,6 +41,7 @@ type ShopContextValue = {
   toggleFavorite: (product: ShopProduct) => void;
   isFavorite: (id: string) => boolean;
   isInCart: (id: string) => boolean;
+  refreshCart: () => Promise<void>;
 };
 
 const ShopContext = createContext<ShopContextValue | null>(null);
@@ -121,6 +123,7 @@ export function ShopStateProvider({ children }: { children: React.ReactNode }) {
       favoriteCount: favorites.length,
       cartTotal: cartPayload ? cartPayload.subtotalMinor / 100 : 0,
       cartNotices: cartPayload?.notices.map((notice) => notice.message) ?? [],
+      cartVersion: cartPayload?.version ?? 0,
       addToCart: (product) => {
         if (!product.slug || cart.some((item) => item.id === product.id)) return;
         void catalogApi.getCatalogProduct({ slug: product.slug }).then((detail) => {
@@ -165,6 +168,7 @@ export function ShopStateProvider({ children }: { children: React.ReactNode }) {
       },
       isFavorite: (id) => favorites.some((item) => item.id === id),
       isInCart: (id) => cart.some((item) => item.id === id),
+      refreshCart: async () => applyCart(await customerApi.getCart()),
     };
   }, [cart, cartPayload, favorites, products]);
 

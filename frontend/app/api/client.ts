@@ -2,6 +2,7 @@ import {
   CatalogApi,
   Configuration,
   CustomerApi,
+  OrderingApi,
   StorefrontApi,
 } from "./generated";
 
@@ -32,4 +33,5 @@ const configuration = new Configuration({
 
 export const catalogApi = new CatalogApi(configuration);
 export const customerApi = new CustomerApi(configuration);
+export const orderingApi = new OrderingApi(configuration);
 export const storefrontApi = new StorefrontApi(configuration);

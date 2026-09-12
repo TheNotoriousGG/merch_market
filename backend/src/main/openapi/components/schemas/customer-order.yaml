@@ -1,0 +1,25 @@
+type: object
+required: [id, publicNumber, status, currency, subtotalMinor, discountMinor, totalMinor, email, recipientName, phone, postalCode, city, street, lines, createdAt]
+properties:
+  id: {type: string, format: uuid}
+  publicNumber: {type: string}
+  status: {type: string, enum: [CONFIRMED, CANCELLED]}
+  currency: {type: string, enum: [RUB]}
+  subtotalMinor: {type: integer, format: int64, minimum: 0}
+  discountMinor: {type: integer, format: int64, minimum: 0}
+  totalMinor: {type: integer, format: int64, minimum: 0}
+  email: {type: string, format: email}
+  recipientName: {type: string}
+  phone: {type: string}
+  postalCode: {type: string}
+  city: {type: string}
+  street: {type: string}
+  apartment: {type: string}
+  guestAccessToken:
+    type: string
+    description: Reproducible scoped token returned only for guest-owned orders.
+  lines:
+    type: array
+    minItems: 1
+    items: {$ref: ./order-line.yaml}
+  createdAt: {type: string, format: date-time}

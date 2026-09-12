@@ -6,6 +6,7 @@ export * from './CustomerApi';
 export * from './IdentityApi';
 export * from './InventoryApi';
 export * from './InventoryAdministrationApi';
+export * from './OrderingApi';
 export * from './PlatformApi';
 export * from './StorefrontApi';
 export * from './StorefrontAdministrationApi';

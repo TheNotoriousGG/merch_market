@@ -1,0 +1,22 @@
+.layout { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(300px,.7fr); gap:24px; align-items:start; }
+.form, .summary, .success { background:#fff; border:1px solid #e8e8e5; border-radius:26px; padding:28px; }
+.form h2, .summary h2, .success h2 { margin:0 0 20px; font-size:25px; letter-spacing:-1.1px; }
+.fields { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.fields label { display:grid; gap:7px; color:#64676c; font-size:10px; font-weight:700; }
+.fields input { width:100%; min-width:0; padding:13px 14px; border:1px solid #d9d9d5; border-radius:11px; color:#202226; background:#fff; font:inherit; }
+.wide { grid-column:1 / -1; }
+.submit { display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:20px; padding:8px 8px 8px 17px; border:0; border-radius:13px; background:#ffdd2d; color:#202226; font-weight:800; cursor:pointer; }
+.submit span { display:grid; place-items:center; width:34px; height:34px; border-radius:9px; color:#ffdd2d; background:#202226; font-size:20px; }
+.submit:disabled { opacity:.55; cursor:wait; }
+.summary { position:sticky; top:84px; color:#fff; background:#202226; }
+.summary h2 { color:#ffdd2d; font-size:35px; }
+.summary ul { display:grid; gap:13px; margin:0; padding:18px 0; border-block:1px solid #3b3d41; list-style:none; }
+.summary li, .total { display:flex; justify-content:space-between; gap:14px; font-size:11px; }
+.summary li small { display:block; margin-top:3px; color:#92959a; }
+.total { margin-top:18px; font-weight:800; }
+.error { margin:14px 0 0; padding:11px 13px; border-radius:10px; color:#8a240f; background:#fff0e9; font-size:11px; }
+.success { max-width:720px; margin:0 auto; text-align:center; }
+.success strong { display:block; margin:16px 0 8px; font-size:34px; }
+.success p { color:#686b70; line-height:1.6; }
+.success a { display:inline-flex; margin-top:12px; padding:12px 17px; border-radius:11px; color:#ffdd2d; background:#202226; font-weight:800; }
+@media (max-width:900px) { .layout { grid-template-columns:1fr; }.summary { position:static; }.fields { grid-template-columns:1fr; }.wide { grid-column:auto; } }

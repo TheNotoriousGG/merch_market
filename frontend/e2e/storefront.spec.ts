@@ -63,3 +63,31 @@ test("избранное и корзина восстанавливаются и
   await expect(page.getByText("Товар временно недоступен")).toBeVisible();
   await expect(page.getByRole("region", { name: "Товары в корзине" }).getByText("2", { exact: true })).toBeVisible();
 });
+
+test("покупатель оформляет корзину и получает номер заказа", async ({ page }) => {
+  const productId = "01999999-9999-7999-8999-999999999981";
+  const variantId = "01999999-9999-7999-8999-999999999982";
+  let cartItems = [{ variantId, productId, slug: "amra-checkout", name: "Худи Amra", variantLabel: "L", quantity: 1, unitPriceMinor: 590000, lineSubtotalMinor: 590000, discountMinor: 0, available: true }];
+  await page.route("**/api/v1/catalog/products**", route => route.fulfill({ json: { items: [], page: { page: 0, size: 60, totalElements: 0, totalPages: 0 } } }));
+  await page.route("**/api/v1/customer/context", route => route.fulfill({ json: { authenticated: false, favoriteProductIds: [] } }));
+  await page.route("**/api/v1/customer/cart", route => route.fulfill({ json: { id: "01999999-9999-7999-8999-999999999983", version: cartItems.length ? 4 : 5, items: cartItems, subtotalMinor: cartItems.length ? 590000 : 0, currency: "RUB", notices: [] } }));
+  await page.route("**/api/v1/customer/checkout", async route => {
+    const request = route.request();
+    expect(request.headers()["idempotency-key"]).toBeTruthy();
+    expect(request.postDataJSON().cartVersion).toBe(4);
+    cartItems = [];
+    await route.fulfill({ status: 201, json: { id: "01999999-9999-7999-8999-999999999984", publicNumber: "AMR-TEST00000001", status: "CONFIRMED", currency: "RUB", subtotalMinor: 590000, discountMinor: 0, totalMinor: 590000, email: "buyer@example.com", recipientName: "Анна Амра", phone: "+79991234567", postalCode: "101000", city: "Москва", street: "Тверская, 1", lines: [], createdAt: "2026-09-13T00:00:00Z" } });
+  });
+
+  await page.goto("/cart");
+  await page.getByRole("link", { name: /Перейти к оформлению/ }).click();
+  await page.getByLabel("Email").fill("buyer@example.com");
+  await page.getByLabel("Имя получателя").fill("Анна Амра");
+  await page.getByLabel("Телефон").fill("+79991234567");
+  await page.getByLabel("Индекс").fill("101000");
+  await page.getByLabel("Город").fill("Москва");
+  await page.getByLabel("Улица и дом").fill("Тверская, 1");
+  await page.getByRole("button", { name: /Подтвердить заказ/ }).click();
+  await expect(page.getByText("AMR-TEST00000001")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Спасибо за заказ" })).toBeVisible();
+});

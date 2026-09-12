@@ -1,0 +1,12 @@
+type: object
+required: [variantId, sku, productName, variantLabel, quantity, unitPriceMinor, discountMinor, totalMinor]
+properties:
+  variantId: {type: string, format: uuid}
+  sku: {type: string}
+  productName: {type: string}
+  variantLabel: {type: string}
+  quantity: {type: integer, minimum: 1}
+  unitPriceMinor: {type: integer, format: int64, minimum: 1}
+  discountMinor: {type: integer, format: int64, minimum: 0}
+  totalMinor: {type: integer, format: int64, minimum: 0}
+  promotionName: {type: string}

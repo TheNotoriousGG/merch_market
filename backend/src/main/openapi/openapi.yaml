@@ -27,6 +27,8 @@ tags:
     description: MFA-protected storefront banner authoring.
   - name: Customer
     description: Guest and authenticated profile, favorites and cart flows.
+  - name: Ordering
+    description: Idempotent customer checkout and immutable order snapshots.
 paths:
   /:
     $ref: paths/platform.yaml
@@ -50,6 +52,10 @@ paths:
     $ref: paths/customer-cart.yaml
   /customer/cart/items/{variantId}:
     $ref: paths/customer-cart-item.yaml
+  /customer/checkout:
+    $ref: paths/customer-checkout.yaml
+  /customer/orders/{publicNumber}:
+    $ref: paths/customer-order.yaml
   /catalog/categories:
     $ref: paths/catalog-categories.yaml
   /catalog/products:
@@ -141,6 +147,12 @@ components:
       $ref: components/schemas/email-verification-challenge.yaml
     VerifyEmailRequest:
       $ref: components/schemas/verify-email-request.yaml
+    CheckoutRequest:
+      $ref: components/schemas/checkout-request.yaml
+    CustomerOrder:
+      $ref: components/schemas/customer-order.yaml
+    OrderLine:
+      $ref: components/schemas/order-line.yaml
     CatalogCategoryNode:
       $ref: components/schemas/catalog-category-node.yaml
     CatalogCategoryTree:

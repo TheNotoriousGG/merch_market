@@ -76,7 +76,9 @@ public class SecurityConfiguration {
                                 "/api/v1/customer/email-verification/**",
                                 "/api/v1/customer/addresses/**",
                                 "/api/v1/customer/favorites/**",
-                                "/api/v1/customer/cart/**")
+                                "/api/v1/customer/cart/**",
+                                "/api/v1/customer/checkout",
+                                "/api/v1/customer/orders/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/inventory/availability")
                         .permitAll()

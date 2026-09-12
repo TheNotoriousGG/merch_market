@@ -1,0 +1,13 @@
+get:
+  tags: [Ordering]
+  operationId: getCustomerOrder
+  parameters:
+    - {name: publicNumber, in: path, required: true, schema: {type: string}}
+    - {name: X-Guest-Order-Token, in: header, required: false, schema: {type: string}}
+  responses:
+    '200':
+      description: Order snapshot.
+      content:
+        application/json:
+          schema: {$ref: ../components/schemas/customer-order.yaml}
+    '404': {$ref: ../components/responses/not-found.yaml}

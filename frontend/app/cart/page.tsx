@@ -4,6 +4,7 @@ import { useState } from "react";
 import StoreHeader from "../components/StoreHeader";
 import { formatPrice, type ShopProduct, useShop } from "../components/ShopState";
 import ShopProductDialog from "../components/ShopProductDialog";
+import styles from "./CartPage.module.css";
 
 export default function CartPage() {
   const { cart, cartCount, cartTotal, cartNotices, setQuantity, removeFromCart, toggleFavorite, isFavorite } = useShop();
@@ -34,7 +35,7 @@ export default function CartPage() {
         <aside className="cart-summary">
           <span className="section-kicker">Итого</span><h2>{formatPrice(cartTotal + delivery)}</h2>
           <dl><div><dt>Товары · {cartCount}</dt><dd>{formatPrice(cartTotal)}</dd></div><div><dt>Доставка</dt><dd>{delivery ? formatPrice(delivery) : "Бесплатно"}</dd></div></dl>
-          <button>Перейти к оформлению<span>›</span></button><p>Оплата после подтверждения заказа. Возврат — в течение 14 дней.</p>
+          <a className={styles.checkoutLink} href="/checkout">Перейти к оформлению<span>›</span></a><p>Состав и цена повторно проверятся перед созданием заказа.</p>
         </aside>
       </div>}
     </div>
