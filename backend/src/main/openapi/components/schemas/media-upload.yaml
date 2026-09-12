@@ -1,0 +1,8 @@
+type: object
+required: [objectKey, uploadUrl, expiresAt, contentType, maxSize]
+properties:
+  objectKey: {type: string, minLength: 1, maxLength: 512}
+  uploadUrl: {type: string, format: uri}
+  expiresAt: {type: string, format: date-time}
+  contentType: {type: string}
+  maxSize: {type: integer, format: int64}

@@ -1,0 +1,5 @@
+name: variantId
+in: path
+required: true
+description: Stable catalog variant identifier referenced by inventory.
+schema: {type: string, format: uuid}

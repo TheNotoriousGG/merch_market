@@ -1,0 +1,7 @@
+name: cursor
+in: query
+required: false
+description: Opaque keyset cursor returned by the previous response.
+schema:
+  type: string
+  minLength: 1

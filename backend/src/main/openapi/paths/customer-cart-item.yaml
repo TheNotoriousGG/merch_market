@@ -1,0 +1,28 @@
+put:
+  tags: [Customer]
+  operationId: setCartItem
+  parameters:
+    - {name: variantId, in: path, required: true, schema: {type: string, format: uuid}}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody: {required: true, content: {application/json: {schema: {$ref: ../components/schemas/set-cart-item-request.yaml}}}}
+  responses:
+    '200':
+      description: Updated and revalidated cart
+      headers: {ETag: {$ref: ../components/headers/etag.yaml}}
+      content: {application/json: {schema: {$ref: ../components/schemas/cart.yaml}}}
+    '404': {$ref: ../components/responses/not-found.yaml}
+    '412': {$ref: ../components/responses/precondition-failed.yaml}
+delete:
+  tags: [Customer]
+  operationId: removeCartItem
+  parameters:
+    - {name: variantId, in: path, required: true, schema: {type: string, format: uuid}}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  responses:
+    '200':
+      description: Updated cart
+      headers: {ETag: {$ref: ../components/headers/etag.yaml}}
+      content: {application/json: {schema: {$ref: ../components/schemas/cart.yaml}}}
+    '412': {$ref: ../components/responses/precondition-failed.yaml}

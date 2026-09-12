@@ -1,0 +1,26 @@
+type: object
+description: Partial product content command. At least one property is required.
+additionalProperties: false
+minProperties: 1
+properties:
+  slug: {type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 120}
+  name: {type: string, minLength: 1, maxLength: 200}
+  shortDescription: {type: string, minLength: 1, maxLength: 500}
+  description: {type: string, minLength: 1, maxLength: 10000}
+  priceMinor: {type: integer, format: int64, minimum: 1, description: Selling price in kopecks.}
+  primaryCategoryId: {type: string, format: uuid}
+  categoryIds:
+    type: array
+    nullable: true
+    minItems: 1
+    items: {type: string, format: uuid}
+  collectionIds:
+    type: array
+    nullable: true
+    items: {type: string, format: uuid}
+  characteristics:
+    type: array
+    nullable: true
+    items: {$ref: catalog-attribute-value.yaml}
+  merchandising:
+    $ref: product-merchandising.yaml

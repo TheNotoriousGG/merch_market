@@ -1,0 +1,35 @@
+get:
+  tags: [Storefront administration]
+  summary: List storefront banners for authoring
+  operationId: listAdminStorefrontBanners
+  security: [{SessionCookie: []}]
+  responses:
+    "200":
+      description: All banners ordered for authoring.
+      headers: {X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-storefront-banner-list.yaml}}}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}
+post:
+  tags: [Storefront administration]
+  summary: Create a storefront banner
+  operationId: createStorefrontBanner
+  security: [{SessionCookie: []}]
+  parameters: [{$ref: ../components/parameters/csrf-token.yaml}]
+  requestBody:
+    required: true
+    content: {application/json: {schema: {$ref: ../components/schemas/save-storefront-banner-request.yaml}}}
+  responses:
+    "201":
+      description: Banner created.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        Location: {description: Administrative banner URL., schema: {type: string, format: uri-reference}}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-storefront-banner.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

@@ -1,0 +1,37 @@
+type: object
+description: Public immutable media representation without storage object keys.
+required:
+  - id
+  - type
+  - url
+  - alt
+  - width
+  - height
+  - displayOrder
+properties:
+  id:
+    type: string
+    format: uuid
+  type:
+    type: string
+    enum:
+      - IMAGE
+  url:
+    type: string
+    format: uri
+  alt:
+    type: string
+    minLength: 1
+    maxLength: 300
+  width:
+    type: integer
+    format: int32
+    minimum: 1
+  height:
+    type: integer
+    format: int32
+    minimum: 1
+  displayOrder:
+    type: integer
+    format: int32
+    minimum: 0

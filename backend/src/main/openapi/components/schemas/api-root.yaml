@@ -1,0 +1,23 @@
+type: object
+description: Stable discovery metadata for the current API major version.
+required:
+  - name
+  - apiVersion
+  - status
+  - serverTime
+properties:
+  name:
+    type: string
+    example: amra-merch-market-backend
+  apiVersion:
+    type: string
+    pattern: '^v[1-9][0-9]*$'
+    example: v1
+  status:
+    type: string
+    enum:
+      - AVAILABLE
+  serverTime:
+    type: string
+    format: date-time
+    description: Current server time as an ISO 8601 UTC instant.

@@ -1,0 +1,2 @@
+ALTER TABLE catalog_products
+    ADD COLUMN featured BOOLEAN NOT NULL DEFAULT FALSE;

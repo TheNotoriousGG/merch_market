@@ -1,0 +1,11 @@
+type: object
+description: Immutable on-hand movement created by one successful warehouse command.
+required: [id, variantId, type, quantityDelta, reason, occurredAt]
+properties:
+  id: {type: string, format: uuid}
+  variantId: {type: string, format: uuid}
+  type: {type: string, enum: [RECEIPT, ADJUSTMENT_INCREASE, ADJUSTMENT_DECREASE, RESERVATION_COMMIT, RETURN]}
+  quantityDelta: {type: integer, format: int64}
+  reason: {type: string, minLength: 3, maxLength: 500}
+  reference: {type: string, minLength: 1, maxLength: 120, nullable: true}
+  occurredAt: {type: string, format: date-time}

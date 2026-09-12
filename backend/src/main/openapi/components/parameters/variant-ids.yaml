@@ -1,0 +1,11 @@
+name: variantId
+in: query
+required: true
+description: Repeated catalog variant identifiers; duplicates are collapsed in first-seen order.
+style: form
+explode: true
+schema:
+  type: array
+  minItems: 1
+  maxItems: 60
+  items: {type: string, format: uuid}

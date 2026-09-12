@@ -1,0 +1,8 @@
+name: Idempotency-Key
+in: header
+required: true
+description: Unique key binding one critical command to its request fingerprint and caller scope.
+schema:
+  type: string
+  minLength: 16
+  maxLength: 128

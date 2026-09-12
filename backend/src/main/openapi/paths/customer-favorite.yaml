@@ -1,0 +1,17 @@
+put:
+  tags: [Customer]
+  operationId: addFavorite
+  parameters:
+    - {name: productId, in: path, required: true, schema: {type: string, format: uuid}}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  responses:
+    '204': {description: Product added to favorites}
+    '404': {$ref: ../components/responses/not-found.yaml}
+delete:
+  tags: [Customer]
+  operationId: removeFavorite
+  parameters:
+    - {name: productId, in: path, required: true, schema: {type: string, format: uuid}}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  responses:
+    '204': {description: Product removed from favorites}

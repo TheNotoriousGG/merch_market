@@ -1,0 +1,11 @@
+delete:
+  tags: [Customer]
+  operationId: deleteCustomerAddress
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/resource-id.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  responses:
+    '204': {description: Address deleted}
+    '401': {$ref: ../components/responses/unauthorized.yaml}
+    '404': {$ref: ../components/responses/not-found.yaml}

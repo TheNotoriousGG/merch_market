@@ -1,0 +1,7 @@
+name: sort
+in: query
+required: false
+description: Endpoint-specific allowlisted sort key and direction, for example createdAt,desc.
+schema:
+  type: string
+  pattern: '^[A-Za-z][A-Za-z0-9]*(,asc|,desc)?$'

@@ -1,0 +1,14 @@
+post:
+  tags: [Customer]
+  operationId: verifyCustomerEmail
+  summary: Confirm the authenticated customer's email code
+  security: [{SessionCookie: []}]
+  parameters:
+    - {name: challengeId, in: path, required: true, schema: {type: string, format: uuid}}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody: {required: true, content: {application/json: {schema: {$ref: ../components/schemas/verify-email-request.yaml}}}}
+  responses:
+    '200': {description: Profile with verified email, content: {application/json: {schema: {$ref: ../components/schemas/customer-profile.yaml}}}}
+    '400': {$ref: ../components/responses/bad-request.yaml}
+    '401': {$ref: ../components/responses/unauthorized.yaml}
+    '404': {$ref: ../components/responses/not-found.yaml}

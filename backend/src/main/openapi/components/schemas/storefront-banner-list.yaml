@@ -1,0 +1,7 @@
+type: object
+required: [items]
+properties:
+  items:
+    type: array
+    maxItems: 10
+    items: {$ref: storefront-banner.yaml}

@@ -1,0 +1,37 @@
+type: object
+description: Administrative product aggregate summary; variants and media use dedicated commands.
+required: [id, slug, name, shortDescription, description, status, primaryCategoryId, categoryIds, collectionIds, characteristics, version, createdAt, updatedAt]
+properties:
+  id: {type: string, format: uuid}
+  slug: {type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 120}
+  name: {type: string, minLength: 1, maxLength: 200}
+  shortDescription: {type: string, minLength: 1, maxLength: 500}
+  description: {type: string, minLength: 1, maxLength: 10000}
+  priceMinor: {type: integer, format: int64, minimum: 1, nullable: true, description: Selling price in kopecks.}
+  currency: {type: string, enum: [RUB], default: RUB}
+  status: {type: string, enum: [DRAFT, ACTIVE, ARCHIVED]}
+  primaryCategoryId: {type: string, format: uuid}
+  categoryIds:
+    type: array
+    minItems: 1
+    items: {type: string, format: uuid}
+  collectionIds:
+    type: array
+    items: {type: string, format: uuid}
+  characteristics:
+    type: array
+    items: {$ref: catalog-attribute-value.yaml}
+  merchandising:
+    $ref: product-merchandising.yaml
+  variants:
+    type: array
+    description: Variants currently managed inside the product aggregate.
+    items: {$ref: admin-variant.yaml}
+  media:
+    type: array
+    description: Product media currently managed inside the product aggregate.
+    items: {$ref: admin-media.yaml}
+  version: {type: integer, format: int64, minimum: 0}
+  createdAt: {type: string, format: date-time}
+  updatedAt: {type: string, format: date-time}
+  publishedAt: {type: string, format: date-time, nullable: true}

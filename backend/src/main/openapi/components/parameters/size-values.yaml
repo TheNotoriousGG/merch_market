@@ -1,0 +1,12 @@
+name: sizeValue
+in: query
+required: false
+description: Allowlisted size value codes; repeated values use OR semantics.
+schema:
+  type: array
+  maxItems: 20
+  items:
+    type: string
+    pattern: '^[A-Z0-9][A-Z0-9_-]{0,31}$'
+style: form
+explode: true

@@ -1,0 +1,12 @@
+type: object
+additionalProperties: false
+required: [objectKey, contentType, width, height, alt, displayOrder, primary]
+properties:
+  variantId: {type: string, format: uuid, nullable: true}
+  objectKey: {type: string, minLength: 1, maxLength: 512}
+  contentType: {type: string, pattern: '^image/[A-Za-z0-9.+-]+$', maxLength: 100}
+  width: {type: integer, format: int32, minimum: 1}
+  height: {type: integer, format: int32, minimum: 1}
+  alt: {type: string, minLength: 1, maxLength: 300}
+  displayOrder: {type: integer, format: int32, minimum: 0}
+  primary: {type: boolean}

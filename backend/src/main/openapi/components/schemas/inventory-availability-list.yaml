@@ -1,0 +1,9 @@
+type: object
+description: Point-in-time batch availability in de-duplicated request order.
+required: [items, asOf]
+properties:
+  items:
+    type: array
+    maxItems: 60
+    items: {$ref: inventory-availability.yaml}
+  asOf: {type: string, format: date-time}

@@ -1,0 +1,9 @@
+post:
+  tags: [Customer]
+  operationId: createCustomerAddress
+  security: [{SessionCookie: []}]
+  parameters: [{$ref: ../components/parameters/csrf-token.yaml}]
+  requestBody: {required: true, content: {application/json: {schema: {$ref: ../components/schemas/save-customer-address-request.yaml}}}}
+  responses:
+    '201': {description: Saved address, content: {application/json: {schema: {$ref: ../components/schemas/customer-address.yaml}}}}
+    '401': {$ref: ../components/responses/unauthorized.yaml}

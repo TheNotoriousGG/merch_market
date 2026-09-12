@@ -1,0 +1,12 @@
+type: object
+additionalProperties: false
+minProperties: 1
+properties:
+  label: {type: string, minLength: 1, maxLength: 160}
+  status: {type: string, enum: [ACTIVE, ARCHIVED]}
+  displayOrder: {type: integer, format: int32, minimum: 0}
+  attributes:
+    type: array
+    nullable: true
+    minItems: 1
+    items: {$ref: catalog-attribute-value.yaml}

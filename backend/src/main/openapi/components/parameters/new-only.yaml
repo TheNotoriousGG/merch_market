@@ -1,0 +1,7 @@
+name: new
+in: query
+required: false
+description: Restricts results to products published during the last 30 days.
+schema:
+  type: boolean
+  default: false

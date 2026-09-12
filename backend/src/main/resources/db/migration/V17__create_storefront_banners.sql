@@ -1,0 +1,40 @@
+CREATE TABLE storefront_banners (
+    id UUID NOT NULL,
+    internal_name VARCHAR(160) NOT NULL,
+    eyebrow VARCHAR(80) NOT NULL,
+    title VARCHAR(160) NOT NULL,
+    description VARCHAR(300) NOT NULL,
+    button_label VARCHAR(80) NOT NULL,
+    target_type VARCHAR(20) NOT NULL,
+    target_value VARCHAR(500) NOT NULL,
+    desktop_object_key VARCHAR(512),
+    mobile_object_key VARCHAR(512),
+    status VARCHAR(16) NOT NULL,
+    display_order INTEGER NOT NULL,
+    starts_at TIMESTAMPTZ,
+    ends_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    version BIGINT NOT NULL DEFAULT 0,
+    CONSTRAINT pk_storefront_banners PRIMARY KEY (id),
+    CONSTRAINT ck_storefront_banners__uuid_v7 CHECK (uuid_extract_version(id) = 7 IS TRUE),
+    CONSTRAINT ck_storefront_banners__internal_name CHECK (length(btrim(internal_name)) BETWEEN 1 AND 160),
+    CONSTRAINT ck_storefront_banners__eyebrow CHECK (length(btrim(eyebrow)) BETWEEN 1 AND 80),
+    CONSTRAINT ck_storefront_banners__title CHECK (length(btrim(title)) BETWEEN 1 AND 160),
+    CONSTRAINT ck_storefront_banners__description CHECK (length(btrim(description)) BETWEEN 1 AND 300),
+    CONSTRAINT ck_storefront_banners__button_label CHECK (length(btrim(button_label)) BETWEEN 1 AND 80),
+    CONSTRAINT ck_storefront_banners__target_type CHECK (target_type IN ('CATEGORY', 'SUBCATEGORY', 'COLLECTION', 'SALE', 'URL')),
+    CONSTRAINT ck_storefront_banners__target_value CHECK (length(btrim(target_value)) BETWEEN 1 AND 500),
+    CONSTRAINT ck_storefront_banners__desktop_key CHECK (desktop_object_key IS NULL OR desktop_object_key LIKE 'banners/%/uploads/%'),
+    CONSTRAINT ck_storefront_banners__mobile_key CHECK (mobile_object_key IS NULL OR mobile_object_key LIKE 'banners/%/uploads/%'),
+    CONSTRAINT ck_storefront_banners__status CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')),
+    CONSTRAINT ck_storefront_banners__published_media CHECK (status <> 'PUBLISHED' OR desktop_object_key IS NOT NULL),
+    CONSTRAINT ck_storefront_banners__display_order CHECK (display_order >= 0),
+    CONSTRAINT ck_storefront_banners__schedule CHECK (ends_at IS NULL OR starts_at IS NULL OR ends_at > starts_at),
+    CONSTRAINT ck_storefront_banners__version CHECK (version >= 0),
+    CONSTRAINT ck_storefront_banners__timestamps CHECK (updated_at >= created_at)
+);
+
+CREATE INDEX ix_storefront_banners__public_schedule
+    ON storefront_banners (status, display_order, id, starts_at, ends_at)
+    WHERE status = 'PUBLISHED';

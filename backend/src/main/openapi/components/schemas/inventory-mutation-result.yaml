@@ -1,0 +1,6 @@
+type: object
+description: Atomic warehouse mutation result containing the updated balance and immutable movement.
+required: [balance, movement]
+properties:
+  balance: {$ref: inventory-balance.yaml}
+  movement: {$ref: inventory-movement.yaml}

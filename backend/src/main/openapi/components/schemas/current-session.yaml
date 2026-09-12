@@ -1,0 +1,32 @@
+type: object
+description: Safe browser-visible identity metadata without credentials or OIDC tokens.
+required:
+  - authenticated
+  - emailVerified
+  - permissions
+properties:
+  authenticated:
+    type: boolean
+  subject:
+    type: string
+    nullable: true
+    description: Stable opaque identity-provider subject; absent for anonymous sessions.
+  displayName:
+    type: string
+    nullable: true
+    maxLength: 200
+    description: Display name supplied by the identity provider.
+  emailVerified:
+    type: boolean
+    description: Whether the identity provider has verified the current email address.
+  permissions:
+    type: array
+    items:
+      type: string
+      enum:
+        - CUSTOMER
+        - CATALOG_MANAGER
+        - ORDER_MANAGER
+        - WAREHOUSE_MANAGER
+        - SUPPORT
+        - ADMIN

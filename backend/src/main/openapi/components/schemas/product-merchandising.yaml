@@ -1,0 +1,25 @@
+type: object
+description: Управляемое каталог-менеджером продвижение товара на витрине.
+additionalProperties: false
+required: [newArrival, onSale, featured]
+properties:
+  newArrival:
+    type: boolean
+    description: Показывать товар как новинку.
+  newUntil:
+    type: string
+    format: date-time
+    nullable: true
+    description: Автоматически убрать признак новинки после этой даты; без даты признак действует до ручного отключения.
+  onSale:
+    type: boolean
+    description: Товар участвует в распродаже.
+  salePercent:
+    type: integer
+    minimum: 1
+    maximum: 90
+    nullable: true
+    description: Процент скидки; обязателен для товара на распродаже.
+  featured:
+    type: boolean
+    description: Показывать товар в редакционном блоке «Товары недели».

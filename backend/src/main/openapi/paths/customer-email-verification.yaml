@@ -1,0 +1,11 @@
+post:
+  tags: [Customer]
+  operationId: startEmailVerification
+  summary: Send a verification code to the authenticated customer's email
+  security: [{SessionCookie: []}]
+  parameters: [{$ref: ../components/parameters/csrf-token.yaml}]
+  requestBody: {required: true, content: {application/json: {schema: {$ref: ../components/schemas/start-email-verification-request.yaml}}}}
+  responses:
+    '200': {description: Active verification challenge, content: {application/json: {schema: {$ref: ../components/schemas/email-verification-challenge.yaml}}}}
+    '401': {$ref: ../components/responses/unauthorized.yaml}
+    '429': {$ref: ../components/responses/too-many-requests.yaml}

@@ -1,0 +1,296 @@
+openapi: 3.0.3
+info:
+  title: Amra Merch Market API
+  version: 1.0.0
+  description: Contract-first API for Amra Shop.
+  contact:
+    name: Amra Shop engineering
+servers:
+  - url: /api/v1
+    description: Version 1 API
+tags:
+  - name: Platform
+    description: API discovery and platform metadata.
+  - name: Identity
+    description: Browser session and authenticated identity metadata.
+  - name: Catalog
+    description: Public storefront navigation and published product discovery.
+  - name: Catalog administration
+    description: MFA-protected catalog authoring commands for authorized employees.
+  - name: Inventory
+    description: Public batch availability without exact stock disclosure.
+  - name: Inventory administration
+    description: MFA-protected warehouse balance and stock movement commands.
+  - name: Storefront
+    description: Public storefront merchandising content.
+  - name: Storefront administration
+    description: MFA-protected storefront banner authoring.
+  - name: Customer
+    description: Guest and authenticated profile, favorites and cart flows.
+paths:
+  /:
+    $ref: paths/platform.yaml
+  /session:
+    $ref: paths/session.yaml
+  /customer/context:
+    $ref: paths/customer-context.yaml
+  /customer/profile:
+    $ref: paths/customer-profile.yaml
+  /customer/email-verification:
+    $ref: paths/customer-email-verification.yaml
+  /customer/email-verification/{challengeId}:
+    $ref: paths/customer-email-verification-challenge.yaml
+  /customer/addresses:
+    $ref: paths/customer-addresses.yaml
+  /customer/addresses/{resourceId}:
+    $ref: paths/customer-address.yaml
+  /customer/favorites/{productId}:
+    $ref: paths/customer-favorite.yaml
+  /customer/cart:
+    $ref: paths/customer-cart.yaml
+  /customer/cart/items/{variantId}:
+    $ref: paths/customer-cart-item.yaml
+  /catalog/categories:
+    $ref: paths/catalog-categories.yaml
+  /catalog/products:
+    $ref: paths/catalog-products.yaml
+  /catalog/products/{slug}:
+    $ref: paths/catalog-product-by-slug.yaml
+  /storefront/banners:
+    $ref: paths/storefront-banners.yaml
+  /admin/storefront/banners:
+    $ref: paths/admin-storefront-banners.yaml
+  /admin/storefront/banners/{resourceId}:
+    $ref: paths/admin-storefront-banner.yaml
+  /admin/storefront/banners/{resourceId}/uploads:
+    $ref: paths/admin-storefront-banner-uploads.yaml
+  /admin/catalog/categories:
+    $ref: paths/admin-catalog-categories.yaml
+  /admin/catalog/categories/{resourceId}:
+    $ref: paths/admin-catalog-category.yaml
+  /admin/catalog/products:
+    $ref: paths/admin-catalog-products.yaml
+  /admin/catalog/products/{resourceId}:
+    $ref: paths/admin-catalog-product.yaml
+  /admin/catalog/products/{resourceId}/{transition}:
+    $ref: paths/admin-catalog-product-transition.yaml
+  /admin/catalog/products/{resourceId}/variants:
+    $ref: paths/admin-catalog-product-variants.yaml
+  /admin/catalog/products/{resourceId}/variants/{variantId}:
+    $ref: paths/admin-catalog-product-variant.yaml
+  /admin/catalog/products/{resourceId}/media:
+    $ref: paths/admin-catalog-product-media.yaml
+  /admin/catalog/products/{resourceId}/media/uploads:
+    $ref: paths/admin-catalog-product-media-uploads.yaml
+  /admin/catalog/products/{resourceId}/media/{mediaId}:
+    $ref: paths/admin-catalog-product-media-item.yaml
+  /admin/catalog/collections:
+    $ref: paths/admin-catalog-collections.yaml
+  /admin/catalog/collections/{resourceId}:
+    $ref: paths/admin-catalog-collection.yaml
+  /admin/catalog/collections/{resourceId}/products:
+    $ref: paths/admin-catalog-collection-products.yaml
+  /inventory/availability:
+    $ref: paths/inventory-availability.yaml
+  /admin/inventory/balances/{variantId}:
+    $ref: paths/admin-inventory-balance.yaml
+  /admin/inventory/balances/{variantId}/receipts:
+    $ref: paths/admin-inventory-receipts.yaml
+  /admin/inventory/balances/{variantId}/adjustments:
+    $ref: paths/admin-inventory-adjustments.yaml
+components:
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: AMRA_SESSION
+  schemas:
+    ApiRoot:
+      $ref: components/schemas/api-root.yaml
+    ProblemDetails:
+      $ref: components/schemas/problem-details.yaml
+    ValidationViolation:
+      $ref: components/schemas/validation-violation.yaml
+    PageMetadata:
+      $ref: components/schemas/page-metadata.yaml
+    CursorMetadata:
+      $ref: components/schemas/cursor-metadata.yaml
+    CurrentSession:
+      $ref: components/schemas/current-session.yaml
+    CustomerContext:
+      $ref: components/schemas/customer-context.yaml
+    CustomerProfile:
+      $ref: components/schemas/customer-profile.yaml
+    CustomerAddress:
+      $ref: components/schemas/customer-address.yaml
+    UpdateCustomerProfileRequest:
+      $ref: components/schemas/update-customer-profile-request.yaml
+    SaveCustomerAddressRequest:
+      $ref: components/schemas/save-customer-address-request.yaml
+    Cart:
+      $ref: components/schemas/cart.yaml
+    CartItem:
+      $ref: components/schemas/cart-item.yaml
+    CartNotice:
+      $ref: components/schemas/cart-notice.yaml
+    SetCartItemRequest:
+      $ref: components/schemas/set-cart-item-request.yaml
+    StartEmailVerificationRequest:
+      $ref: components/schemas/start-email-verification-request.yaml
+    EmailVerificationChallenge:
+      $ref: components/schemas/email-verification-challenge.yaml
+    VerifyEmailRequest:
+      $ref: components/schemas/verify-email-request.yaml
+    CatalogCategoryNode:
+      $ref: components/schemas/catalog-category-node.yaml
+    CatalogCategoryTree:
+      $ref: components/schemas/catalog-category-tree.yaml
+    CatalogCategorySummary:
+      $ref: components/schemas/catalog-category-summary.yaml
+    CatalogCollectionSummary:
+      $ref: components/schemas/catalog-collection-summary.yaml
+    CatalogMedia:
+      $ref: components/schemas/catalog-media.yaml
+    CatalogAttributeValue:
+      $ref: components/schemas/catalog-attribute-value.yaml
+    CatalogVariantOption:
+      $ref: components/schemas/catalog-variant-option.yaml
+    CatalogProductVariant:
+      $ref: components/schemas/catalog-product-variant.yaml
+    CatalogProductSummary:
+      $ref: components/schemas/catalog-product-summary.yaml
+    CatalogProductPage:
+      $ref: components/schemas/catalog-product-page.yaml
+    CatalogProductDetail:
+      $ref: components/schemas/catalog-product-detail.yaml
+    AdminCategory:
+      $ref: components/schemas/admin-category.yaml
+    CreateCategoryRequest:
+      $ref: components/schemas/create-category-request.yaml
+    UpdateCategoryRequest:
+      $ref: components/schemas/update-category-request.yaml
+    AdminProduct:
+      $ref: components/schemas/admin-product.yaml
+    AdminProductSummary:
+      $ref: components/schemas/admin-product-summary.yaml
+    AdminProductPage:
+      $ref: components/schemas/admin-product-page.yaml
+    AdminCategoryList:
+      $ref: components/schemas/admin-category-list.yaml
+    CreateProductRequest:
+      $ref: components/schemas/create-product-request.yaml
+    UpdateProductRequest:
+      $ref: components/schemas/update-product-request.yaml
+    ProductMerchandising:
+      $ref: components/schemas/product-merchandising.yaml
+    AdminVariant:
+      $ref: components/schemas/admin-variant.yaml
+    CreateVariantRequest:
+      $ref: components/schemas/create-variant-request.yaml
+    UpdateVariantRequest:
+      $ref: components/schemas/update-variant-request.yaml
+    AdminMedia:
+      $ref: components/schemas/admin-media.yaml
+    CreateMediaRequest:
+      $ref: components/schemas/create-media-request.yaml
+    UpdateMediaRequest:
+      $ref: components/schemas/update-media-request.yaml
+    AdminCollection:
+      $ref: components/schemas/admin-collection.yaml
+    CreateCollectionRequest:
+      $ref: components/schemas/create-collection-request.yaml
+    UpdateCollectionRequest:
+      $ref: components/schemas/update-collection-request.yaml
+    UpdateCollectionProductsRequest:
+      $ref: components/schemas/update-collection-products-request.yaml
+    InventoryAvailability:
+      $ref: components/schemas/inventory-availability.yaml
+    InventoryAvailabilityList:
+      $ref: components/schemas/inventory-availability-list.yaml
+    InventoryBalance:
+      $ref: components/schemas/inventory-balance.yaml
+    InventoryMovement:
+      $ref: components/schemas/inventory-movement.yaml
+    InventoryMutationResult:
+      $ref: components/schemas/inventory-mutation-result.yaml
+    ReceiveStockRequest:
+      $ref: components/schemas/receive-stock-request.yaml
+    AdjustStockRequest:
+      $ref: components/schemas/adjust-stock-request.yaml
+    CreateMediaUploadRequest:
+      $ref: components/schemas/create-media-upload-request.yaml
+    MediaUpload:
+      $ref: components/schemas/media-upload.yaml
+    StorefrontBanner:
+      $ref: components/schemas/storefront-banner.yaml
+    StorefrontBannerList:
+      $ref: components/schemas/storefront-banner-list.yaml
+    AdminStorefrontBanner:
+      $ref: components/schemas/admin-storefront-banner.yaml
+    AdminStorefrontBannerList:
+      $ref: components/schemas/admin-storefront-banner-list.yaml
+    SaveStorefrontBannerRequest:
+      $ref: components/schemas/save-storefront-banner-request.yaml
+  parameters:
+    Page:
+      $ref: components/parameters/page.yaml
+    PageSize:
+      $ref: components/parameters/page-size.yaml
+    Sort:
+      $ref: components/parameters/sort.yaml
+    Cursor:
+      $ref: components/parameters/cursor.yaml
+    IdempotencyKey:
+      $ref: components/parameters/idempotency-key.yaml
+    IfMatch:
+      $ref: components/parameters/if-match.yaml
+    CsrfToken:
+      $ref: components/parameters/csrf-token.yaml
+    ResourceId:
+      $ref: components/parameters/resource-id.yaml
+    CatalogPageSize:
+      $ref: components/parameters/catalog-page-size.yaml
+    CategorySlug:
+      $ref: components/parameters/category-slug.yaml
+    CollectionSlug:
+      $ref: components/parameters/collection-slug.yaml
+    CatalogQuery:
+      $ref: components/parameters/catalog-query.yaml
+    NewOnly:
+      $ref: components/parameters/new-only.yaml
+    SizeValues:
+      $ref: components/parameters/size-values.yaml
+    ColorValues:
+      $ref: components/parameters/color-values.yaml
+    CatalogSort:
+      $ref: components/parameters/catalog-sort.yaml
+    VariantIds:
+      $ref: components/parameters/variant-ids.yaml
+    VariantId:
+      $ref: components/parameters/variant-id.yaml
+  headers:
+    ETag:
+      $ref: components/headers/etag.yaml
+    RetryAfter:
+      $ref: components/headers/retry-after.yaml
+    TraceId:
+      $ref: components/headers/trace-id.yaml
+  responses:
+    BadRequest:
+      $ref: components/responses/bad-request.yaml
+    Unauthorized:
+      $ref: components/responses/unauthorized.yaml
+    Forbidden:
+      $ref: components/responses/forbidden.yaml
+    NotFound:
+      $ref: components/responses/not-found.yaml
+    Conflict:
+      $ref: components/responses/conflict.yaml
+    PreconditionFailed:
+      $ref: components/responses/precondition-failed.yaml
+    PreconditionRequired:
+      $ref: components/responses/precondition-required.yaml
+    TooManyRequests:
+      $ref: components/responses/too-many-requests.yaml
+    UnexpectedError:
+      $ref: components/responses/unexpected-error.yaml

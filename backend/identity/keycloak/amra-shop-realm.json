@@ -1,0 +1,111 @@
+{
+  "realm": "amra-shop",
+  "displayName": "Amra Shop",
+  "enabled": true,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": false,
+  "verifyEmail": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      { "name": "CUSTOMER" },
+      { "name": "CATALOG_MANAGER" },
+      { "name": "ORDER_MANAGER" },
+      { "name": "WAREHOUSE_MANAGER" },
+      { "name": "SUPPORT" },
+      { "name": "ADMIN" }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "dev-admin@amra.local",
+      "firstName": "Local",
+      "lastName": "Administrator",
+      "realmRoles": ["ADMIN"],
+      "credentials": [{"type": "password", "value": "admin", "temporary": false}]
+    },
+    {
+      "username": "catalog-manager",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "catalog-manager@amra.local",
+      "firstName": "Catalog",
+      "lastName": "Manager",
+      "realmRoles": ["CATALOG_MANAGER"],
+      "credentials": [{"type": "password", "value": "amra-local", "temporary": false}]
+    },
+    {
+      "username": "warehouse-manager",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "warehouse-manager@amra.local",
+      "firstName": "Warehouse",
+      "lastName": "Manager",
+      "realmRoles": ["WAREHOUSE_MANAGER"],
+      "credentials": [{"type": "password", "value": "amra-local", "temporary": false}]
+    },
+    {
+      "username": "amra-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@amra.local",
+      "firstName": "Amra",
+      "lastName": "Admin",
+      "realmRoles": ["ADMIN"],
+      "credentials": [{"type": "password", "value": "amra-local", "temporary": false}]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "amra-backend",
+      "name": "Amra backend browser session",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "${AMRA_OIDC_CLIENT_SECRET}",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": false,
+      "redirectUris": [
+        "http://localhost:8080/login/oauth2/code/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost:3001"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:3001/*",
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "email"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+spring:
+  application:
+    name: amra-merch-market-backend
+  datasource:
+    url: ${AMRA_DB_URL:jdbc:postgresql://localhost:5432/amra_market?currentSchema=amra_shop&ApplicationName=amra-merch-market-backend}
+    username: ${AMRA_DB_USER:amra_runtime}
+    password: ${AMRA_DB_PASSWORD}
+    hikari:
+      schema: amra_shop
+      maximum-pool-size: ${AMRA_DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${AMRA_DB_POOL_MIN_IDLE:2}
+      connection-timeout: 2000
+      validation-timeout: 1000
+      max-lifetime: 1800000
+  flyway:
+    url: ${AMRA_DB_MIGRATION_URL:${spring.datasource.url}}
+    user: ${AMRA_DB_MIGRATION_USER:amra_migrator}
+    password: ${AMRA_DB_MIGRATION_PASSWORD}
+    default-schema: amra_shop
+    schemas: amra_shop
+    create-schemas: false
+    clean-disabled: true
+    validate-migration-naming: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: amra_shop
+        jdbc:
+          time_zone: UTC
+  threads:
+    virtual:
+      enabled: true
+  session:
+    timeout: 30m
+    jdbc:
+      initialize-schema: never
+      table-name: amra_shop.http_sessions
+      cleanup-cron: "0 */5 * * * *"
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: ${AMRA_OIDC_CLIENT_ID:amra-backend}
+            client-secret: ${AMRA_OIDC_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid,profile,email
+        provider:
+          keycloak:
+            authorization-uri: ${AMRA_OIDC_AUTHORIZATION_URI:http://localhost:8081/realms/amra-shop/protocol/openid-connect/auth}
+            token-uri: ${AMRA_OIDC_TOKEN_URI:http://localhost:8081/realms/amra-shop/protocol/openid-connect/token}
+            jwk-set-uri: ${AMRA_OIDC_JWK_SET_URI:http://localhost:8081/realms/amra-shop/protocol/openid-connect/certs}
+            user-info-uri: ${AMRA_OIDC_USER_INFO_URI:http://localhost:8081/realms/amra-shop/protocol/openid-connect/userinfo}
+            user-name-attribute: sub
+
+server:
+  servlet:
+    session:
+      cookie:
+        name: AMRA_SESSION
+        http-only: true
+        secure: ${AMRA_SESSION_COOKIE_SECURE:true}
+        same-site: lax
+
+amra:
+  customer:
+    phone-auth:
+      expose-development-code: ${AMRA_CUSTOMER_PHONE_AUTH_EXPOSE_DEVELOPMENT_CODE:false}
+  inventory:
+    expiry:
+      enabled: ${AMRA_INVENTORY_EXPIRY_ENABLED:true}
+      scan-interval: ${AMRA_INVENTORY_EXPIRY_SCAN_INTERVAL:5s}
+      lease-duration: ${AMRA_INVENTORY_EXPIRY_LEASE_DURATION:30s}
+      batch-size: ${AMRA_INVENTORY_EXPIRY_BATCH_SIZE:100}
+      instance-id: ${AMRA_INSTANCE_ID:${random.uuid}}
+  catalog:
+    media:
+      public-base-url: ${AMRA_CATALOG_MEDIA_BASE_URL:https://cdn.amra-shop.invalid/media/}
+      storage:
+        endpoint: ${AMRA_S3_ENDPOINT:http://localhost:9000}
+        upload-endpoint: ${AMRA_S3_UPLOAD_ENDPOINT:${AMRA_S3_ENDPOINT:http://localhost:9000}}
+        access-key: ${AMRA_S3_ACCESS_KEY:amra-local}
+        secret-key: ${AMRA_S3_SECRET_KEY:amra-local-secret}
+        region: ${AMRA_S3_REGION:us-east-1}
+        bucket: ${AMRA_S3_BUCKET:amra-catalog}
+        upload-ttl: ${AMRA_S3_UPLOAD_TTL:15m}
+        max-size: ${AMRA_S3_MAX_SIZE:10485760}
+  security:
+    allowed-origins: ${AMRA_CORS_ALLOWED_ORIGINS:http://localhost:3001}
+    login-success-url: ${AMRA_LOGIN_SUCCESS_URL:http://localhost:3001/admin}
+    customer-idle-timeout: 30m
+    customer-absolute-timeout: 30d
+    admin-idle-timeout: 15m
+    admin-absolute-timeout: 8h
+    admin-mfa-acr-values: ${AMRA_ADMIN_MFA_ACR_VALUES:2}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,60 @@
+type: object
+description: Detailed published product representation for the product dialog or page.
+required:
+  - id
+  - slug
+  - name
+  - shortDescription
+  - description
+  - categories
+  - collections
+  - characteristics
+  - media
+  - variants
+  - publishedAt
+properties:
+  id:
+    type: string
+    format: uuid
+  slug:
+    type: string
+    pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+    maxLength: 120
+  name:
+    type: string
+    minLength: 1
+    maxLength: 200
+  shortDescription:
+    type: string
+    minLength: 1
+    maxLength: 500
+  description:
+    type: string
+    minLength: 1
+    maxLength: 10000
+  categories:
+    type: array
+    minItems: 1
+    items:
+      $ref: catalog-category-summary.yaml
+  collections:
+    type: array
+    items:
+      $ref: catalog-collection-summary.yaml
+  characteristics:
+    type: array
+    items:
+      $ref: catalog-attribute-value.yaml
+  media:
+    type: array
+    minItems: 1
+    items:
+      $ref: catalog-media.yaml
+  variants:
+    type: array
+    minItems: 1
+    items:
+      $ref: catalog-product-variant.yaml
+  publishedAt:
+    type: string
+    format: date-time

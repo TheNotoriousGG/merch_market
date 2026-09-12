@@ -1,0 +1,55 @@
+patch:
+  tags: [Catalog administration]
+  summary: Update product media presentation metadata
+  operationId: updateCatalogProductMedia
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/resource-id.yaml}
+    - name: mediaId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content: {application/json: {schema: {$ref: ../components/schemas/update-media-request.yaml}}}
+  responses:
+    "200":
+      description: Updated media metadata.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-media.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "412": {$ref: ../components/responses/precondition-failed.yaml}
+    "428": {$ref: ../components/responses/precondition-required.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}
+delete:
+  tags: [Catalog administration]
+  summary: Delete product media
+  operationId: deleteCatalogProductMedia
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/resource-id.yaml}
+    - name: mediaId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  responses:
+    "204":
+      description: Media deleted.
+      headers: {X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "412": {$ref: ../components/responses/precondition-failed.yaml}
+    "428": {$ref: ../components/responses/precondition-required.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

@@ -1,0 +1,4 @@
+type: object
+required: [code]
+properties:
+  code: {type: string, pattern: '^[0-9]{6}$'}

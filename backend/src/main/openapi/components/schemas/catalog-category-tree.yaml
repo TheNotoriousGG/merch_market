@@ -1,0 +1,9 @@
+type: object
+description: Visible category hierarchy used by the megabar and catalog navigation.
+required:
+  - categories
+properties:
+  categories:
+    type: array
+    items:
+      $ref: catalog-category-node.yaml

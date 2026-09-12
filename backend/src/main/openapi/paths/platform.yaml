@@ -1,0 +1,18 @@
+get:
+  tags:
+    - Platform
+  summary: Discover API metadata
+  description: Returns stable metadata for clients integrating with this API major version.
+  operationId: getApiRoot
+  responses:
+    "200":
+      description: API metadata returned successfully.
+      headers:
+        X-Trace-Id:
+          $ref: ../components/headers/trace-id.yaml
+      content:
+        application/json:
+          schema:
+            $ref: ../openapi.yaml#/components/schemas/ApiRoot
+    "500":
+      $ref: ../components/responses/unexpected-error.yaml

@@ -1,0 +1,8 @@
+name: collection
+in: query
+required: false
+description: Canonical public collection slug.
+schema:
+  type: string
+  pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+  maxLength: 120

@@ -1,0 +1,198 @@
+include:
+  - template: Jobs/Dependency-Scanning.v2.gitlab-ci.yml
+    inputs:
+      stage: security
+      allow_failure: false
+      resolution_jobs_allow_failure: false
+      disabled_resolution_jobs: gradle
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+  - template: Jobs/Container-Scanning.gitlab-ci.yml
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+      when: never
+    - if: "$CI_COMMIT_BRANCH"
+    - if: "$CI_COMMIT_TAG"
+
+stages:
+  - lint
+  - test
+  - integration
+  - build
+  - container
+  - security
+  - smoke
+
+variables:
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle-user-home"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.logging.stacktrace=all"
+  AST_ENABLE_MR_PIPELINES: "true"
+  GIT_DEPTH: "0"
+  CS_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+  CS_DISABLE_LANGUAGE_VULNERABILITY_SCAN: "false"
+
+default:
+  interruptible: true
+
+.gradle-job:
+  image:
+    name: "gradle:9.6.1-jdk25-ubi10@sha256:f28ea16270b96c12c3b3f6a6f1ea206e8e6f8e7aa3d1297f4974975ea6da874b"
+  cache:
+    key:
+      files:
+        - gradle.lockfile
+        - gradle/wrapper/gradle-wrapper.properties
+    paths:
+      - .gradle-user-home/caches/
+      - .gradle-user-home/wrapper/
+    policy: pull-push
+
+format-and-static-analysis:
+  extends: .gradle-job
+  stage: lint
+  script:
+    - ./gradlew spotlessCheck checkstyleMain checkstyleTest compileJava compileTestJava javadoc --no-daemon
+
+container-definition-lint:
+  stage: lint
+  image:
+    name: "hadolint/hadolint:v2.15.1-debian@sha256:9a3944b7fddcb947d1ffd90829ac1a6e5c30479223358f249d8b96c7d0019e27"
+    entrypoint: [""]
+  cache: []
+  script:
+    - hadolint Dockerfile
+    - sh ci/verify-supply-chain.sh
+
+unit-and-architecture-tests:
+  extends: .gradle-job
+  stage: test
+  script:
+    - ./gradlew test jacocoTestReport jacocoTestCoverageVerification --no-daemon
+  artifacts:
+    when: always
+    expire_in: 14 days
+    paths:
+      - build/reports/tests/test/
+      - build/reports/jacoco/test/
+    reports:
+      junit: build/test-results/test/TEST-*.xml
+      coverage_report:
+        coverage_format: jacoco
+        path: build/reports/jacoco/test/jacocoTestReport.xml
+
+mutation-tests:
+  extends: .gradle-job
+  stage: test
+  script:
+    - ./gradlew pitest --no-daemon
+  artifacts:
+    when: always
+    expire_in: 14 days
+    paths:
+      - build/reports/pitest/
+
+integration-tests:
+  extends: .gradle-job
+  stage: integration
+  script:
+    - ./gradlew integrationTest --no-daemon
+  rules:
+    - exists:
+        - src/integrationTest/**/*.java
+
+package-application:
+  extends: .gradle-job
+  stage: build
+  script:
+    - ./gradlew bootJar --no-daemon
+    - sha256sum build/libs/application.jar > build/libs/application.jar.sha256
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build/libs/application.jar
+      - build/libs/application.jar.sha256
+
+container-build:
+  stage: container
+  image:
+    name: "moby/buildkit:v0.30.0-rootless@sha256:d76eb1caecac5733ef7553c1e90a1b21f1bb218cd1142d3553de0747b4a14ba9"
+    entrypoint: [""]
+  needs:
+    - job: package-application
+      artifacts: true
+  cache: []
+  variables:
+    BUILDKITD_FLAGS: "--oci-worker-no-process-sandbox"
+  before_script:
+    - mkdir -p "$HOME/.docker"
+    - printf '{"auths":{"%s":{"username":"%s","password":"%s"}}}' "$CI_REGISTRY" "$CI_REGISTRY_USER" "$CI_REGISTRY_PASSWORD" > "$HOME/.docker/config.json"
+  script:
+    - |
+      version="${CI_COMMIT_TAG:-$CI_COMMIT_SHORT_SHA}"
+      buildctl-daemonless.sh build \
+        --frontend dockerfile.v0 \
+        --local context=. \
+        --local dockerfile=. \
+        --opt "build-arg:BUILD_CREATED=$CI_COMMIT_TIMESTAMP" \
+        --opt "build-arg:VCS_REF=$CI_COMMIT_SHA" \
+        --opt "build-arg:VCS_URL=$CI_PROJECT_URL" \
+        --opt "build-arg:VERSION=$version" \
+        --opt attest:provenance=mode=max \
+        --opt attest:sbom= \
+        --metadata-file image-metadata.json \
+        --output "type=image,name=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA,push=true"
+    - |
+      image_digest="$(sed -n 's/.*"containerimage.digest"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' image-metadata.json)"
+      test -n "$image_digest"
+      printf 'IMAGE_DIGEST=%s\nIMAGE_REFERENCE=%s@%s\n' "$image_digest" "$CI_REGISTRY_IMAGE" "$image_digest" > image.env
+  artifacts:
+    expire_in: 14 days
+    paths:
+      - image-metadata.json
+    reports:
+      dotenv: image.env
+
+.sast-analyzer:
+  stage: security
+  allow_failure: false
+
+dependency-scanning:
+  allow_failure: false
+
+secret_detection:
+  stage: security
+  allow_failure: false
+
+container_scanning:
+  stage: security
+  allow_failure: false
+  needs:
+    - job: container-build
+
+container-smoke:
+  stage: smoke
+  image:
+    name: "curlimages/curl:8.16.0@sha256:463eaf6072688fe96ac64fa623fe73e1dbe25d8ad6c34404a669ad3ce1f104b6"
+    entrypoint: [""]
+  services:
+    - name: "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+      alias: application
+  cache: []
+  script:
+    - |
+      attempt=0
+      until curl --fail --silent --show-error http://application:8080/actuator/health > health.json; do
+        attempt=$((attempt + 1))
+        if [ "$attempt" -ge 30 ]; then
+          exit 1
+        fi
+        sleep 1
+      done
+    - grep -q '"status":"UP"' health.json
+  artifacts:
+    expire_in: 14 days
+    paths:
+      - health.json

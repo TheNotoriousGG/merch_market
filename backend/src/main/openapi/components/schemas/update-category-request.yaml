@@ -1,0 +1,13 @@
+type: object
+description: Partial category command. At least one property is required.
+additionalProperties: false
+minProperties: 1
+properties:
+  parentId: {type: string, format: uuid, nullable: true}
+  clearParent:
+    type: boolean
+    description: Moves the category to the root; cannot be combined with parentId.
+  slug: {type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 120}
+  name: {type: string, minLength: 1, maxLength: 160}
+  displayOrder: {type: integer, format: int32, minimum: 0}
+  status: {type: string, enum: [ACTIVE, HIDDEN, ARCHIVED]}

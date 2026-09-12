@@ -1,0 +1,17 @@
+type: object
+description: A single invalid input location.
+required:
+  - field
+  - code
+properties:
+  field:
+    type: string
+    description: JSON field or request parameter path.
+  code:
+    type: string
+    pattern: '^[A-Z][A-Z0-9_]*$'
+    description: Stable validation code.
+  parameters:
+    type: object
+    additionalProperties:
+      type: string

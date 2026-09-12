@@ -1,0 +1,5 @@
+description: Seconds the client should wait before retrying.
+schema:
+  type: integer
+  format: int32
+  minimum: 1

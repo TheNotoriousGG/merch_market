@@ -1,0 +1,8 @@
+description: If-Match is required for this mutation.
+headers:
+  X-Trace-Id:
+    $ref: ../headers/trace-id.yaml
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/problem-details.yaml

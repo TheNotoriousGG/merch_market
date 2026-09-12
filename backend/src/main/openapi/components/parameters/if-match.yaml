@@ -1,0 +1,7 @@
+name: If-Match
+in: header
+required: true
+description: Strong entity tag obtained from the latest representation.
+schema:
+  type: string
+  pattern: '^"[^"\\r\\n]+"$'

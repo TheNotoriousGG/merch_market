@@ -1,0 +1,6 @@
+type: object
+required: [variantId, code, message]
+properties:
+  variantId: {type: string, format: uuid}
+  code: {type: string, enum: [PRICE_CHANGED, OUT_OF_STOCK, QUANTITY_REDUCED, UNAVAILABLE]}
+  message: {type: string}

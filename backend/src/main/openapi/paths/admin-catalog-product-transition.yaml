@@ -1,0 +1,30 @@
+post:
+  tags: [Catalog administration]
+  summary: Publish or archive a product
+  description: Requires CATALOG_MANAGER or ADMIN authority, verified MFA, and a valid lifecycle transition.
+  operationId: transitionCatalogProduct
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/resource-id.yaml}
+    - name: transition
+      in: path
+      required: true
+      schema: {type: string, enum: [publish, archive, restore]}
+    - {$ref: ../components/parameters/if-match.yaml}
+    - {$ref: ../components/parameters/idempotency-key.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  responses:
+    "200":
+      description: Product after the lifecycle transition.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-product.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "404": {$ref: ../components/responses/not-found.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "412": {$ref: ../components/responses/precondition-failed.yaml}
+    "428": {$ref: ../components/responses/precondition-required.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

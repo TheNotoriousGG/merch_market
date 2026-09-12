@@ -1,0 +1,8 @@
+description: The authenticated identity lacks a required permission or MFA assurance level.
+headers:
+  X-Trace-Id:
+    $ref: ../headers/trace-id.yaml
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/problem-details.yaml

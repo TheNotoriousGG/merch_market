@@ -1,0 +1,27 @@
+get:
+  tags: [Catalog]
+  summary: List published catalog products
+  description: Returns catalog-owned data only; pricing and availability are composed by later modules.
+  operationId: getCatalogProducts
+  parameters:
+    - {$ref: ../components/parameters/page.yaml}
+    - {$ref: ../components/parameters/catalog-page-size.yaml}
+    - {$ref: ../components/parameters/category-slug.yaml}
+    - {$ref: ../components/parameters/collection-slug.yaml}
+    - {$ref: ../components/parameters/catalog-query.yaml}
+    - {$ref: ../components/parameters/new-only.yaml}
+    - {$ref: ../components/parameters/size-values.yaml}
+    - {$ref: ../components/parameters/color-values.yaml}
+    - {$ref: ../components/parameters/catalog-sort.yaml}
+  responses:
+    "200":
+      description: Page of published products, including exact totals.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content:
+        application/json:
+          schema: {$ref: ../components/schemas/catalog-product-page.yaml}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "429": {$ref: ../components/responses/too-many-requests.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

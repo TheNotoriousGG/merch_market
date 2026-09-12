@@ -1,0 +1,51 @@
+post:
+  tags: [Catalog administration]
+  summary: Create a hidden catalog category
+  description: Requires CATALOG_MANAGER or ADMIN authority and a verified MFA claim.
+  operationId: createCatalogCategory
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/idempotency-key.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema: {$ref: ../components/schemas/create-category-request.yaml}
+  responses:
+    "201":
+      description: Category created.
+      headers:
+        ETag: {$ref: ../components/headers/etag.yaml}
+        Location: {description: Administrative category URL., schema: {type: string, format: uri-reference}}
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content:
+        application/json:
+          schema: {$ref: ../components/schemas/admin-category.yaml}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}
+    "429": {$ref: ../components/responses/too-many-requests.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}
+get:
+  tags: [Catalog administration]
+  summary: List the administrative category tree
+  operationId: listAdminCatalogCategories
+  security: [{SessionCookie: []}]
+  parameters:
+    - name: q
+      in: query
+      schema: {type: string, minLength: 1, maxLength: 160}
+    - name: status
+      in: query
+      schema: {type: string, enum: [ACTIVE, HIDDEN, ARCHIVED]}
+  responses:
+    "200":
+      description: Administrative categories in stable tree order.
+      headers: {X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}}
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-category-list.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

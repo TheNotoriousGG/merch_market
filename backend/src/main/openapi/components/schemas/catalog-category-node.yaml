@@ -1,0 +1,28 @@
+type: object
+description: A visible category node ordered for storefront navigation.
+required:
+  - id
+  - slug
+  - name
+  - displayOrder
+  - children
+properties:
+  id:
+    type: string
+    format: uuid
+  slug:
+    type: string
+    pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+    maxLength: 120
+  name:
+    type: string
+    minLength: 1
+    maxLength: 160
+  displayOrder:
+    type: integer
+    format: int32
+    minimum: 0
+  children:
+    type: array
+    items:
+      $ref: catalog-category-node.yaml

@@ -1,0 +1,4 @@
+type: object
+properties:
+  displayName: {type: string, nullable: true, maxLength: 120}
+  email: {type: string, format: email, nullable: true, maxLength: 320}

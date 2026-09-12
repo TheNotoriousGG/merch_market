@@ -1,0 +1,16 @@
+get:
+  tags: [Inventory]
+  summary: Read public availability for a batch of catalog variants
+  description: Missing balances and unknown identifiers are returned as OUT_OF_STOCK; exact quantities are never public.
+  operationId: getInventoryAvailability
+  parameters:
+    - {$ref: ../components/parameters/variant-ids.yaml}
+  responses:
+    "200":
+      description: Point-in-time availability in de-duplicated request order.
+      headers:
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content: {application/json: {schema: {$ref: ../components/schemas/inventory-availability-list.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "429": {$ref: ../components/responses/too-many-requests.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

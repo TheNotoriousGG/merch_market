@@ -1,0 +1,17 @@
+type: object
+additionalProperties: false
+required: [internalName, eyebrow, title, description, buttonLabel, targetType, targetValue, status, displayOrder]
+properties:
+  internalName: {type: string, minLength: 1, maxLength: 160}
+  eyebrow: {type: string, minLength: 1, maxLength: 80}
+  title: {type: string, minLength: 1, maxLength: 160}
+  description: {type: string, minLength: 1, maxLength: 300}
+  buttonLabel: {type: string, minLength: 1, maxLength: 80}
+  targetType: {type: string, enum: [CATEGORY, SUBCATEGORY, COLLECTION, SALE, URL]}
+  targetValue: {type: string, minLength: 1, maxLength: 500}
+  desktopObjectKey: {type: string, maxLength: 512, nullable: true}
+  mobileObjectKey: {type: string, maxLength: 512, nullable: true}
+  status: {type: string, enum: [DRAFT, PUBLISHED, ARCHIVED]}
+  displayOrder: {type: integer, format: int32, minimum: 0}
+  startsAt: {type: string, format: date-time, nullable: true}
+  endsAt: {type: string, format: date-time, nullable: true}
