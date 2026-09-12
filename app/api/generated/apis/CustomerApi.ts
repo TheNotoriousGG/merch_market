@@ -34,6 +34,11 @@ import {
     CustomerProfileToJSON,
 } from '../models/CustomerProfile';
 import {
+    type EmailVerificationChallenge,
+    EmailVerificationChallengeFromJSON,
+    EmailVerificationChallengeToJSON,
+} from '../models/EmailVerificationChallenge';
+import {
     type ProblemDetails,
     ProblemDetailsFromJSON,
     ProblemDetailsToJSON,
@@ -49,10 +54,20 @@ import {
     SetCartItemRequestToJSON,
 } from '../models/SetCartItemRequest';
 import {
+    type StartEmailVerificationRequest,
+    StartEmailVerificationRequestFromJSON,
+    StartEmailVerificationRequestToJSON,
+} from '../models/StartEmailVerificationRequest';
+import {
     type UpdateCustomerProfileRequest,
     UpdateCustomerProfileRequestFromJSON,
     UpdateCustomerProfileRequestToJSON,
 } from '../models/UpdateCustomerProfileRequest';
+import {
+    type VerifyEmailRequest,
+    VerifyEmailRequestFromJSON,
+    VerifyEmailRequestToJSON,
+} from '../models/VerifyEmailRequest';
 
 export interface AddFavoriteRequest {
     productId: string;
@@ -92,9 +107,20 @@ export interface SetCartItemOperationRequest {
     setCartItemRequest: SetCartItemRequest;
 }
 
+export interface StartEmailVerificationOperationRequest {
+    xAMRACSRF: string;
+    startEmailVerificationRequest: StartEmailVerificationRequest;
+}
+
 export interface UpdateCustomerProfileOperationRequest {
     xAMRACSRF: string;
     updateCustomerProfileRequest: UpdateCustomerProfileRequest;
+}
+
+export interface VerifyCustomerEmailRequest {
+    challengeId: string;
+    xAMRACSRF: string;
+    verifyEmailRequest: VerifyEmailRequest;
 }
 
 /**
@@ -333,6 +359,31 @@ export interface CustomerApiInterface {
     setCartItem(requestParameters: SetCartItemOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Cart>;
 
     /**
+     * Creates request options for startEmailVerification without sending the request
+     * @param {string} xAMRACSRF CSRF token copied from the non-secret AMRA_CSRF cookie.
+     * @param {StartEmailVerificationRequest} startEmailVerificationRequest
+     * @throws {RequiredError}
+     * @memberof CustomerApiInterface
+     */
+    startEmailVerificationRequestOpts(requestParameters: StartEmailVerificationOperationRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     *
+     * @summary Send a verification code to the authenticated customer\'s email
+     * @param {string} xAMRACSRF CSRF token copied from the non-secret AMRA_CSRF cookie.
+     * @param {StartEmailVerificationRequest} startEmailVerificationRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CustomerApiInterface
+     */
+    startEmailVerificationRaw(requestParameters: StartEmailVerificationOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EmailVerificationChallenge>>;
+
+    /**
+     * Send a verification code to the authenticated customer\'s email
+     */
+    startEmailVerification(requestParameters: StartEmailVerificationOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EmailVerificationChallenge>;
+
+    /**
      * Creates request options for updateCustomerProfile without sending the request
      * @param {string} xAMRACSRF CSRF token copied from the non-secret AMRA_CSRF cookie.
      * @param {UpdateCustomerProfileRequest} updateCustomerProfileRequest
@@ -356,6 +407,33 @@ export interface CustomerApiInterface {
      * Update profile fields; changing email resets verification
      */
     updateCustomerProfile(requestParameters: UpdateCustomerProfileOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CustomerProfile>;
+
+    /**
+     * Creates request options for verifyCustomerEmail without sending the request
+     * @param {string} challengeId
+     * @param {string} xAMRACSRF CSRF token copied from the non-secret AMRA_CSRF cookie.
+     * @param {VerifyEmailRequest} verifyEmailRequest
+     * @throws {RequiredError}
+     * @memberof CustomerApiInterface
+     */
+    verifyCustomerEmailRequestOpts(requestParameters: VerifyCustomerEmailRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     *
+     * @summary Confirm the authenticated customer\'s email code
+     * @param {string} challengeId
+     * @param {string} xAMRACSRF CSRF token copied from the non-secret AMRA_CSRF cookie.
+     * @param {VerifyEmailRequest} verifyEmailRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CustomerApiInterface
+     */
+    verifyCustomerEmailRaw(requestParameters: VerifyCustomerEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CustomerProfile>>;
+
+    /**
+     * Confirm the authenticated customer\'s email code
+     */
+    verifyCustomerEmail(requestParameters: VerifyCustomerEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CustomerProfile>;
 
 }
 
@@ -885,6 +963,64 @@ export class CustomerApi extends runtime.BaseAPI implements CustomerApiInterface
     }
 
     /**
+     * Creates request options for startEmailVerification without sending the request
+     */
+    async startEmailVerificationRequestOpts(requestParameters: StartEmailVerificationOperationRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['xAMRACSRF'] == null) {
+            throw new runtime.RequiredError(
+                'xAMRACSRF',
+                'Required parameter "xAMRACSRF" was null or undefined when calling startEmailVerification().'
+            );
+        }
+
+        if (requestParameters['startEmailVerificationRequest'] == null) {
+            throw new runtime.RequiredError(
+                'startEmailVerificationRequest',
+                'Required parameter "startEmailVerificationRequest" was null or undefined when calling startEmailVerification().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['xAMRACSRF'] != null) {
+            headerParameters['X-AMRA-CSRF'] = String(requestParameters['xAMRACSRF']);
+        }
+
+
+        let urlPath = `/customer/email-verification`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: StartEmailVerificationRequestToJSON(requestParameters['startEmailVerificationRequest']),
+        };
+    }
+
+    /**
+     * Send a verification code to the authenticated customer\'s email
+     */
+    async startEmailVerificationRaw(requestParameters: StartEmailVerificationOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EmailVerificationChallenge>> {
+        const requestOptions = await this.startEmailVerificationRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => EmailVerificationChallengeFromJSON(jsonValue));
+    }
+
+    /**
+     * Send a verification code to the authenticated customer\'s email
+     */
+    async startEmailVerification(requestParameters: StartEmailVerificationOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EmailVerificationChallenge> {
+        const response = await this.startEmailVerificationRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for updateCustomerProfile without sending the request
      */
     async updateCustomerProfileRequestOpts(requestParameters: UpdateCustomerProfileOperationRequest): Promise<runtime.RequestOpts> {
@@ -939,6 +1075,72 @@ export class CustomerApi extends runtime.BaseAPI implements CustomerApiInterface
      */
     async updateCustomerProfile(requestParameters: UpdateCustomerProfileOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CustomerProfile> {
         const response = await this.updateCustomerProfileRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for verifyCustomerEmail without sending the request
+     */
+    async verifyCustomerEmailRequestOpts(requestParameters: VerifyCustomerEmailRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['challengeId'] == null) {
+            throw new runtime.RequiredError(
+                'challengeId',
+                'Required parameter "challengeId" was null or undefined when calling verifyCustomerEmail().'
+            );
+        }
+
+        if (requestParameters['xAMRACSRF'] == null) {
+            throw new runtime.RequiredError(
+                'xAMRACSRF',
+                'Required parameter "xAMRACSRF" was null or undefined when calling verifyCustomerEmail().'
+            );
+        }
+
+        if (requestParameters['verifyEmailRequest'] == null) {
+            throw new runtime.RequiredError(
+                'verifyEmailRequest',
+                'Required parameter "verifyEmailRequest" was null or undefined when calling verifyCustomerEmail().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['xAMRACSRF'] != null) {
+            headerParameters['X-AMRA-CSRF'] = String(requestParameters['xAMRACSRF']);
+        }
+
+
+        let urlPath = `/customer/email-verification/{challengeId}`;
+        urlPath = urlPath.replace('{challengeId}', encodeURIComponent(String(requestParameters['challengeId'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: VerifyEmailRequestToJSON(requestParameters['verifyEmailRequest']),
+        };
+    }
+
+    /**
+     * Confirm the authenticated customer\'s email code
+     */
+    async verifyCustomerEmailRaw(requestParameters: VerifyCustomerEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CustomerProfile>> {
+        const requestOptions = await this.verifyCustomerEmailRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => CustomerProfileFromJSON(jsonValue));
+    }
+
+    /**
+     * Confirm the authenticated customer\'s email code
+     */
+    async verifyCustomerEmail(requestParameters: VerifyCustomerEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CustomerProfile> {
+        const response = await this.verifyCustomerEmailRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

@@ -1,3 +1,6 @@
+import type { CustomerProfile, SaveCustomerAddressRequest } from "../api/generated";
+import { cookie as browserCookie, customerApi } from "../api/client";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1";
 
 export type CustomerAccount = { id:string; phone:string; displayName?:string|null };
@@ -37,5 +40,12 @@ export const removeCustomerAddress = (resourceId: string) => customerApi.deleteC
   resourceId,
   xAMRACSRF: browserCookie("AMRA_CSRF") || "browser-csrf-token",
 });
-import type { CustomerProfile, SaveCustomerAddressRequest } from "../api/generated";
-import { cookie as browserCookie, customerApi } from "../api/client";
+export const startEmailVerification = (email: string) => customerApi.startEmailVerification({
+  xAMRACSRF: browserCookie("AMRA_CSRF") || "browser-csrf-token",
+  startEmailVerificationRequest: { email },
+});
+export const verifyCustomerEmail = (challengeId: string, code: string) => customerApi.verifyCustomerEmail({
+  challengeId,
+  xAMRACSRF: browserCookie("AMRA_CSRF") || "browser-csrf-token",
+  verifyEmailRequest: { code },
+});
