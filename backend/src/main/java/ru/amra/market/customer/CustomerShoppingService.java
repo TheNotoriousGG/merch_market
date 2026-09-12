@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.amra.market.pricing.PricingService;
 
 /** Persistent guest and authenticated shopping state. */
 @Service
@@ -36,15 +37,18 @@ class CustomerShoppingService {
 
     private final NamedParameterJdbcTemplate jdbc;
     private final Clock clock;
+    private final PricingService pricing;
     private final SecureRandom random = new SecureRandom();
     private final boolean secureCookie;
 
     CustomerShoppingService(
             NamedParameterJdbcTemplate jdbc,
             Clock clock,
+            PricingService pricing,
             @Value("${amra.customer.guest-cookie-secure:false}") boolean secureCookie) {
         this.jdbc = jdbc;
         this.clock = clock;
+        this.pricing = pricing;
         this.secureCookie = secureCookie;
     }
 
@@ -199,14 +203,11 @@ class CustomerShoppingService {
     Cart setItem(ShoppingOwner owner, UUID variantId, int quantity, long expectedVersion) {
         var cart = lockCart(owner);
         requireVersion(cart, expectedVersion);
-        var variants = jdbc.query(
-                """
-                select v.id, p.price_minor from catalog_product_variants v
+        var variants = jdbc.query("""
+                select v.id from catalog_product_variants v
                 join catalog_products p on p.id = v.product_id
-                where v.id = :id and v.status = 'ACTIVE' and p.status = 'ACTIVE' and p.price_minor is not null
-                """,
-                Map.of("id", variantId),
-                (result, row) -> new Variant(result.getObject("id", UUID.class), result.getLong("price_minor")));
+                where v.id = :id and v.status = 'ACTIVE' and p.status = 'ACTIVE'
+                """, Map.of("id", variantId), (result, row) -> result.getObject("id", UUID.class));
         if (variants.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Вариант товара недоступен");
         }
@@ -229,7 +230,7 @@ class CustomerShoppingService {
                         "quantity",
                         quantity,
                         "price",
-                        variants.getFirst().price(),
+                        pricing.quote(variantId, variantId, quantity).unitPriceMinor(),
                         "now",
                         now));
         return bumped(cart, owner);
@@ -404,12 +405,11 @@ class CustomerShoppingService {
     }
 
     private Cart loadCart(UUID cartId, long version) {
-        var items = jdbc.query(
+        var rawItems = jdbc.query(
                 """
                 select i.variant_id, v.product_id, p.canonical_slug, p.name, v.label, i.quantity,
-                       coalesce(p.price_minor, i.observed_price_minor, 1) current_price,
                        i.observed_price_minor,
-                       (p.status = 'ACTIVE' and v.status = 'ACTIVE' and p.price_minor is not null
+                       (p.status = 'ACTIVE' and v.status = 'ACTIVE'
                          and coalesce(sum(b.on_hand - b.reserved), 0) >= i.quantity) available
                 from customer_cart_items i
                 join catalog_product_variants v on v.id = i.variant_id
@@ -417,24 +417,24 @@ class CustomerShoppingService {
                 left join inventory_balances b on b.variant_id = v.id
                 where i.cart_id = :cart
                 group by i.variant_id, v.product_id, p.canonical_slug, p.name, v.label, i.quantity,
-                         p.price_minor, i.observed_price_minor, p.status, v.status, i.added_at
+                         i.observed_price_minor, p.status, v.status, i.added_at
                 order by i.added_at, i.variant_id
                 """,
                 Map.of("cart", cartId),
-                (result, row) -> new CartLine(
+                (result, row) -> new RawCartLine(
                         result.getObject("variant_id", UUID.class),
                         result.getObject("product_id", UUID.class),
                         Objects.requireNonNull(result.getString("canonical_slug")),
                         Objects.requireNonNull(result.getString("name")),
                         Objects.requireNonNull(result.getString("label")),
                         result.getInt("quantity"),
-                        result.getLong("current_price"),
                         result.getObject("observed_price_minor", Long.class),
                         result.getBoolean("available")));
+        var items = rawItems.stream().map(this::price).toList();
         var notices = items.stream().flatMap(item -> item.notices().stream()).toList();
         var subtotal = items.stream()
                 .filter(CartLine::available)
-                .mapToLong(item -> item.price() * item.quantity())
+                .mapToLong(CartLine::lineSubtotal)
                 .sum();
         return new Cart(cartId, version, items, subtotal, notices);
     }
@@ -598,6 +598,9 @@ class CustomerShoppingService {
             String label,
             int quantity,
             long price,
+            long lineSubtotal,
+            long discount,
+            @Nullable String promotionName,
             @Nullable Long observedPrice,
             boolean available) {
         List<Notice> notices() {
@@ -614,7 +617,48 @@ class CustomerShoppingService {
 
     record Notice(UUID variantId, String code, String message) {}
 
-    private record CartRecord(UUID id, long version) {}
+    private CartLine price(RawCartLine item) {
+        try {
+            var quote = pricing.quote(item.variantId(), item.variantId(), item.quantity());
+            return new CartLine(
+                    item.variantId(),
+                    item.productId(),
+                    item.slug(),
+                    item.name(),
+                    item.label(),
+                    item.quantity(),
+                    quote.unitPriceMinor(),
+                    quote.totalMinor(),
+                    quote.discountMinor(),
+                    quote.promotion() == null ? null : quote.promotion().name(),
+                    item.observedPrice(),
+                    item.available());
+        } catch (PricingService.PriceUnavailableException exception) {
+            return new CartLine(
+                    item.variantId(),
+                    item.productId(),
+                    item.slug(),
+                    item.name(),
+                    item.label(),
+                    item.quantity(),
+                    item.observedPrice() == null ? 1 : item.observedPrice(),
+                    0,
+                    0,
+                    null,
+                    item.observedPrice(),
+                    false);
+        }
+    }
 
-    private record Variant(UUID id, long price) {}
+    private record RawCartLine(
+            UUID variantId,
+            UUID productId,
+            String slug,
+            String name,
+            String label,
+            int quantity,
+            @Nullable Long observedPrice,
+            boolean available) {}
+
+    private record CartRecord(UUID id, long version) {}
 }

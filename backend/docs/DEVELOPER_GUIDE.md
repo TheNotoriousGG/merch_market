@@ -766,7 +766,7 @@ GitLab activation отложена ADR-0002, но local-only режим не о�
 
 До соответствующих этапов отсутствуют:
 
-- customer profile, favorites/cart, pricing/promotions, ordering/returns;
+- ordering/returns;
 - transactional outbox implementation и real provider adapters;
 - Redis/cache, broker, OpenSearch;
 - production orchestrator и Secret Manager provider;

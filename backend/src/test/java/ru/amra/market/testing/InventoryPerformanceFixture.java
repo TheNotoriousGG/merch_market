@@ -63,6 +63,9 @@ public final class InventoryPerformanceFixture {
     public void clear() {
         jdbc.execute("""
                 truncate table
+                    pricing_promotion_variants,
+                    pricing_promotions,
+                    pricing_base_price_periods,
                     inventory_reservation_command_results,
                     inventory_stock_command_results,
                     inventory_audit_events,

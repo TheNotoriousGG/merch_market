@@ -144,6 +144,9 @@ public final class CatalogPerformanceFixture {
     public void clear() {
         jdbc.execute("""
                 truncate table
+                    pricing_promotion_variants,
+                    pricing_promotions,
+                    pricing_base_price_periods,
                     customer_cart_items,
                     customer_carts,
                     customer_favorites,

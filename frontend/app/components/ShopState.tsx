@@ -21,6 +21,9 @@ export type CartLine = ShopProduct & {
   variantLabel: string;
   quantity: number;
   available: boolean;
+  lineSubtotal: number;
+  discount: number;
+  promotionName?: string;
 };
 
 type ShopContextValue = {
@@ -58,6 +61,9 @@ function toCartLines(payload: Cart, catalog: Map<string, ShopProduct>): CartLine
       variantLabel: line.variantLabel,
       quantity: line.quantity,
       available: line.available,
+      lineSubtotal: line.lineSubtotalMinor / 100,
+      discount: line.discountMinor / 100,
+      promotionName: line.promotionName,
     };
   });
 }

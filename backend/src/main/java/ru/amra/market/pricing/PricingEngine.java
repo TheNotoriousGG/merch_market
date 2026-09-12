@@ -118,7 +118,9 @@ public final class PricingEngine {
             implements Promotion {
         public PercentPromotion {
             variantIds = List.copyOf(variantIds);
-            if (percent < 1 || percent > 90 || !endsAt.isAfter(startsAt)) throw new IllegalArgumentException();
+            if (percent < 1 || percent > 90 || !endsAt.isAfter(startsAt)) {
+                throw new IllegalArgumentException();
+            }
         }
 
         @Override
@@ -140,7 +142,9 @@ public final class PricingEngine {
             implements Promotion {
         public FixedLinePromotion {
             variantIds = List.copyOf(variantIds);
-            if (amountMinor < 1 || !endsAt.isAfter(startsAt)) throw new IllegalArgumentException();
+            if (amountMinor < 1 || !endsAt.isAfter(startsAt)) {
+                throw new IllegalArgumentException();
+            }
         }
 
         @Override

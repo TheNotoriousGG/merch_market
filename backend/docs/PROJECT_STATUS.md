@@ -1,15 +1,15 @@
 # Текущее состояние backend
 
-Обновлено: 12 сентября 2026 года.
+Обновлено: 13 сентября 2026 года.
 
 ## Короткий ответ
 
 | Область | Состояние |
 | --- | --- |
-| Backend stages 0–9 | Завершены локально; этап 9 подготовлен к fast-forward merge |
-| Реализованные product slices | Catalog, Inventory, Customer/Favorites/Cart |
-| Последний закрытый acceptance | 193 tests, OpenAPI compatibility, JaCoCo и frontend Playwright 4/4 |
-| Следующий разрешённый этап | 10. Pricing и promotions |
+| Backend stages 0–10 | Завершены локально; Pricing находится в feature-ветке монорепозитория |
+| Реализованные product slices | Catalog, Inventory, Customer/Favorites/Cart, Pricing/Promotions |
+| Последний закрытый acceptance | 213 tests, OpenAPI compatibility, JaCoCo и frontend production build |
+| Следующий разрешённый этап | 11. Ordering и checkout |
 | Frontend/backend integration | Catalog, banners, profile, addresses, verified email, favorites и cart используют backend/generated client |
 | Production-only решения | platform, Secret Manager, real providers и GitLab activation отложены |
 
@@ -212,6 +212,12 @@ Local full-stack infrastructure acceptance закрыт: отдельный sibl
 Admin Catalog integration по ADR-0008 завершён: paged admin queries, presigned media lifecycle с local MinIO, generated client и frontend admin flow. Управляемый storefront banner slice включает protected CRUD, публикацию/архив, порядок и расписание в PostgreSQL, изображения в MinIO и anonymous read model витрины.
 
 Customer/Favorites/Cart реализован как общий PostgreSQL-backed shopping context: гостевой токен хранится только в виде hash, избранное и корзина детерминированно объединяются после входа, а изменения корзины защищены `ETag`/`If-Match`. Backend повторно проверяет цену и остаток, возвращает понятные notices и очищает истёкшие guest/customer данные ограниченными пакетами. Личный кабинет поддерживает подтверждение email и сохранённые адреса. Frontend отказался от `localStorage` для shopping state и использует generated `CustomerApi`.
+
+Pricing/Promotions завершён: V20 хранит непересекающиеся периоды RUB-цен для SKU,
+percent/fixed-line/multi-buy акции и их targets. Расчёт tax-inclusive, использует
+`HALF_UP`, выбирает одну лучшую акцию и детерминированно распределяет остаток.
+Корзина возвращает сумму и скидку каждой строки; frontend показывает название акции.
+Полный backend gate зелёный: 213 тестов, 90,3% lines и 70,3% branches.
 
 Локальный admin browser flow завершает OIDC-контур: frontend проверяет backend-managed session до показа `/admin`, а конфигурируемый `amra.security.login-success-url` возвращает браузер из backend OAuth callback в административный интерфейс. Авторизация admin API по-прежнему выполняется только backend.
 

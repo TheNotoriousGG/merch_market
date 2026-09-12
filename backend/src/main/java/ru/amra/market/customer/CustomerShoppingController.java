@@ -156,7 +156,7 @@ final class CustomerShoppingController implements CustomerApi {
     }
 
     private static CartItemDto item(CustomerShoppingService.CartLine item) {
-        return new CartItemDto(
+        var dto = new CartItemDto(
                 item.variantId(),
                 item.productId(),
                 item.slug(),
@@ -164,7 +164,11 @@ final class CustomerShoppingController implements CustomerApi {
                 item.label(),
                 item.quantity(),
                 item.price(),
+                item.lineSubtotal(),
+                item.discount(),
                 item.available());
+        dto.setPromotionName(item.promotionName());
+        return dto;
     }
 
     private static CartNoticeDto notice(CustomerShoppingService.Notice notice) {

@@ -49,7 +49,7 @@ test("избранное и корзина восстанавливаются и
     json: {
       id: "01999999-9999-7999-8999-999999999994",
       version: 2,
-      items: [{ variantId, productId, slug: product.slug, name: product.name, variantLabel: "M", quantity: 2, unitPriceMinor: 250000, available: false }],
+      items: [{ variantId, productId, slug: product.slug, name: product.name, variantLabel: "M", quantity: 2, unitPriceMinor: 250000, lineSubtotalMinor: 500000, discountMinor: 0, available: false }],
       subtotalMinor: 0,
       currency: "RUB",
       notices: [{ variantId, code: "OUT_OF_STOCK", message: "Товар временно недоступен" }],

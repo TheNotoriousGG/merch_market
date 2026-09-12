@@ -63,6 +63,24 @@ export interface CartItem {
     unitPriceMinor: number;
     /**
      *
+     * @type {number}
+     * @memberof CartItem
+     */
+    lineSubtotalMinor: number;
+    /**
+     *
+     * @type {number}
+     * @memberof CartItem
+     */
+    discountMinor: number;
+    /**
+     *
+     * @type {string}
+     * @memberof CartItem
+     */
+    promotionName?: string;
+    /**
+     *
      * @type {boolean}
      * @memberof CartItem
      */
@@ -80,6 +98,8 @@ export function instanceOfCartItem(value: object): value is CartItem {
     if (!('variantLabel' in value) || value['variantLabel'] === undefined) return false;
     if (!('quantity' in value) || value['quantity'] === undefined) return false;
     if (!('unitPriceMinor' in value) || value['unitPriceMinor'] === undefined) return false;
+    if (!('lineSubtotalMinor' in value) || value['lineSubtotalMinor'] === undefined) return false;
+    if (!('discountMinor' in value) || value['discountMinor'] === undefined) return false;
     if (!('available' in value) || value['available'] === undefined) return false;
     return true;
 }
@@ -101,6 +121,9 @@ export function CartItemFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         'variantLabel': json['variantLabel'],
         'quantity': json['quantity'],
         'unitPriceMinor': json['unitPriceMinor'],
+        'lineSubtotalMinor': json['lineSubtotalMinor'],
+        'discountMinor': json['discountMinor'],
+        'promotionName': json['promotionName'] == null ? undefined : json['promotionName'],
         'available': json['available'],
     };
 }
@@ -123,6 +146,9 @@ export function CartItemToJSONTyped(value?: CartItem | null, ignoreDiscriminator
         'variantLabel': value['variantLabel'],
         'quantity': value['quantity'],
         'unitPriceMinor': value['unitPriceMinor'],
+        'lineSubtotalMinor': value['lineSubtotalMinor'],
+        'discountMinor': value['discountMinor'],
+        'promotionName': value['promotionName'],
         'available': value['available'],
     };
 }

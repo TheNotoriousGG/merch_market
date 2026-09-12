@@ -2,7 +2,7 @@
 
 Статус: утверждён владельцем проекта 19 августа 2026 года.
 
-Обновлено: 20 августа 2026 года.
+Обновлено: 13 сентября 2026 года.
 
 План состоит из последовательных gates. Следующий этап не начинается, пока критерии выхода предыдущего не выполнены. Временное исключение local-only GitLab activation описано ADR-0002 и не распространяется на release/deployment. Каждый этап после initial commit выполняется в отдельной short-lived feature-ветке и завершается документацией, проверками и logical Conventional Commits.
 
@@ -21,8 +21,9 @@
 | 8. Inventory | Завершён | 12/12, release acceptance и merge в `main` |
 | Admin Catalog integration | Завершён | contract, MinIO media, banners, generated client, admin UI и browser acceptance зелёные |
 | 9. Customer, favorites и cart | Завершён | profile/email/address, guest merge, favorites, cart locking/revalidation и retention готовы |
-| 10. Pricing и promotions | Следующий разрешённый | начинается после merge этапа 9 |
-| 11–15 | Ожидают | начинаются только после gate предыдущего этапа |
+| 10. Pricing и promotions | Завершён | SKU periods, bounded promotions, cart integration и acceptance готовы |
+| 11. Ordering и checkout | Следующий разрешённый | начинается после merge этапа 10 |
+| 12–15 | Ожидают | начинаются только после gate предыдущего этапа |
 
 Параллельное состояние frontend и последовательность замены fixtures зафиксированы в [плане frontend/backend-интеграции](integration/FRONTEND_BACKEND_INTEGRATION_PLAN.md). Владелец отдельно разрешил ограниченный Admin Catalog integration по ADR-0008 до этапа 9; он расширяет готовые Catalog/Inventory contracts и не начинает следующий business module.
 
@@ -189,6 +190,13 @@ bounded retention cleanup, verified email и saved addresses покрыты inte
 - jqwik properties, boundary dates и promotion conflict tests.
 
 Выход: одинаковый input создаёт объяснимый и reproducible pricing result.
+
+Статус: завершён локально 13 сентября 2026 года. Flyway V20 хранит RUB base-price
+periods на уровне SKU и ограниченный набор percent/fixed-line/multi-buy promotions.
+Пересечения цен блокируются в PostgreSQL с transaction advisory lock. Корзина
+использует единый deterministic calculator и возвращает base price, line subtotal,
+discount и выбранную non-stacking promotion. Boundary/conflict/property/integration
+tests входят в полный quality gate.
 
 ## Этап 11. Ordering и checkout
 
