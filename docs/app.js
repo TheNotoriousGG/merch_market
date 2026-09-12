@@ -1,0 +1,6 @@
+document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-tab],.tab').forEach(item=>item.classList.remove('active'));button.classList.add('active');document.getElementById(button.dataset.tab).classList.add('active')}));
+document.querySelector('[data-copy]').addEventListener('click',async event=>{await navigator.clipboard.writeText(event.currentTarget.nextElementSibling.textContent);event.currentTarget.textContent='Готово';setTimeout(()=>event.currentTarget.textContent='Копировать',1200)});
+const checks=[...document.querySelectorAll('#checklist input')],done=document.getElementById('done'),bar=document.getElementById('bar');
+function update(){const count=checks.filter(item=>item.checked).length;done.textContent=count;bar.style.width=`${count/checks.length*100}%`;localStorage.setItem('amra-doc-checks',JSON.stringify(checks.map(item=>item.checked)))}
+try{const saved=JSON.parse(localStorage.getItem('amra-doc-checks')||'[]');checks.forEach((item,index)=>item.checked=Boolean(saved[index]))}catch{}
+checks.forEach(item=>item.addEventListener('change',update));document.getElementById('reset').addEventListener('click',()=>{checks.forEach(item=>item.checked=false);update()});update();
