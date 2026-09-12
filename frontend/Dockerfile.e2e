@@ -1,0 +1,11 @@
+FROM mcr.microsoft.com/playwright:v1.63.0-noble
+
+WORKDIR /application
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci
+COPY . .
+
+ENV PLAYWRIGHT_USE_EXISTING_SERVER=true
+ENV PLAYWRIGHT_BASE_URL=http://frontend:3001
+
+CMD ["npm", "run", "e2e"]
