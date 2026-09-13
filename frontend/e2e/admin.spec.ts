@@ -61,6 +61,10 @@ test("кладовщик видит остатки, приёмку и движе
   await expect(page.getByText("4 ед. будет принято")).toBeVisible();
   await expect(page.getByText("14", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "+ Создать карточку товара" })).toBeVisible();
+  await page.getByRole("button", { name: "Корректировка" }).click();
+  await page.getByRole("combobox", { name: "Товар и вариант" }).fill("Urban");
+  await page.getByRole("option", { name: /Худи Urban Blue/ }).click();
+  await expect(page.getByText("Сейчас на складе:").locator("..")).toContainText("10 шт.");
   await page.getByRole("button", { name: "Движения" }).click();
   await expect(page.getByRole("cell", { name: "Свободная приёмка", exact: true })).toBeVisible();
 });
