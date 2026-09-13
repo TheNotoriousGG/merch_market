@@ -97,6 +97,10 @@ test("покупатель оформляет корзину и получает
   let cartItems = [{ variantId, productId, slug: "amra-checkout", name: "Худи Amra", variantLabel: "L", quantity: 1, unitPriceMinor: 590000, lineSubtotalMinor: 590000, discountMinor: 0, available: true }];
   await page.route("**/api/v1/catalog/products**", route => route.fulfill({ json: { items: [], page: { page: 0, size: 60, totalElements: 0, totalPages: 0 } } }));
   await page.route("**/api/v1/customer/context", route => route.fulfill({ json: { authenticated: false, favoriteProductIds: [] } }));
+  await page.route("**/api/v1/customer/profile", route => route.fulfill({ json: {
+    id: "01999999-9999-7999-8999-999999999980", phone: "+79991234567", displayName: "Анна Амра",
+    email: "buyer@example.com", emailVerified: true, addresses: [{id:"address-home",label:"Дом",recipientName:"Анна Амра",phone:"+79991234567",postalCode:"101000",city:"Москва",street:"Тверская, 1"}],
+  } }));
   await page.route("**/api/v1/customer/cart", route => route.fulfill({ json: { id: "01999999-9999-7999-8999-999999999983", version: cartItems.length ? 4 : 5, items: cartItems, subtotalMinor: cartItems.length ? 590000 : 0, currency: "RUB", notices: [] } }));
   await page.route("**/api/v1/customer/checkout", async route => {
     const request = route.request();
@@ -113,12 +117,8 @@ test("покупатель оформляет корзину и получает
 
   await page.goto("/cart");
   await page.getByRole("link", { name: /Перейти к оформлению/ }).click();
-  await page.getByLabel("Email").fill("buyer@example.com");
-  await page.getByLabel("Имя получателя").fill("Анна Амра");
-  await page.getByLabel("Телефон").fill("+79991234567");
-  await page.getByLabel("Индекс").fill("101000");
-  await page.getByLabel("Город").fill("Москва");
-  await page.getByLabel("Улица и дом").fill("Тверская, 1");
+  await page.getByLabel("Сохранённый адрес").selectOption("address-home");
+  await expect(page.getByLabel("Улица и дом")).toHaveValue("Тверская, 1");
   await page.getByRole("button", { name: /Подтвердить заказ/ }).click();
   await expect(page).toHaveURL(/\/orders\/AMR-TEST00000001/);
   await expect(page.getByText("AMR-TEST00000001")).toBeVisible();

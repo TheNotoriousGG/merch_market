@@ -4,12 +4,13 @@ import { useState } from "react";
 import StoreHeader from "../components/StoreHeader";
 import { formatPrice, type ShopProduct, useShop } from "../components/ShopState";
 import ShopProductDialog from "../components/ShopProductDialog";
+import { deliveryPrice } from "../lib/order-totals";
 import styles from "./CartPage.module.css";
 
 export default function CartPage() {
   const { cart, cartCount, cartTotal, cartNotices, setQuantity, removeFromCart, toggleFavorite, isFavorite } = useShop();
   const [selectedProduct, setSelectedProduct] = useState<ShopProduct | null>(null);
-  const delivery = cartTotal >= 5000 || cartTotal === 0 ? 0 : 490;
+  const delivery = deliveryPrice(cartTotal);
   const positionLabel = cartCount % 10 === 1 && cartCount % 100 !== 11 ? "позиция" : cartCount % 10 >= 2 && cartCount % 10 <= 4 && (cartCount % 100 < 12 || cartCount % 100 > 14) ? "позиции" : "позиций";
 
   return <main className="utility-page">
