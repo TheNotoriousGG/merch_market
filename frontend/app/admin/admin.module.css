@@ -47,6 +47,7 @@
 .inventoryMetrics article { display:grid; gap:6px; padding:18px 20px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-card); }
 .inventoryMetrics span,.inventoryMetrics small { color:var(--color-muted); font-size:11px; }.inventoryMetrics strong { font:760 28px/1 var(--font-display); }
 .inventoryToolbar { display:grid; grid-template-columns:minmax(260px,1fr) 210px; gap:10px; margin-bottom:16px; }
+.inventoryWorkspace { scroll-margin-top:20px; outline:none; }
 .stockState { display:inline-grid; place-items:center; min-width:34px; padding:5px 9px; border-radius:999px; font-weight:800; }.stockOk { background:#e8f5e9; color:#35633c; }.stockLow { background:#fff3c4; color:#756210; }.stockOut { background:#f2e5e2; color:#912f25; }
 .receiptComposer { display:grid; grid-template-columns:minmax(320px,1fr) 110px auto; gap:10px; margin:22px 0 14px; }.receiptLines { display:grid; margin:8px 0 20px; border:1px solid var(--color-border); border-radius:12px; overflow:hidden; }.receiptLines>div { display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:20px; padding:13px 15px; border-top:1px solid var(--color-border); }.receiptLines>div:first-child { border-top:0; }.receiptLines span { display:grid; gap:3px; }.receiptLines small { color:var(--color-muted); }.receiptLines button { color:#912f25; background:transparent; border:0; cursor:pointer; }.deltaPositive { color:#35633c; }.deltaNegative { color:#912f25; }
 .panel { padding: 22px; margin-bottom: 18px; }
@@ -92,6 +93,7 @@
 .message { background: #edf7ee; color: #35633c; }
 .error { background: #fff0ed; color: #912f25; }
 .empty { padding: 46px 24px; text-align: center; color: var(--color-muted); }
+.emptyCompact { margin:14px 0; padding:18px; color:var(--color-muted); background:#f6f6f3; border:1px dashed #d7d8d4; border-radius:11px; text-align:center; font-size:12px; }
 .sectionActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
 .pagination { margin-top: 15px; display: flex; justify-content: flex-end; align-items: center; gap: 12px; color: var(--color-muted); font-size: 13px; }
 .steps { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 20px; }

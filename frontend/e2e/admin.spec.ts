@@ -49,8 +49,11 @@ test("кладовщик видит остатки, приёмку и движе
   await expect(page.getByRole("heading", { name: "Склад" })).toBeVisible();
   await expect(page.getByText("AMRA-HUB-M")).toBeVisible();
   await expect(page.getByRole("table").getByText("8", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Приёмка", exact: true }).click();
+  await page.getByRole("button", { name: "+ Новая приёмка" }).click();
   await expect(page.getByRole("heading", { name: "Свободная приёмка" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Приёмка", exact: true })).toHaveAttribute("class", /viewTabActive/);
+  await page.getByRole("button", { name: "Провести приёмку" }).click();
+  await expect(page.getByText("Сначала добавьте хотя бы одну позицию в приёмку.")).toBeVisible();
   await expect(page.getByRole("link", { name: "+ Создать черновик товара" })).toBeVisible();
   await page.getByRole("button", { name: "Движения" }).click();
   await expect(page.getByRole("cell", { name: "Свободная приёмка", exact: true })).toBeVisible();
