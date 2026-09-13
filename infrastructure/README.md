@@ -18,7 +18,7 @@ docker compose --profile test run --rm --no-deps e2e
 
 Тестовый контейнер использует официальный Chromium image Playwright и сохраняет HTML-report, trace, screenshot и video при сбоях.
 
-Compose-проект называется `amra-merch-market`. Он собирает приложения через Dockerfile каждого репозитория и поднимает шесть runtime-сервисов: `frontend`, `backend`, `postgres`, `keycloak`, `keycloak-db` и `minio`. Сервис `e2e` включается только профилем `test`.
+Compose-проект называется `amra-merch-market`. Он собирает приложения через Dockerfile каждого репозитория и поднимает frontend, backend, PostgreSQL, Keycloak и MinIO. Одноразовый `demo-seed` после миграций идемпотентно создаёт локальные категории для мегабара; повторный запуск не создаёт дубликаты. Сервис `e2e` включается только профилем `test`.
 
 Имена контейнеров назначает Compose, например `amra-merch-market-backend-1`. Суффикс `-1` обозначает номер реплики и позволяет масштабировать и пересоздавать сервисы без конфликтов. Для обращения между контейнерами используются стабильные DNS-имена сервисов (`backend`, `postgres`, `keycloak-db`), а не имена конкретных контейнеров.
 

@@ -169,6 +169,7 @@ services:
     ports: ["${AMRA_FRONTEND_PORT:-3001}:3001"]
     depends_on:
       backend: {condition: service_started}
+      demo-seed: {condition: service_completed_successfully}
     restart: unless-stopped
 
   e2e:
@@ -184,6 +185,25 @@ services:
       frontend: {condition: service_started}
     init: true
     ipc: host
+
+  demo-seed:
+    image: postgres:18.4-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        until psql --host=postgres --username=amra_owner --dbname=amra_market
+        --tuples-only --command="select to_regclass('amra_shop.catalog_categories')" | grep -q catalog_categories;
+        do sleep 1; done;
+        psql --host=postgres --username=amra_owner --dbname=amra_market
+        --set=ON_ERROR_STOP=1 --file=/demo-data/categories.sql
+    environment:
+      PGPASSWORD: ${AMRA_DB_OWNER_PASSWORD:-amra-owner-local}
+    volumes:
+      - ./demo-data:/demo-data:ro
+    depends_on:
+      postgres: {condition: service_healthy}
+      backend: {condition: service_started}
+    restart: "no"
 
 volumes:
   # The monorepo uses a fresh schema history; the legacy sibling-repository volume is preserved.
