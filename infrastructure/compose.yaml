@@ -105,6 +105,19 @@ services:
         mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}" &&
         mc mb --ignore-existing local/amra-catalog &&
         mc cp --recursive /demo-media/ local/amra-catalog/demo/ &&
+        mc cp /demo-media/mono-graphite-hoodie.jpg local/amra-catalog/demo/products/mono-graphite-hoodie.jpg &&
+        mc cp /demo-media/urban-blue-hoodie.jpg local/amra-catalog/demo/products/urban-blue-hoodie.jpg &&
+        mc cp /demo-media/duo-contrast-hoodie.jpg local/amra-catalog/demo/products/duo-contrast-hoodie.jpg &&
+        mc cp /demo-media/mono-graphite-hoodie.jpg local/amra-catalog/demo/products/signal-white-tee.jpg &&
+        mc cp /demo-media/mono-graphite-hoodie.jpg local/amra-catalog/demo/products/motion-black-joggers.jpg &&
+        mc cp /demo-media/canvas-natural-tote.jpg local/amra-catalog/demo/products/canvas-natural-tote.jpg &&
+        mc cp /demo-media/canvas-natural-tote.jpg local/amra-catalog/demo/products/orbit-crossbody.jpg &&
+        mc cp /demo-media/canvas-natural-tote.jpg local/amra-catalog/demo/products/core-logo-cap.jpg &&
+        mc cp /demo-media/duo-contrast-hoodie.jpg local/amra-catalog/demo/products/studio-bomber.jpg &&
+        mc cp /demo-media/urban-blue-hoodie.jpg local/amra-catalog/banners/01999999-0010-7000-8000-000000000001/uploads/desktop.jpg &&
+        mc cp /demo-media/urban-blue-hoodie.jpg local/amra-catalog/banners/01999999-0010-7000-8000-000000000001/uploads/mobile.jpg &&
+        mc cp /demo-media/duo-contrast-hoodie.jpg local/amra-catalog/banners/01999999-0010-7000-8000-000000000002/uploads/desktop.jpg &&
+        mc cp /demo-media/duo-contrast-hoodie.jpg local/amra-catalog/banners/01999999-0010-7000-8000-000000000002/uploads/mobile.jpg &&
         mc anonymous set download local/amra-catalog
     environment:
       MINIO_ROOT_USER: ${AMRA_S3_ACCESS_KEY:-amra-local}
@@ -192,10 +205,10 @@ services:
     command:
       - >-
         until psql --host=postgres --username=amra_owner --dbname=amra_market
-        --tuples-only --command="select to_regclass('amra_shop.catalog_categories')" | grep -q catalog_categories;
+        --tuples-only --command="select to_regclass('amra_shop.pricing_promotions')" | grep -q pricing_promotions;
         do sleep 1; done;
         psql --host=postgres --username=amra_owner --dbname=amra_market
-        --set=ON_ERROR_STOP=1 --file=/demo-data/categories.sql
+        --set=ON_ERROR_STOP=1 --file=/demo-data/seed.sql
     environment:
       PGPASSWORD: ${AMRA_DB_OWNER_PASSWORD:-amra-owner-local}
     volumes:
