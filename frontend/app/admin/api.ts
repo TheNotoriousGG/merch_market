@@ -1,5 +1,7 @@
 import type {
   AdminCategory,
+  AdminCollection,
+  AdminCollectionList,
   AdminMedia,
   AdminProduct,
   AdminProductPage,
@@ -18,6 +20,8 @@ import { API_BASE } from "../api/client";
 
 export { API_BASE };
 export type Category = AdminCategory;
+export type Collection = AdminCollection;
+export type CollectionList = AdminCollectionList;
 export type ProductSummary = AdminProductSummary;
 export type VariantAttribute = CatalogAttributeValue;
 export type Variant = AdminVariant;

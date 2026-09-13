@@ -212,6 +212,8 @@ Local full-stack infrastructure acceptance закрыт: отдельный sibl
 
 Admin Catalog integration по ADR-0008 завершён: paged admin queries, presigned media lifecycle с local MinIO, generated client и frontend admin flow. Управляемый storefront banner slice включает protected CRUD, публикацию/архив, порядок и расписание в PostgreSQL, изображения в MinIO и anonymous read model витрины.
 
+Редакционные коллекции имеют административный list read model в стабильном порядке; frontend позволяет создавать коллекции и атомарно заменять упорядоченный состав товаров без локальных заглушек.
+
 Customer/Favorites/Cart реализован как общий PostgreSQL-backed shopping context: гостевой токен хранится только в виде hash, избранное и корзина детерминированно объединяются после входа, а изменения корзины защищены `ETag`/`If-Match`. Backend повторно проверяет цену и остаток, возвращает понятные notices и очищает истёкшие guest/customer данные ограниченными пакетами. Личный кабинет поддерживает подтверждение email и сохранённые адреса. Frontend отказался от `localStorage` для shopping state и использует generated `CustomerApi`.
 
 Pricing/Promotions завершён: V20 хранит непересекающиеся периоды RUB-цен для SKU,

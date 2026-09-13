@@ -29,6 +29,11 @@ import {
     AdminCollectionToJSON,
 } from '../models/AdminCollection';
 import {
+    type AdminCollectionList,
+    AdminCollectionListFromJSON,
+    AdminCollectionListToJSON,
+} from '../models/AdminCollectionList';
+import {
     type AdminMedia,
     AdminMediaFromJSON,
     AdminMediaToJSON,
@@ -613,6 +618,27 @@ export interface CatalogAdministrationApiInterface {
      * List the administrative category tree
      */
     listAdminCatalogCategories(requestParameters: ListAdminCatalogCategoriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AdminCategoryList>;
+
+    /**
+     * Creates request options for listAdminCatalogCollections without sending the request
+     * @throws {RequiredError}
+     * @memberof CatalogAdministrationApiInterface
+     */
+    listAdminCatalogCollectionsRequestOpts(): Promise<runtime.RequestOpts>;
+
+    /**
+     *
+     * @summary List editorial collections
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CatalogAdministrationApiInterface
+     */
+    listAdminCatalogCollectionsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AdminCollectionList>>;
+
+    /**
+     * List editorial collections
+     */
+    listAdminCatalogCollections(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AdminCollectionList>;
 
     /**
      * Creates request options for listAdminCatalogProducts without sending the request
@@ -1706,6 +1732,43 @@ export class CatalogAdministrationApi extends runtime.BaseAPI implements Catalog
      */
     async listAdminCatalogCategories(requestParameters: ListAdminCatalogCategoriesRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AdminCategoryList> {
         const response = await this.listAdminCatalogCategoriesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for listAdminCatalogCollections without sending the request
+     */
+    async listAdminCatalogCollectionsRequestOpts(): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/admin/catalog/collections`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * List editorial collections
+     */
+    async listAdminCatalogCollectionsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AdminCollectionList>> {
+        const requestOptions = await this.listAdminCatalogCollectionsRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AdminCollectionListFromJSON(jsonValue));
+    }
+
+    /**
+     * List editorial collections
+     */
+    async listAdminCatalogCollections(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AdminCollectionList> {
+        const response = await this.listAdminCatalogCollectionsRaw(initOverrides);
         return await response.value();
     }
 

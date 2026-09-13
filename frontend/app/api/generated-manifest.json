@@ -1,6 +1,6 @@
 {
   "apiVersion": "1.0.0",
-  "specSha256": "0b6f96ede17b45c4a5b0e3706d0758b76137e17e70710af31c3cc43a4ed38c16",
-  "artifactSha256": "ff382ff02fb748a2737f71be9f2265eb73f1c5a17cc8a5256885047ef8e1a53f",
-  "backendCommit": "8fae33df4bc1e5615fb9e30c80c7a5e4bc1bd1fa"
+  "specSha256": "ec5079fd3dc309e303a4d052cac3dff81e7f5d218bb9e2081fb811a80887dba2",
+  "artifactSha256": "265edf17d4274c58fd0e2f2210f34d4d129fa0cc683b5fd84662d65a945a1767",
+  "backendCommit": "b5baed4b2a058bcdfaf90658f50d0e370ec2a93f"
 }

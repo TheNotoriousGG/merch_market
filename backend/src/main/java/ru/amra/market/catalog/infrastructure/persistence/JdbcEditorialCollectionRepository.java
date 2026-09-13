@@ -106,6 +106,15 @@ class JdbcEditorialCollectionRepository implements EditorialCollectionRepository
                 stored.version()));
     }
 
+    @Override
+    public List<EditorialCollection> findAll() {
+        return jdbc.query("select id from catalog_collections order by display_order, id",
+                        (result, row) -> new CollectionId(result.getObject("id", UUID.class)))
+                .stream()
+                .map(id -> findById(id).orElseThrow())
+                .toList();
+    }
+
     private List<ProductId> products(CollectionId id) {
         return jdbc.query("""
                 select product_id from catalog_collection_products

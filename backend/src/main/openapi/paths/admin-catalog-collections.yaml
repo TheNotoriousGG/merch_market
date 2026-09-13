@@ -1,3 +1,14 @@
+get:
+  tags: [Catalog administration]
+  summary: List editorial collections
+  operationId: listAdminCatalogCollections
+  security: [{SessionCookie: []}]
+  responses:
+    "200":
+      description: Editorial collections in display order.
+      content: {application/json: {schema: {$ref: ../components/schemas/admin-collection-list.yaml}}}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
 post:
   tags: [Catalog administration]
   summary: Create an editorial collection

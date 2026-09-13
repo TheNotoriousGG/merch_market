@@ -186,6 +186,10 @@ class CatalogAdministrationProductApiTests extends PostgreSqlIntegrationTest {
                 .andReturn();
         var collectionId =
                 idFromLocation(requireNonNull(collection.getResponse().getHeader("Location")));
+        mockMvc.perform(get("/api/v1/admin/catalog/collections").with(catalogManager()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].id").value(collectionId.toString()))
+                .andExpect(jsonPath("$.items[0].name").value("Выбор недели"));
 
         var membershipBody = "{\"productIds\":[\"" + productId + "\",\"" + productId + "\"]}";
         unsafe(put("/api/v1/admin/catalog/collections/{id}/products", collectionId)

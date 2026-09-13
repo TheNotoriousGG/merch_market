@@ -217,6 +217,8 @@ components:
       $ref: components/schemas/update-media-request.yaml
     AdminCollection:
       $ref: components/schemas/admin-collection.yaml
+    AdminCollectionList:
+      $ref: components/schemas/admin-collection-list.yaml
     CreateCollectionRequest:
       $ref: components/schemas/create-collection-request.yaml
     UpdateCollectionRequest:

@@ -104,3 +104,22 @@ test("редактор товара показывает сохранение и
   await page.getByRole("button", { name: "Опубликовать товар" }).click();
   await expect(page.getByText(/Чтобы опубликовать товар, добавьте: хотя бы один размер, фотография/)).toBeVisible();
 });
+
+test("менеджер создаёт коллекцию и управляет её товарами", async ({page})=>{
+  await page.route("**/api/v1/session",route=>route.fulfill({json:{authenticated:true,emailVerified:true,subject:"catalog-manager",displayName:"Менеджер",permissions:["CATALOG_MANAGER"]}}));
+  await page.route("**/api/v1/admin/catalog/collections",async route=>{if(route.request().method()==="POST")return route.fulfill({status:201,headers:{ETag:'"v0"'},json:{id:"collection-1",slug:"vybor-nedeli",name:"Выбор недели",description:"Лучшие товары",status:"HIDDEN",displayOrder:0,productIds:[],version:0}});return route.fulfill({json:{items:[]}})});
+  await page.route("**/api/v1/admin/catalog/products**",route=>route.fulfill({json:{items:[{id:"product-1",slug:"hoodie",name:"Худи Amra",status:"ACTIVE",variantCount:1,hasPrimaryMedia:true,updatedAt:"2026-09-13T00:00:00Z"}],page:{page:0,size:100,totalElements:1,totalPages:1}}}));
+  await page.goto("/admin/collections");
+  await page.getByLabel("Название").fill("Выбор недели");await page.getByLabel("Описание").fill("Лучшие товары");
+  await page.getByLabel("Найти товар").fill("Худи");await page.getByRole("button",{name:"+ Худи Amra"}).click();
+  await expect(page.getByText("Товары в коллекции · 1")).toBeVisible();
+});
+
+test("баннер объясняет, почему его нельзя опубликовать",async({page})=>{
+  await page.route("**/api/v1/session",route=>route.fulfill({json:{authenticated:true,emailVerified:true,subject:"catalog-manager",displayName:"Менеджер",permissions:["CATALOG_MANAGER"]}}));
+  await page.route("**/api/v1/admin/storefront/banners",route=>route.fulfill({json:{items:[]}}));
+  await page.goto("/admin/banners");
+  await page.getByLabel("Название для сотрудников").fill("Главный баннер");await page.getByLabel("Заголовок",{exact:true}).fill("Новая коллекция");await page.getByLabel("Описание").fill("Уже на витрине");
+  await page.getByLabel("Статус").selectOption("PUBLISHED");await page.getByRole("button",{name:"Сохранить и опубликовать"}).click();
+  await expect(page.getByText("Для публикации загрузите desktop-фотографию.")).toBeVisible();
+});

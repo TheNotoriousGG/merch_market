@@ -1,5 +1,6 @@
 package ru.amra.market.catalog.application.port;
 
+import java.util.List;
 import java.util.Optional;
 import ru.amra.market.catalog.domain.CollectionId;
 import ru.amra.market.catalog.domain.EditorialCollection;
@@ -10,4 +11,6 @@ public interface EditorialCollectionRepository {
     EditorialCollection save(EditorialCollection collection);
 
     Optional<EditorialCollection> findById(CollectionId id);
+
+    List<EditorialCollection> findAll();
 }

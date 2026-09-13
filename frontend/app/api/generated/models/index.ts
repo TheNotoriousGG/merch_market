@@ -4,6 +4,7 @@ export * from './AdjustStockRequest';
 export * from './AdminCategory';
 export * from './AdminCategoryList';
 export * from './AdminCollection';
+export * from './AdminCollectionList';
 export * from './AdminMedia';
 export * from './AdminProduct';
 export * from './AdminProductPage';

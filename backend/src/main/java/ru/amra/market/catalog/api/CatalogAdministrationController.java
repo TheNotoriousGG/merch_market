@@ -53,6 +53,7 @@ import ru.amra.market.platform.generated.api.CatalogAdministrationApi;
 import ru.amra.market.platform.generated.model.AdminCategoryDto;
 import ru.amra.market.platform.generated.model.AdminCategoryListDto;
 import ru.amra.market.platform.generated.model.AdminCollectionDto;
+import ru.amra.market.platform.generated.model.AdminCollectionListDto;
 import ru.amra.market.platform.generated.model.AdminMediaDto;
 import ru.amra.market.platform.generated.model.AdminProductDto;
 import ru.amra.market.platform.generated.model.AdminProductPageDto;
@@ -432,6 +433,12 @@ public final class CatalogAdministrationController implements CatalogAdministrat
             products.deleteMedia(new ProductId(resourceId), new MediaId(mediaId), CatalogVersionEtag.parse(ifMatch));
             return ResponseEntity.noContent().build();
         });
+    }
+
+    @Override
+    public ResponseEntity<AdminCollectionListDto> listAdminCatalogCollections() {
+        return translate(() -> ResponseEntity.ok(new AdminCollectionListDto(
+                collections.list().stream().map(CatalogAdministrationDtoMapper::collection).toList())));
     }
 
     @Override
