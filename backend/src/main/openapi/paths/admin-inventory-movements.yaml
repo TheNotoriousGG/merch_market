@@ -1,0 +1,15 @@
+get:
+  tags: [Inventory administration]
+  summary: Browse warehouse movements with keyset pagination
+  operationId: listInventoryMovements
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/cursor.yaml}
+    - {name: size, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 30}}
+  responses:
+    "200":
+      description: Newest-first movement page.
+      content: {application/json: {schema: {$ref: ../components/schemas/inventory-movement-page.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}

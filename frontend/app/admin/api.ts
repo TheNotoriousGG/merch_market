@@ -14,6 +14,7 @@ import type {
   InventoryWarehouseOverview,
   InventoryStockItem,
   InventoryMovementView,
+  InventoryMovementPage,
   ProductMerchandising,
 } from "../api/generated";
 import { API_BASE } from "../api/client";
@@ -33,6 +34,7 @@ export type Balance = InventoryBalance;
 export type WarehouseOverview = InventoryWarehouseOverview;
 export type StockItem = InventoryStockItem;
 export type StockMovement = InventoryMovementView;
+export type MovementPage = InventoryMovementPage;
 export type StorefrontBanner = AdminStorefrontBanner;
 export type StorefrontBannerList = AdminStorefrontBannerList;
 

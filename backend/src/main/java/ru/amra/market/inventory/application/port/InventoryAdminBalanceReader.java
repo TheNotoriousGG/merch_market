@@ -1,10 +1,12 @@
 package ru.amra.market.inventory.application.port;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import ru.amra.market.inventory.application.InventoryAdminBalanceView;
 
 /** Exact configured-warehouse balance projection for protected administration. */
@@ -20,6 +22,9 @@ public interface InventoryAdminBalanceReader {
 
     /** Returns the newest immutable physical movements for the primary warehouse. */
     List<MovementView> latestMovements(int limit);
+
+    /** Returns one newest-first keyset page, exclusive of the supplied cursor. */
+    List<MovementView> movementPage(int limit, @Nullable Instant beforeAt, @Nullable UUID beforeId);
 
     record MovementView(
             UUID id,

@@ -24,10 +24,20 @@ import {
     InventoryBalanceToJSON,
 } from '../models/InventoryBalance';
 import {
+    type InventoryMovementPage,
+    InventoryMovementPageFromJSON,
+    InventoryMovementPageToJSON,
+} from '../models/InventoryMovementPage';
+import {
     type InventoryMutationResult,
     InventoryMutationResultFromJSON,
     InventoryMutationResultToJSON,
 } from '../models/InventoryMutationResult';
+import {
+    type InventoryReceiptDocument,
+    InventoryReceiptDocumentFromJSON,
+    InventoryReceiptDocumentToJSON,
+} from '../models/InventoryReceiptDocument';
 import {
     type InventoryWarehouseOverview,
     InventoryWarehouseOverviewFromJSON,
@@ -38,6 +48,11 @@ import {
     ProblemDetailsFromJSON,
     ProblemDetailsToJSON,
 } from '../models/ProblemDetails';
+import {
+    type ReceiveStockDocumentRequest,
+    ReceiveStockDocumentRequestFromJSON,
+    ReceiveStockDocumentRequestToJSON,
+} from '../models/ReceiveStockDocumentRequest';
 import {
     type ReceiveStockRequest,
     ReceiveStockRequestFromJSON,
@@ -54,6 +69,17 @@ export interface AdjustInventoryStockRequest {
 
 export interface GetAdminInventoryBalanceRequest {
     variantId: string;
+}
+
+export interface ListInventoryMovementsRequest {
+    cursor?: string;
+    size?: number;
+}
+
+export interface ReceiveInventoryDocumentRequest {
+    idempotencyKey: string;
+    xAMRACSRF: string;
+    receiveStockDocumentRequest: ReceiveStockDocumentRequest;
 }
 
 export interface ReceiveInventoryStockRequest {
@@ -147,6 +173,58 @@ export interface InventoryAdministrationApiInterface {
      * List primary warehouse stock and recent movements
      */
     getInventoryWarehouseOverview(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryWarehouseOverview>;
+
+    /**
+     * Creates request options for listInventoryMovements without sending the request
+     * @param {string} [cursor] Opaque keyset cursor returned by the previous response.
+     * @param {number} [size]
+     * @throws {RequiredError}
+     * @memberof InventoryAdministrationApiInterface
+     */
+    listInventoryMovementsRequestOpts(requestParameters: ListInventoryMovementsRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     *
+     * @summary Browse warehouse movements with keyset pagination
+     * @param {string} [cursor] Opaque keyset cursor returned by the previous response.
+     * @param {number} [size]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof InventoryAdministrationApiInterface
+     */
+    listInventoryMovementsRaw(requestParameters: ListInventoryMovementsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InventoryMovementPage>>;
+
+    /**
+     * Browse warehouse movements with keyset pagination
+     */
+    listInventoryMovements(requestParameters: ListInventoryMovementsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryMovementPage>;
+
+    /**
+     * Creates request options for receiveInventoryDocument without sending the request
+     * @param {string} idempotencyKey Unique key binding one critical command to its request fingerprint and caller scope.
+     * @param {string} xAMRACSRF CSRF token copied from the non-secret AMRA_CSRF cookie.
+     * @param {ReceiveStockDocumentRequest} receiveStockDocumentRequest
+     * @throws {RequiredError}
+     * @memberof InventoryAdministrationApiInterface
+     */
+    receiveInventoryDocumentRequestOpts(requestParameters: ReceiveInventoryDocumentRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     *
+     * @summary Atomically receive a multi-line warehouse document
+     * @param {string} idempotencyKey Unique key binding one critical command to its request fingerprint and caller scope.
+     * @param {string} xAMRACSRF CSRF token copied from the non-secret AMRA_CSRF cookie.
+     * @param {ReceiveStockDocumentRequest} receiveStockDocumentRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof InventoryAdministrationApiInterface
+     */
+    receiveInventoryDocumentRaw(requestParameters: ReceiveInventoryDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InventoryReceiptDocument>>;
+
+    /**
+     * Atomically receive a multi-line warehouse document
+     */
+    receiveInventoryDocument(requestParameters: ReceiveInventoryDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryReceiptDocument>;
 
     /**
      * Creates request options for receiveInventoryStock without sending the request
@@ -358,6 +436,120 @@ export class InventoryAdministrationApi extends runtime.BaseAPI implements Inven
      */
     async getInventoryWarehouseOverview(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryWarehouseOverview> {
         const response = await this.getInventoryWarehouseOverviewRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for listInventoryMovements without sending the request
+     */
+    async listInventoryMovementsRequestOpts(requestParameters: ListInventoryMovementsRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['cursor'] != null) {
+            queryParameters['cursor'] = requestParameters['cursor'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/admin/inventory/movements`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Browse warehouse movements with keyset pagination
+     */
+    async listInventoryMovementsRaw(requestParameters: ListInventoryMovementsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InventoryMovementPage>> {
+        const requestOptions = await this.listInventoryMovementsRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => InventoryMovementPageFromJSON(jsonValue));
+    }
+
+    /**
+     * Browse warehouse movements with keyset pagination
+     */
+    async listInventoryMovements(requestParameters: ListInventoryMovementsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryMovementPage> {
+        const response = await this.listInventoryMovementsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for receiveInventoryDocument without sending the request
+     */
+    async receiveInventoryDocumentRequestOpts(requestParameters: ReceiveInventoryDocumentRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['idempotencyKey'] == null) {
+            throw new runtime.RequiredError(
+                'idempotencyKey',
+                'Required parameter "idempotencyKey" was null or undefined when calling receiveInventoryDocument().'
+            );
+        }
+
+        if (requestParameters['xAMRACSRF'] == null) {
+            throw new runtime.RequiredError(
+                'xAMRACSRF',
+                'Required parameter "xAMRACSRF" was null or undefined when calling receiveInventoryDocument().'
+            );
+        }
+
+        if (requestParameters['receiveStockDocumentRequest'] == null) {
+            throw new runtime.RequiredError(
+                'receiveStockDocumentRequest',
+                'Required parameter "receiveStockDocumentRequest" was null or undefined when calling receiveInventoryDocument().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['idempotencyKey'] != null) {
+            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
+        }
+
+        if (requestParameters['xAMRACSRF'] != null) {
+            headerParameters['X-AMRA-CSRF'] = String(requestParameters['xAMRACSRF']);
+        }
+
+
+        let urlPath = `/admin/inventory/receipts`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ReceiveStockDocumentRequestToJSON(requestParameters['receiveStockDocumentRequest']),
+        };
+    }
+
+    /**
+     * Atomically receive a multi-line warehouse document
+     */
+    async receiveInventoryDocumentRaw(requestParameters: ReceiveInventoryDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InventoryReceiptDocument>> {
+        const requestOptions = await this.receiveInventoryDocumentRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => InventoryReceiptDocumentFromJSON(jsonValue));
+    }
+
+    /**
+     * Atomically receive a multi-line warehouse document
+     */
+    async receiveInventoryDocument(requestParameters: ReceiveInventoryDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryReceiptDocument> {
+        const response = await this.receiveInventoryDocumentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

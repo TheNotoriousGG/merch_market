@@ -3,21 +3,27 @@ package ru.amra.market.inventory.api;
 import static java.util.Objects.requireNonNull;
 
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import ru.amra.market.inventory.application.InventoryAdminBalanceView;
 import ru.amra.market.inventory.application.InventoryVersionEtag;
+import ru.amra.market.inventory.application.InventoryWarehouseOverview;
 import ru.amra.market.inventory.application.ManageWarehouseInventory;
 import ru.amra.market.inventory.application.WarehouseMutationResult;
 import ru.amra.market.inventory.domain.InventoryMovement;
 import ru.amra.market.platform.generated.api.InventoryAdministrationApi;
 import ru.amra.market.platform.generated.model.AdjustStockRequestDto;
+import ru.amra.market.platform.generated.model.CursorMetadataDto;
 import ru.amra.market.platform.generated.model.InventoryBalanceDto;
 import ru.amra.market.platform.generated.model.InventoryMovementDto;
+import ru.amra.market.platform.generated.model.InventoryMovementPageDto;
 import ru.amra.market.platform.generated.model.InventoryMovementViewDto;
 import ru.amra.market.platform.generated.model.InventoryMutationResultDto;
+import ru.amra.market.platform.generated.model.InventoryReceiptDocumentDto;
 import ru.amra.market.platform.generated.model.InventoryStockItemDto;
 import ru.amra.market.platform.generated.model.InventoryWarehouseOverviewDto;
+import ru.amra.market.platform.generated.model.ReceiveStockDocumentRequestDto;
 import ru.amra.market.platform.generated.model.ReceiveStockRequestDto;
 
 /** Generated-contract HTTP adapter for protected primary-warehouse operations. */
@@ -71,6 +77,16 @@ public final class InventoryAdministrationController implements InventoryAdminis
     }
 
     @Override
+    public ResponseEntity<InventoryMovementPageDto> listInventoryMovements(@Nullable String cursor, Integer size) {
+        var result = inventory.movements(cursor, size);
+        var items = result.items().stream()
+                .map(InventoryAdministrationController::movementViewDto)
+                .toList();
+        return ResponseEntity.ok(new InventoryMovementPageDto(
+                items, new CursorMetadataDto(result.hasNext()).nextCursor(result.nextCursor())));
+    }
+
+    @Override
     public ResponseEntity<InventoryMutationResultDto> receiveInventoryStock(
             UUID variantId, String idempotencyKey, String csrf, ReceiveStockRequestDto request) {
         var result = inventory.receive(
@@ -80,6 +96,26 @@ public final class InventoryAdministrationController implements InventoryAdminis
                 request.getReference(),
                 idempotencyKey);
         return mutationResponse(result);
+    }
+
+    @Override
+    public ResponseEntity<InventoryReceiptDocumentDto> receiveInventoryDocument(
+            String idempotencyKey, String csrf, ReceiveStockDocumentRequestDto request) {
+        var document = inventory.receiveDocument(
+                request.getLines().stream()
+                        .map(line -> new ManageWarehouseInventory.ReceiptLine(
+                                requireNonNull(line.getVariantId()), requireNonNull(line.getQuantity())))
+                        .toList(),
+                requireNonNull(request.getReason()),
+                request.getReference(),
+                idempotencyKey);
+        return ResponseEntity.ok(new InventoryReceiptDocumentDto(
+                document.documentId(),
+                document.movements().size(),
+                document.totalQuantity(),
+                document.movements().stream()
+                        .map(InventoryAdministrationController::mutationDto)
+                        .toList()));
     }
 
     @Override
@@ -96,6 +132,12 @@ public final class InventoryAdministrationController implements InventoryAdminis
     }
 
     private static ResponseEntity<InventoryMutationResultDto> mutationResponse(WarehouseMutationResult result) {
+        return ResponseEntity.ok()
+                .eTag(InventoryVersionEtag.format(result.mutation().balance().version()))
+                .body(mutationDto(result));
+    }
+
+    private static InventoryMutationResultDto mutationDto(WarehouseMutationResult result) {
         var balance = result.mutation().balance();
         var balanceDto = new InventoryBalanceDto(
                 result.warehouseCode(),
@@ -105,10 +147,8 @@ public final class InventoryAdministrationController implements InventoryAdminis
                 balance.available().value(),
                 balance.version(),
                 result.balanceUpdatedAt());
-        return ResponseEntity.ok()
-                .eTag(InventoryVersionEtag.format(balance.version()))
-                .body(new InventoryMutationResultDto(
-                        balanceDto, toDto(result.mutation().movement())));
+        return new InventoryMutationResultDto(
+                balanceDto, toDto(result.mutation().movement()));
     }
 
     private static InventoryBalanceDto toDto(InventoryAdminBalanceView balance) {
@@ -134,5 +174,19 @@ public final class InventoryAdministrationController implements InventoryAdminis
                         movement.reference() == null
                                 ? null
                                 : movement.reference().value());
+    }
+
+    private static InventoryMovementViewDto movementViewDto(InventoryWarehouseOverview.Movement movement) {
+        return new InventoryMovementViewDto(
+                        movement.id(),
+                        movement.variantId(),
+                        movement.productName(),
+                        movement.sku(),
+                        movement.variantLabel(),
+                        InventoryMovementViewDto.TypeEnum.valueOf(movement.type()),
+                        movement.quantityDelta(),
+                        movement.reason(),
+                        movement.occurredAt())
+                .reference(movement.reference());
     }
 }

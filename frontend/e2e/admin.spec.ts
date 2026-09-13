@@ -27,10 +27,13 @@ test("каталог-менеджер видит дерево категорий
 });
 
 test("кладовщик видит остатки, приёмку и движения без технических UUID", async ({ page }) => {
+  let receiptRequests=0;
   await page.route("**/api/v1/session", route => route.fulfill({ json: {
     authenticated: true, emailVerified: true, subject: "warehouse-manager",
     displayName: "Кладовщик", permissions: ["WAREHOUSE_MANAGER"],
   } }));
+  await page.route("**/api/v1/admin/inventory/receipts", async route => {receiptRequests++;expect(route.request().postDataJSON().lines).toEqual([{variantId:"22222222-2222-2222-2222-222222222222",quantity:4}]);await route.fulfill({json:{documentId:"receipt-test",lineCount:1,totalQuantity:4,movements:[]}})});
+  await page.route("**/api/v1/admin/inventory/movements?*",route=>route.fulfill({json:{items:[{id:"33333333-3333-3333-3333-333333333333",variantId:"22222222-2222-2222-2222-222222222222",productName:"Худи Urban Blue",sku:"AMRA-HUB-M",variantLabel:"Синий / M",type:"RECEIPT",quantityDelta:10,reason:"Свободная приёмка",occurredAt:"2026-09-12T12:00:00Z"}],page:{hasNext:false}}}));
   await page.route("**/api/v1/admin/inventory", route => route.fulfill({ json: {
     items: [{
       productId: "11111111-1111-1111-1111-111111111111", productName: "Худи Urban Blue",
@@ -60,6 +63,9 @@ test("кладовщик видит остатки, приёмку и движе
   await page.getByRole("button", { name: "Добавить", exact: true }).click();
   await expect(page.getByText("4 ед. будет принято")).toBeVisible();
   await expect(page.getByText("14", { exact: true })).toBeVisible();
+  await page.getByRole("button",{name:"Провести приёмку"}).click();
+  await expect.poll(()=>receiptRequests).toBe(1);
+  await page.getByRole("button",{name:"Приёмка",exact:true}).click();
   await expect(page.getByRole("link", { name: "+ Создать карточку товара" })).toBeVisible();
   await page.getByRole("button", { name: "Корректировка" }).click();
   await page.getByRole("combobox", { name: "Товар и вариант" }).fill("Urban");

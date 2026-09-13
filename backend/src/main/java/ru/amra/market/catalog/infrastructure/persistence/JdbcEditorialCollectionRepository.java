@@ -108,7 +108,9 @@ class JdbcEditorialCollectionRepository implements EditorialCollectionRepository
 
     @Override
     public List<EditorialCollection> findAll() {
-        return jdbc.query("select id from catalog_collections order by display_order, id",
+        return jdbc
+                .query(
+                        "select id from catalog_collections order by display_order, id",
                         (result, row) -> new CollectionId(result.getObject("id", UUID.class)))
                 .stream()
                 .map(id -> findById(id).orElseThrow())

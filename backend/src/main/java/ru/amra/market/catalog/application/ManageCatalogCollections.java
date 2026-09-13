@@ -77,7 +77,9 @@ public class ManageCatalogCollections {
     /** Lists administrative collections in stable display order. */
     @Transactional(readOnly = true)
     public List<AdminCollectionView> list() {
-        return collections.findAll().stream().map(ManageCatalogCollections::view).toList();
+        return collections.findAll().stream()
+                .map(ManageCatalogCollections::view)
+                .toList();
     }
 
     /** Applies an optimistic partial metadata update. */

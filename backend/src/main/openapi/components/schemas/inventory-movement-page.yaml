@@ -1,0 +1,7 @@
+type: object
+required: [items, page]
+properties:
+  items:
+    type: array
+    items: {$ref: ./inventory-movement-view.yaml}
+  page: {$ref: ./cursor-metadata.yaml}

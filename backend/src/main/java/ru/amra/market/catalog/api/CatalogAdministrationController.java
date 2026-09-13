@@ -437,8 +437,9 @@ public final class CatalogAdministrationController implements CatalogAdministrat
 
     @Override
     public ResponseEntity<AdminCollectionListDto> listAdminCatalogCollections() {
-        return translate(() -> ResponseEntity.ok(new AdminCollectionListDto(
-                collections.list().stream().map(CatalogAdministrationDtoMapper::collection).toList())));
+        return translate(() -> ResponseEntity.ok(new AdminCollectionListDto(collections.list().stream()
+                .map(CatalogAdministrationDtoMapper::collection)
+                .toList())));
     }
 
     @Override

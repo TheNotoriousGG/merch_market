@@ -1,0 +1,19 @@
+post:
+  tags: [Inventory administration]
+  summary: Atomically receive a multi-line warehouse document
+  operationId: receiveInventoryDocument
+  security: [{SessionCookie: []}]
+  parameters:
+    - {$ref: ../components/parameters/idempotency-key.yaml}
+    - {$ref: ../components/parameters/csrf-token.yaml}
+  requestBody:
+    required: true
+    content: {application/json: {schema: {$ref: ../components/schemas/receive-stock-document-request.yaml}}}
+  responses:
+    "200":
+      description: Every line was received in one transaction.
+      content: {application/json: {schema: {$ref: ../components/schemas/inventory-receipt-document.yaml}}}
+    "400": {$ref: ../components/responses/bad-request.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "409": {$ref: ../components/responses/conflict.yaml}

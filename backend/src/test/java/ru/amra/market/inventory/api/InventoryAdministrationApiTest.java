@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import java.util.Locale;
 import java.util.UUID;
 import javax.sql.DataSource;
@@ -24,6 +25,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.amra.market.testing.PostgreSqlIntegrationTest;
 
@@ -145,6 +147,56 @@ class InventoryAdministrationApiTest extends PostgreSqlIntegrationTest {
         unsafe(receipt(UUID.randomUUID(), "receipt-inactive-variant", 1, "Unknown product", null))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("INVENTORY_VARIANT_NOT_ACTIVE"));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void receivesMultiLineDocumentAtomically() throws Exception {
+        var jdbc = new JdbcTemplate(dataSource);
+        var first = activeVariant(jdbc, "DOC-FIRST");
+        var second = activeVariant(jdbc, "DOC-SECOND");
+        var unknown = UUID.randomUUID();
+        unsafe(post("/api/v1/admin/inventory/receipts")
+                        .header("Idempotency-Key", "receipt-document-failure-0001")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"reason":"Поставка","reference":"УПД-15","lines":[
+                                  {"variantId":"%s","quantity":3},
+                                  {"variantId":"%s","quantity":2}
+                                ]}
+                                """.formatted(first, unknown)))
+                .andExpect(status().isConflict());
+        assertThat(jdbc.queryForObject(
+                        "select count(*) from inventory_movements where variant_id = ?", Integer.class, first))
+                .isZero();
+
+        unsafe(post("/api/v1/admin/inventory/receipts")
+                        .header("Idempotency-Key", "receipt-document-success-0001")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"reason":"Поставка","reference":"УПД-15","lines":[
+                                  {"variantId":"%s","quantity":3},
+                                  {"variantId":"%s","quantity":2}
+                                ]}
+                                """.formatted(first, second)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lineCount").value(2))
+                .andExpect(jsonPath("$.totalQuantity").value(5))
+                .andExpect(jsonPath("$.movements.length()").value(2));
+        var firstPage = mvc.perform(get("/api/v1/admin/inventory/movements")
+                        .param("size", "1")
+                        .with(warehouseManager()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.page.hasNext").value(true))
+                .andReturn();
+        var cursor = JsonPath.<String>read(firstPage.getResponse().getContentAsString(), "$.page.nextCursor");
+        mvc.perform(get("/api/v1/admin/inventory/movements")
+                        .param("size", "1")
+                        .param("cursor", cursor)
+                        .with(warehouseManager()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1));
     }
 
     @Test

@@ -222,6 +222,10 @@ percent/fixed-line/multi-buy акции и их targets. Расчёт tax-inclus
 Корзина возвращает сумму и скидку каждой строки; frontend показывает название акции.
 Полный backend gate зелёный: 213 тестов, 90,3% lines и 70,3% branches.
 
+Складской UX использует атомарную многострочную приёмку с единым caller-scoped
+idempotency key; невалидная строка откатывает документ целиком. История физических
+движений доступна через newest-first keyset cursor без фиксированного предела в 100 записей.
+
 Ordering/Checkout находится в работе. V21–V22 добавляют immutable order snapshots,
 owner-scoped checkout commands, lifecycle events и outbox. Checkout выполняет
 revalidation, создаёт reservation, фиксирует `PENDING`, коммитит stock и переводит
