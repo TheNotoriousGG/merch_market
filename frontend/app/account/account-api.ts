@@ -1,5 +1,5 @@
-import type { CustomerProfile, SaveCustomerAddressRequest } from "../api/generated";
-import { cookie as browserCookie, customerApi } from "../api/client";
+import type { CustomerOrderList, CustomerProfile, SaveCustomerAddressRequest } from "../api/generated";
+import { cookie as browserCookie, customerApi, orderingApi } from "../api/client";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1";
 
@@ -32,6 +32,7 @@ export const startPhoneAuthentication = (phone:string) => request<PhoneChallenge
 export const verifyPhone = (challengeId:string, code:string) => request<CustomerAccount>("/customer/auth/phone/verify", {method:"POST",body:JSON.stringify({challengeId,code})});
 export const logoutCustomer = () => request<void>("/customer/auth/logout", {method:"POST"});
 export const loadCustomerProfile = (): Promise<CustomerProfile> => customerApi.getCustomerProfile();
+export const loadCustomerOrders = (): Promise<CustomerOrderList> => orderingApi.listCustomerOrders();
 export const saveCustomerAddress = (address: SaveCustomerAddressRequest) => customerApi.createCustomerAddress({
   xAMRACSRF: browserCookie("AMRA_CSRF") || "browser-csrf-token",
   saveCustomerAddressRequest: address,

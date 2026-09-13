@@ -10,6 +10,8 @@ import ru.amra.market.ordering.OrderingService;
 import ru.amra.market.platform.generated.api.OrderingApi;
 import ru.amra.market.platform.generated.model.CheckoutRequestDto;
 import ru.amra.market.platform.generated.model.CustomerOrderDto;
+import ru.amra.market.platform.generated.model.CustomerOrderListDto;
+import ru.amra.market.platform.generated.model.CustomerOrderSummaryDto;
 import ru.amra.market.platform.generated.model.OrderLineDto;
 
 /** Browser ordering adapter sharing the established guest/customer owner boundary. */
@@ -54,6 +56,21 @@ final class CustomerOrderingController implements OrderingApi {
         var owner = shopping.owner(request, response);
         return ResponseEntity.ok(
                 toDto(ordering.get(new OrderingService.Owner(owner.type(), owner.id()), publicNumber, guestToken)));
+    }
+
+    @Override
+    public ResponseEntity<CustomerOrderListDto> listCustomerOrders() {
+        var owner = shopping.owner(request, response);
+        var items = ordering.list(new OrderingService.Owner(owner.type(), owner.id())).stream()
+                .map(order -> new CustomerOrderSummaryDto(
+                        order.publicNumber(),
+                        CustomerOrderSummaryDto.StatusEnum.fromValue(order.status()),
+                        order.total(),
+                        CustomerOrderSummaryDto.CurrencyEnum.RUB,
+                        order.itemCount(),
+                        order.createdAt()))
+                .toList();
+        return ResponseEntity.ok(new CustomerOrderListDto(items));
     }
 
     private static CustomerOrderDto toDto(OrderingService.Order order) {

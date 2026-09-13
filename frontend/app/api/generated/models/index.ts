@@ -38,6 +38,8 @@ export * from './CursorMetadata';
 export * from './CustomerAddress';
 export * from './CustomerContext';
 export * from './CustomerOrder';
+export * from './CustomerOrderList';
+export * from './CustomerOrderSummary';
 export * from './CustomerProfile';
 export * from './EmailVerificationChallenge';
 export * from './InventoryAvailability';

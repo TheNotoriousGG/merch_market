@@ -1,0 +1,9 @@
+type: object
+required: [publicNumber, status, totalMinor, currency, itemCount, createdAt]
+properties:
+  publicNumber: {type: string}
+  status: {type: string, enum: [CONFIRMED, CANCELLED]}
+  totalMinor: {type: integer, format: int64, minimum: 0}
+  currency: {type: string, enum: [RUB]}
+  itemCount: {type: integer, format: int32, minimum: 1}
+  createdAt: {type: string, format: date-time}

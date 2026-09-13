@@ -213,7 +213,8 @@ tests входят в полный quality gate.
 Статус: в работе с 13 сентября 2026 года. Реализованы атомарные revalidation,
 reservation, `PENDING → CONFIRMED`, immutable snapshot, public number,
 owner-scoped idempotency, случайный guest-order token, audit events и transactional
-outbox record. До закрытия этапа остаются payment boundary, cancellation rules,
+outbox record, а bounded read model отдаёт последние заказы текущего owner для
+личного кабинета. До закрытия этапа остаются payment boundary, cancellation rules,
 single-shipment model и их failure/concurrency acceptance.
 
 ## Этап 12. Returns и integration ports

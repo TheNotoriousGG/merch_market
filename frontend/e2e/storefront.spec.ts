@@ -124,3 +124,13 @@ test("покупатель оформляет корзину и получает
   await expect(page.getByText("AMR-TEST00000001")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Спасибо за заказ" })).toBeVisible();
 });
+
+test("личный кабинет показывает реальную историю заказов", async ({ page }) => {
+  await page.route("**/api/v1/customer/account",route=>route.fulfill({json:{id:"customer-1",phone:"+79991234567",displayName:"Анна"}}));
+  await page.route("**/api/v1/customer/profile",route=>route.fulfill({json:{id:"customer-1",phone:"+79991234567",displayName:"Анна",email:"buyer@example.com",emailVerified:true,addresses:[]}}));
+  await page.route("**/api/v1/customer/orders",route=>route.fulfill({json:{items:[{publicNumber:"AMR-TEST00000002",status:"CONFIRMED",totalMinor:590000,currency:"RUB",itemCount:2,createdAt:"2026-09-13T00:00:00Z"}]}}));
+  await page.goto("/account");
+  await expect(page.getByText("История заказов")).toBeVisible();
+  await expect(page.getByRole("link",{name:/AMR-TEST00000002/})).toHaveAttribute("href","/orders/AMR-TEST00000002");
+  await expect(page.getByText(/Подтверждён · 2 шт. · 5\s900 ₽/)).toBeVisible();
+});

@@ -24,6 +24,11 @@ import {
     CustomerOrderToJSON,
 } from '../models/CustomerOrder';
 import {
+    type CustomerOrderList,
+    CustomerOrderListFromJSON,
+    CustomerOrderListToJSON,
+} from '../models/CustomerOrderList';
+import {
     type ProblemDetails,
     ProblemDetailsFromJSON,
     ProblemDetailsToJSON,
@@ -96,6 +101,27 @@ export interface OrderingApiInterface {
     /**
      */
     getCustomerOrder(requestParameters: GetCustomerOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CustomerOrder>;
+
+    /**
+     * Creates request options for listCustomerOrders without sending the request
+     * @throws {RequiredError}
+     * @memberof OrderingApiInterface
+     */
+    listCustomerOrdersRequestOpts(): Promise<runtime.RequestOpts>;
+
+    /**
+     *
+     * @summary List recent orders belonging to the current customer or guest session
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrderingApiInterface
+     */
+    listCustomerOrdersRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CustomerOrderList>>;
+
+    /**
+     * List recent orders belonging to the current customer or guest session
+     */
+    listCustomerOrders(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CustomerOrderList>;
 
 }
 
@@ -217,6 +243,43 @@ export class OrderingApi extends runtime.BaseAPI implements OrderingApiInterface
      */
     async getCustomerOrder(requestParameters: GetCustomerOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CustomerOrder> {
         const response = await this.getCustomerOrderRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for listCustomerOrders without sending the request
+     */
+    async listCustomerOrdersRequestOpts(): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/customer/orders`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * List recent orders belonging to the current customer or guest session
+     */
+    async listCustomerOrdersRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CustomerOrderList>> {
+        const requestOptions = await this.listCustomerOrdersRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => CustomerOrderListFromJSON(jsonValue));
+    }
+
+    /**
+     * List recent orders belonging to the current customer or guest session
+     */
+    async listCustomerOrders(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CustomerOrderList> {
+        const response = await this.listCustomerOrdersRaw(initOverrides);
         return await response.value();
     }
 

@@ -100,6 +100,12 @@ class CustomerOrderingIntegrationTests extends PostgreSqlIntegrationTest {
         mockMvc.perform(get("/api/v1/customer/orders/{number}", publicNumber).header("X-Guest-Order-Token", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("buyer@example.com"));
+        mockMvc.perform(get("/api/v1/customer/orders").cookie(guest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].publicNumber").value(publicNumber))
+                .andExpect(jsonPath("$.items[0].itemCount").value(2))
+                .andExpect(jsonPath("$.items[0].totalMinor").value(500000));
 
         assertThat(jdbc.queryForObject("select count(*) from customer_orders", Long.class))
                 .isEqualTo(1);

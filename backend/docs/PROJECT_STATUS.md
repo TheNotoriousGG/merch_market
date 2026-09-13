@@ -224,7 +224,9 @@ Ordering/Checkout находится в работе. V21–V22 добавляю
 owner-scoped checkout commands, lifecycle events и outbox. Checkout выполняет
 revalidation, создаёт reservation, фиксирует `PENDING`, коммитит stock и переводит
 заказ в `CONFIRMED` в одной транзакции. Frontend сохраняет idempotency key до
-однозначного ответа и открывает восстанавливаемый маршрут заказа. Payment boundary,
+однозначного ответа и открывает восстанавливаемый маршрут заказа. Read-only список
+последних 50 заказов текущего owner заменяет фиктивную историю в личном кабинете.
+Payment boundary,
 cancellation и single-shipment acceptance ещё не закрыты, поэтому этап 12 не разрешён.
 
 Локальный admin browser flow завершает OIDC-контур: frontend проверяет backend-managed session до показа `/admin`, а конфигурируемый `amra.security.login-success-url` возвращает браузер из backend OAuth callback в административный интерфейс. Авторизация admin API по-прежнему выполняется только backend.

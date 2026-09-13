@@ -1,0 +1,10 @@
+get:
+  tags: [Ordering]
+  operationId: listCustomerOrders
+  summary: List recent orders belonging to the current customer or guest session
+  responses:
+    '200':
+      description: Recent immutable order summaries, newest first.
+      content:
+        application/json:
+          schema: {$ref: ../components/schemas/customer-order-list.yaml}

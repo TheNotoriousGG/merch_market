@@ -153,6 +153,29 @@ public class OrderingService {
         return load(owner, publicNumber, null, suppliedToken);
     }
 
+    /** Returns a bounded newest-first order history for the current shopping owner. */
+    @Transactional(readOnly = true)
+    public List<OrderSummary> list(Owner owner) {
+        return jdbc.query(
+                """
+                select orders.public_number, orders.status, orders.total_minor,
+                       coalesce(sum(lines.quantity), 0), orders.created_at
+                from customer_orders orders
+                join customer_order_lines lines on lines.order_id = orders.id
+                where orders.owner_type = :type and orders.owner_id = :owner
+                group by orders.id
+                order by orders.created_at desc, orders.id desc
+                limit 50
+                """,
+                owner.parameters(),
+                (result, row) -> new OrderSummary(
+                        result.getString(1),
+                        result.getString(2),
+                        result.getLong(3),
+                        result.getInt(4),
+                        result.getTimestamp(5).toInstant()));
+    }
+
     private Order load(Owner owner, String publicNumber, @Nullable String issuedToken, @Nullable String suppliedToken) {
         var orders = jdbc.query(
                 """
@@ -422,6 +445,8 @@ public class OrderingService {
             long discount,
             long total,
             @Nullable String promotionName) {}
+
+    public record OrderSummary(String publicNumber, String status, long total, int itemCount, Instant createdAt) {}
 
     private record Cart(UUID id, long version) {}
 
