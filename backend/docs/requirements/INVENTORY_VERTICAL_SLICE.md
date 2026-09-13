@@ -157,6 +157,8 @@ Endpoints stage 8:
 - `POST /api/v1/admin/inventory/balances/{variantId}/receipts`;
 - `POST /api/v1/admin/inventory/balances/{variantId}/adjustments`.
 
+Административное рабочее место объединяет принадлежащие каталогу названия товаров и вариантов с принадлежащими складу балансами через именованный `CatalogVariantInventoryView`; модули не читают таблицы друг друга. Оно показывает все активные варианты неархивных карточек, включая позиции с нулевым балансом, точные количества и последние 100 неизменяемых движений склада `PRIMARY`. Первая версия интерфейса поддерживает поиск, фильтры наличия, повторобезопасную свободную приёмку, сверку фактического остатка и историю движений. Поставщики, заказы поставщикам и штрихкоды остаются за пределами среза.
+
 Balance read возвращает exact quantities и strong ETag. Receipt требует Idempotency-Key и CSRF. Reconciliation дополнительно требует If-Match. Mutation response содержит updated balance и immutable movement.
 
 Warehouse endpoints требуют verified email, allowed MFA ACR и роль `WAREHOUSE_MANAGER` или `ADMIN`. Frontend localizes stable error codes.

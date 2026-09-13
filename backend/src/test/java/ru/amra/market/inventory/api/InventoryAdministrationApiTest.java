@@ -180,6 +180,34 @@ class InventoryAdministrationApiTest extends PostgreSqlIntegrationTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void listsCatalogVariantsWithZeroBalancesAndRecentMovements() throws Exception {
+        var jdbc = new JdbcTemplate(dataSource);
+        var stocked = activeVariant(jdbc, "OVERVIEW-STOCKED");
+        var empty = activeVariant(jdbc, "OVERVIEW-EMPTY");
+        unsafe(receipt(stocked, "overview-receipt-key", 6, "Free receipt", "DOC-42"))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/v1/admin/inventory").with(warehouseManager()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[?(@.variantId == '%s')].onHand".formatted(stocked))
+                        .value(6))
+                .andExpect(jsonPath("$.items[?(@.variantId == '%s')].available".formatted(empty))
+                        .value(0))
+                .andExpect(jsonPath("$.movements[?(@.variantId == '%s')].type".formatted(stocked))
+                        .value("RECEIPT"))
+                .andExpect(jsonPath("$.movements[?(@.variantId == '%s')].reference".formatted(stocked))
+                        .value("DOC-42"));
+    }
+
+    @Test
+    void receivesStockForDraftCatalogCard() throws Exception {
+        var variant = draftVariant(new JdbcTemplate(dataSource), "DRAFT-RECEIPT");
+        unsafe(receipt(variant, "draft-receipt-key", 4, "Received before publication", null))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.balance.onHand").value(4));
+    }
+
     private org.springframework.test.web.servlet.ResultActions unsafe(MockHttpServletRequestBuilder request)
             throws Exception {
         return mvc.perform(request.with(warehouseManager())
@@ -251,6 +279,29 @@ class InventoryAdministrationApiTest extends PostgreSqlIntegrationTest {
                     id, canonical_slug, name, short_description, description,
                     status, primary_category_id, published_at
                 ) values (uuidv7(), ?, ?, 'fixture', 'fixture', 'ACTIVE', ?, current_timestamp)
+                returning id
+                """, UUID.class, "warehouse-product-" + normalized, "Product " + suffix, category));
+        return requireNonNull(jdbc.queryForObject("""
+                insert into catalog_product_variants (
+                    id, product_id, sku, label, status, display_order, defining_signature
+                ) values (uuidv7(), ?, ?, 'Fixture', 'ACTIVE', 0, ?)
+                returning id
+                """, UUID.class, product, "WH-" + suffix, "fixture=" + suffix));
+    }
+
+    private static UUID draftVariant(JdbcTemplate jdbc, String suffix) {
+        var normalized = suffix.toLowerCase(Locale.ROOT);
+        var category =
+                requireNonNull(jdbc.queryForObject("""
+                insert into catalog_categories (id, slug, name, display_order, status)
+                values (uuidv7(), ?, ?, 0, 'ACTIVE') returning id
+                """, UUID.class, "warehouse-" + normalized, "Warehouse " + suffix));
+        var product = requireNonNull(
+                jdbc.queryForObject("""
+                insert into catalog_products (
+                    id, canonical_slug, name, short_description, description,
+                    status, primary_category_id, published_at
+                ) values (uuidv7(), ?, ?, 'fixture', 'fixture', 'DRAFT', ?, null)
                 returning id
                 """, UUID.class, "warehouse-product-" + normalized, "Product " + suffix, category));
         return requireNonNull(jdbc.queryForObject("""

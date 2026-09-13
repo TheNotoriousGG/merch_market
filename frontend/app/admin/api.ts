@@ -9,6 +9,9 @@ import type {
   AdminVariant,
   CatalogAttributeValue,
   InventoryBalance,
+  InventoryWarehouseOverview,
+  InventoryStockItem,
+  InventoryMovementView,
   ProductMerchandising,
 } from "../api/generated";
 import { API_BASE } from "../api/client";
@@ -23,6 +26,9 @@ export type { ProductMerchandising };
 export type Product = AdminProduct;
 export type ProductPage = AdminProductPage;
 export type Balance = InventoryBalance;
+export type WarehouseOverview = InventoryWarehouseOverview;
+export type StockItem = InventoryStockItem;
+export type StockMovement = InventoryMovementView;
 export type StorefrontBanner = AdminStorefrontBanner;
 export type StorefrontBannerList = AdminStorefrontBannerList;
 

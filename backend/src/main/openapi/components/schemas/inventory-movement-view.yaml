@@ -1,0 +1,13 @@
+type: object
+required: [id, variantId, productName, sku, variantLabel, type, quantityDelta, reason, occurredAt]
+properties:
+  id: {type: string, format: uuid}
+  variantId: {type: string, format: uuid}
+  productName: {type: string}
+  sku: {type: string}
+  variantLabel: {type: string}
+  type: {type: string, enum: [RECEIPT, ADJUSTMENT_INCREASE, ADJUSTMENT_DECREASE, RESERVATION_COMMIT, RETURN]}
+  quantityDelta: {type: integer, format: int64}
+  reason: {type: string}
+  reference: {type: string, nullable: true}
+  occurredAt: {type: string, format: date-time}

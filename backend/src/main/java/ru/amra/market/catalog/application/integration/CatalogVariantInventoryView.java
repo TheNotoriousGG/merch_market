@@ -1,5 +1,6 @@
 package ru.amra.market.catalog.application.integration;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,4 +14,19 @@ public interface CatalogVariantInventoryView {
      * not expose catalog persistence objects.
      */
     Set<UUID> findActiveVariantIds(Set<UUID> variantIds);
+
+    /** Returns active variants whose product has not been archived and may receive physical stock. */
+    Set<UUID> findReceivableVariantIds(Set<UUID> variantIds);
+
+    /** Lists catalog identities needed by the protected warehouse workspace. */
+    List<WarehouseVariant> listWarehouseVariants();
+
+    /** Catalog-owned projection without persistence objects or stock semantics. */
+    record WarehouseVariant(
+            UUID productId,
+            String productName,
+            String productStatus,
+            UUID variantId,
+            String sku,
+            String variantLabel) {}
 }

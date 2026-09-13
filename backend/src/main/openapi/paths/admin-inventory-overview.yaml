@@ -1,0 +1,17 @@
+get:
+  tags: [Inventory administration]
+  summary: List primary warehouse stock and recent movements
+  description: Returns all non-archived catalog variants with exact stock and the latest 100 movements.
+  operationId: getInventoryWarehouseOverview
+  security: [{SessionCookie: []}]
+  responses:
+    "200":
+      description: Bounded primary warehouse workspace.
+      headers:
+        X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}
+      content:
+        application/json:
+          schema: {$ref: ../components/schemas/inventory-warehouse-overview.yaml}
+    "401": {$ref: ../components/responses/unauthorized.yaml}
+    "403": {$ref: ../components/responses/forbidden.yaml}
+    "500": {$ref: ../components/responses/unexpected-error.yaml}

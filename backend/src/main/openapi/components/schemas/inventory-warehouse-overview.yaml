@@ -1,0 +1,9 @@
+type: object
+required: [items, movements]
+properties:
+  items:
+    type: array
+    items: {$ref: inventory-stock-item.yaml}
+  movements:
+    type: array
+    items: {$ref: inventory-movement-view.yaml}

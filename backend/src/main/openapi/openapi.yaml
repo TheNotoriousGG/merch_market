@@ -100,6 +100,8 @@ paths:
     $ref: paths/inventory-availability.yaml
   /admin/inventory/balances/{variantId}:
     $ref: paths/admin-inventory-balance.yaml
+  /admin/inventory:
+    $ref: paths/admin-inventory-overview.yaml
   /admin/inventory/balances/{variantId}/receipts:
     $ref: paths/admin-inventory-receipts.yaml
   /admin/inventory/balances/{variantId}/adjustments:
@@ -225,6 +227,12 @@ components:
       $ref: components/schemas/inventory-movement.yaml
     InventoryMutationResult:
       $ref: components/schemas/inventory-mutation-result.yaml
+    InventoryWarehouseOverview:
+      $ref: components/schemas/inventory-warehouse-overview.yaml
+    InventoryStockItem:
+      $ref: components/schemas/inventory-stock-item.yaml
+    InventoryMovementView:
+      $ref: components/schemas/inventory-movement-view.yaml
     ReceiveStockRequest:
       $ref: components/schemas/receive-stock-request.yaml
     AdjustStockRequest:

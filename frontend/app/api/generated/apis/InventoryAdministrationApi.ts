@@ -29,6 +29,11 @@ import {
     InventoryMutationResultToJSON,
 } from '../models/InventoryMutationResult';
 import {
+    type InventoryWarehouseOverview,
+    InventoryWarehouseOverviewFromJSON,
+    InventoryWarehouseOverviewToJSON,
+} from '../models/InventoryWarehouseOverview';
+import {
     type ProblemDetails,
     ProblemDetailsFromJSON,
     ProblemDetailsToJSON,
@@ -120,6 +125,28 @@ export interface InventoryAdministrationApiInterface {
      * Read the exact warehouse balance for a catalog variant
      */
     getAdminInventoryBalance(requestParameters: GetAdminInventoryBalanceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryBalance>;
+
+    /**
+     * Creates request options for getInventoryWarehouseOverview without sending the request
+     * @throws {RequiredError}
+     * @memberof InventoryAdministrationApiInterface
+     */
+    getInventoryWarehouseOverviewRequestOpts(): Promise<runtime.RequestOpts>;
+
+    /**
+     * Returns all non-archived catalog variants with exact stock and the latest 100 movements.
+     * @summary List primary warehouse stock and recent movements
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof InventoryAdministrationApiInterface
+     */
+    getInventoryWarehouseOverviewRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InventoryWarehouseOverview>>;
+
+    /**
+     * Returns all non-archived catalog variants with exact stock and the latest 100 movements.
+     * List primary warehouse stock and recent movements
+     */
+    getInventoryWarehouseOverview(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryWarehouseOverview>;
 
     /**
      * Creates request options for receiveInventoryStock without sending the request
@@ -292,6 +319,45 @@ export class InventoryAdministrationApi extends runtime.BaseAPI implements Inven
      */
     async getAdminInventoryBalance(requestParameters: GetAdminInventoryBalanceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryBalance> {
         const response = await this.getAdminInventoryBalanceRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for getInventoryWarehouseOverview without sending the request
+     */
+    async getInventoryWarehouseOverviewRequestOpts(): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/admin/inventory`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Returns all non-archived catalog variants with exact stock and the latest 100 movements.
+     * List primary warehouse stock and recent movements
+     */
+    async getInventoryWarehouseOverviewRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InventoryWarehouseOverview>> {
+        const requestOptions = await this.getInventoryWarehouseOverviewRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => InventoryWarehouseOverviewFromJSON(jsonValue));
+    }
+
+    /**
+     * Returns all non-archived catalog variants with exact stock and the latest 100 movements.
+     * List primary warehouse stock and recent movements
+     */
+    async getInventoryWarehouseOverview(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InventoryWarehouseOverview> {
+        const response = await this.getInventoryWarehouseOverviewRaw(initOverrides);
         return await response.value();
     }
 

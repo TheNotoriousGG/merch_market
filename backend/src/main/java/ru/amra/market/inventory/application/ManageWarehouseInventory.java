@@ -2,6 +2,8 @@ package ru.amra.market.inventory.application;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,50 @@ public class ManageWarehouseInventory {
         return balances.findPrimary(variantId).orElseThrow(InventoryBalanceNotFoundException::new);
     }
 
+    /** Builds the warehouse workspace without crossing persistence ownership boundaries. */
+    @Transactional(readOnly = true)
+    public InventoryWarehouseOverview overview() {
+        var variants = catalog.listWarehouseVariants();
+        var byId = variants.stream()
+                .collect(
+                        Collectors.toMap(CatalogVariantInventoryView.WarehouseVariant::variantId, Function.identity()));
+        var existing = balances.findPrimary(byId.keySet());
+        var items = variants.stream()
+                .map(variant -> {
+                    var balance = existing.get(variant.variantId());
+                    return new InventoryWarehouseOverview.StockItem(
+                            variant.productId(),
+                            variant.productName(),
+                            variant.productStatus(),
+                            variant.variantId(),
+                            variant.sku(),
+                            variant.variantLabel(),
+                            balance == null ? 0 : balance.onHand(),
+                            balance == null ? 0 : balance.reserved(),
+                            balance == null ? 0 : balance.available(),
+                            balance == null ? 0 : balance.version(),
+                            balance == null ? null : balance.updatedAt());
+                })
+                .toList();
+        var movements = balances.latestMovements(100).stream()
+                .map(movement -> {
+                    var variant = byId.get(movement.variantId());
+                    return new InventoryWarehouseOverview.Movement(
+                            movement.id(),
+                            movement.variantId(),
+                            variant == null ? "Архивный товар" : variant.productName(),
+                            variant == null ? "—" : variant.sku(),
+                            variant == null ? "—" : variant.variantLabel(),
+                            movement.type(),
+                            movement.quantityDelta(),
+                            movement.reason(),
+                            movement.reference(),
+                            movement.occurredAt());
+                })
+                .toList();
+        return new InventoryWarehouseOverview(items, movements);
+    }
+
     /** Receives physical units or exactly replays the original caller-scoped result. */
     @Transactional
     public WarehouseMutationResult receive(
@@ -65,7 +111,7 @@ public class ManageWarehouseInventory {
         if (replay.isPresent()) {
             return replay(replay.orElseThrow());
         }
-        if (!catalog.findActiveVariantIds(Set.of(variantId)).contains(variantId)) {
+        if (!catalog.findReceivableVariantIds(Set.of(variantId)).contains(variantId)) {
             throw new InventoryVariantNotActiveException();
         }
         var mutation = stock.receive(new ReceiveStockCommand(

@@ -14,7 +14,10 @@ import ru.amra.market.platform.generated.api.InventoryAdministrationApi;
 import ru.amra.market.platform.generated.model.AdjustStockRequestDto;
 import ru.amra.market.platform.generated.model.InventoryBalanceDto;
 import ru.amra.market.platform.generated.model.InventoryMovementDto;
+import ru.amra.market.platform.generated.model.InventoryMovementViewDto;
 import ru.amra.market.platform.generated.model.InventoryMutationResultDto;
+import ru.amra.market.platform.generated.model.InventoryStockItemDto;
+import ru.amra.market.platform.generated.model.InventoryWarehouseOverviewDto;
 import ru.amra.market.platform.generated.model.ReceiveStockRequestDto;
 
 /** Generated-contract HTTP adapter for protected primary-warehouse operations. */
@@ -32,6 +35,39 @@ public final class InventoryAdministrationController implements InventoryAdminis
         return ResponseEntity.ok()
                 .eTag(InventoryVersionEtag.format(balance.version()))
                 .body(toDto(balance));
+    }
+
+    @Override
+    public ResponseEntity<InventoryWarehouseOverviewDto> getInventoryWarehouseOverview() {
+        var overview = inventory.overview();
+        var items = overview.items().stream()
+                .map(item -> new InventoryStockItemDto(
+                                item.productId(),
+                                item.productName(),
+                                InventoryStockItemDto.ProductStatusEnum.valueOf(item.productStatus()),
+                                item.variantId(),
+                                item.sku(),
+                                item.variantLabel(),
+                                item.onHand(),
+                                item.reserved(),
+                                item.available(),
+                                item.version())
+                        .updatedAt(item.updatedAt()))
+                .toList();
+        var movements = overview.movements().stream()
+                .map(movement -> new InventoryMovementViewDto(
+                                movement.id(),
+                                movement.variantId(),
+                                movement.productName(),
+                                movement.sku(),
+                                movement.variantLabel(),
+                                InventoryMovementViewDto.TypeEnum.valueOf(movement.type()),
+                                movement.quantityDelta(),
+                                movement.reason(),
+                                movement.occurredAt())
+                        .reference(movement.reference()))
+                .toList();
+        return ResponseEntity.ok(new InventoryWarehouseOverviewDto(items, movements));
     }
 
     @Override

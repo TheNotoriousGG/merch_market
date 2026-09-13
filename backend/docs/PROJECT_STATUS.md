@@ -172,6 +172,7 @@ GitLab activation остаётся обязательным deferred gate до �
 - contract integration test подтверждает anonymous access, order, de-duplication, privacy и generated DTO shape;
 - блок 8/12 завершён: generated protected warehouse API читает exact primary balance, принимает receipts и выполняет physical reconciliation;
 - `/api/v1/admin/inventory/**` требует `WAREHOUSE_MANAGER` или `ADMIN`, verified email, MFA ACR и CSRF; GET также защищён, но не требует CSRF;
+- административный склад дополнен обзором всех активных SKU, нулевых и существующих балансов, последних движений, свободной приёмкой и сверкой фактического остатка; catalog/inventory ownership сохранён через именованный application view;
 - exact balance и каждый mutation result возвращают strong `ETag`; reconciliation требует current `If-Match`, различая `428` missing precondition и `412` stale version;
 - receipt/reconciliation используют actor-scoped durable idempotency и collision-safe canonical fingerprint; одинаковая команда после более поздних движений возвращает исходные balance/movement/ETag без повторной мутации;
 - Flyway V9 добавляет typed append-only `inventory_stock_command_results`, поэтому idempotent replay не хранит критический balance snapshot в JSON и не зависит от текущего состояния balance;
