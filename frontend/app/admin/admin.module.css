@@ -9,6 +9,7 @@
 .nav a:hover { color: white; background: var(--color-ink-elevated); }
 .nav a.navActive { color: var(--color-ink); background: var(--color-accent); }
 .sidebarFoot { margin-top: auto; padding: 16px 12px 0; border-top: 1px solid #34363b; color: #8d9096; font-size: 12px; line-height: 1.5; }
+.menuButton,.menuClose,.menuBackdrop { display:none; }
 .workspace { min-width: 0; }
 .topbar { height: 76px; padding: 0 38px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border); background: rgba(255,255,255,.92); }
 .workspaceName { color: var(--color-muted); font-size: 13px; font-weight: 750; }
@@ -143,4 +144,21 @@
 @media (max-width: 1050px) { .shell { grid-template-columns: 205px 1fr; } .content,.topbar { padding-left: 24px; padding-right: 24px; } .grid { grid-template-columns: 1fr; } .inventoryMetrics { grid-template-columns:repeat(2,1fr); } }
 @media (max-width: 900px) { .editorLayout { grid-template-columns: 1fr; } .readiness { position: static; } .formGrid,.promotionGrid { grid-template-columns: 1fr; } .full { grid-column: auto; } .categoryRow { grid-template-columns: 1fr; gap: 8px; } .rowActions { justify-content: flex-start; } }
 @media (max-width:700px) { .editorSaveBar { top:58px; }.editorSaveBar button { min-height:38px; padding:0 12px; }.variantBuilders { grid-template-columns:1fr; }.colorForm { grid-template-columns:42px 1fr; }.colorForm button { grid-column:1/-1; }.mediaColorPanel { align-items:stretch; flex-direction:column; }.mediaColorPanel label { min-width:0; }.inventoryMetrics,.inventoryToolbar,.receiptComposer { grid-template-columns:1fr; }.receiptLinesHeader { display:none; }.receiptLines>div { grid-template-columns:1fr auto auto; }.receiptLines>div>b:first-of-type { display:none; }.receiptTotal { justify-content:space-between; } }
+@media (max-width:760px) {
+  .shell { display:block; }
+  .sidebar { position:fixed; z-index:30; inset:0 auto 0 0; width:min(310px,86vw); height:100dvh; transform:translateX(-105%); transition:transform .2s ease; box-shadow:12px 0 35px rgba(0,0,0,.22); }
+  .sidebarOpen { transform:translateX(0); }
+  .menuBackdrop { display:block; position:fixed; z-index:29; inset:0; width:100%; height:100%; padding:0; border:0; background:rgba(18,19,21,.52); }
+  .menuClose { display:grid; place-items:center; position:absolute; top:18px; right:16px; width:38px; height:38px; color:white; background:#34363b; border:0; border-radius:10px; font-size:25px; cursor:pointer; }
+  .menuButton { display:inline-flex; align-items:center; gap:7px; min-height:40px; padding:0 11px; color:var(--color-ink); background:#ececea; border:0; border-radius:10px; font:inherit; font-size:13px; font-weight:800; cursor:pointer; }
+  .topbar { height:64px; padding:0 16px; gap:10px; }
+  .workspaceName,.connection { display:none; }
+  .topActions { margin-left:auto; gap:8px; }
+  .storeLink,.logout { font-size:11px; }
+  .content { padding:24px 16px 48px; }
+  .heading { align-items:stretch; flex-direction:column; }
+  .heading .primary { width:100%; }
+  .toolbar { grid-template-columns:1fr; }
+  .tableWrap { margin-right:-16px; border-right:0; border-radius:var(--radius-card) 0 0 var(--radius-card); }
+}
 @media (prefers-reduced-motion: reduce) { .authLoader { animation: none; border-top-color: #dedfdd; } }

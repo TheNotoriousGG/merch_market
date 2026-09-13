@@ -5,6 +5,7 @@ get:
   responses:
     '200':
       description: Recent immutable order summaries, newest first.
+      headers: {X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}}
       content:
         application/json:
           schema: {$ref: ../components/schemas/customer-order-list.yaml}

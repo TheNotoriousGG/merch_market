@@ -1,5 +1,22 @@
 import { expect, test } from "@playwright/test";
 
+test("административное меню доступно на мобильном экране", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/api/v1/session", route => route.fulfill({ json: {
+    authenticated: true, emailVerified: true, subject: "admin",
+    displayName: "Администратор", permissions: ["ADMIN"],
+  } }));
+
+  await page.goto("/admin");
+  const menu = page.getByRole("navigation", { name: "Административные разделы" });
+  await expect(menu).not.toBeInViewport();
+  await page.getByRole("button", { name: "☰ Меню", exact: true }).click();
+  await expect(menu).toBeInViewport();
+  await expect(page.getByRole("link", { name: "Склад" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(menu).not.toBeInViewport();
+});
+
 test("каталог-менеджер видит дерево категорий", async ({ page }) => {
   await page.route("**/api/v1/session", route => route.fulfill({ json: {
     authenticated: true,

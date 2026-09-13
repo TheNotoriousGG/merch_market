@@ -35,6 +35,20 @@ export default function AdminAuth({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [session, setSession] = useState<Session | null>(null);
   const [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => setMenuOpen(false), [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false);
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     let active = true;
@@ -81,13 +95,14 @@ export default function AdminAuth({ children }: { children: React.ReactNode }) {
 
   const permittedNavigation = navigation.filter(item => item.permissions.some(permission => session.permissions.includes(permission)));
   return <div className={styles.shell}>
-    <aside className={styles.sidebar}><a className={styles.brand} href="/admin">амра <span>admin</span></a><span className={styles.navCaption}>Управление магазином</span>
+    {menuOpen && <button className={styles.menuBackdrop} aria-label="Закрыть меню" onClick={() => setMenuOpen(false)}/>}
+    <aside className={`${styles.sidebar} ${menuOpen ? styles.sidebarOpen : ""}`} id="admin-navigation"><a className={styles.brand} href="/admin">амра <span>admin</span></a><button className={styles.menuClose} aria-label="Закрыть меню" onClick={() => setMenuOpen(false)}>×</button><span className={styles.navCaption}>Управление магазином</span>
       <nav className={styles.nav} aria-label="Административные разделы">{permittedNavigation.map(item => {
         const active = item.href === "/admin" ? pathname === item.href : pathname.startsWith(item.href);
         return <a className={active ? styles.navActive : undefined} aria-current={active ? "page" : undefined} key={item.href} href={item.href}><i aria-hidden="true">{item.icon}</i>{item.label}</a>;
       })}</nav>
       <div className={styles.sidebarFoot}>Каталог и склад<br/>Рабочая среда сотрудника</div>
     </aside>
-    <div className={styles.workspace}><header className={styles.topbar}><span className={styles.workspaceName}>Каталог Amra Shop</span><div className={styles.topActions}><span className={styles.connection}>● {session.displayName || "Сотрудник"}</span><a className={styles.storeLink} href="/">Открыть магазин ↗</a><button className={styles.logout} onClick={() => void logout()}>Выйти</button></div></header><main className={styles.content}><Breadcrumbs pathname={pathname}/>{children}</main></div>
+    <div className={styles.workspace}><header className={styles.topbar}><button className={styles.menuButton} aria-expanded={menuOpen} aria-controls="admin-navigation" onClick={() => setMenuOpen(true)}>☰ <span>Меню</span></button><span className={styles.workspaceName}>Каталог Amra Shop</span><div className={styles.topActions}><span className={styles.connection}>● {session.displayName || "Сотрудник"}</span><a className={styles.storeLink} href="/">Открыть магазин ↗</a><button className={styles.logout} onClick={() => void logout()}>Выйти</button></div></header><main className={styles.content}><Breadcrumbs pathname={pathname}/>{children}</main></div>
   </div>;
 }

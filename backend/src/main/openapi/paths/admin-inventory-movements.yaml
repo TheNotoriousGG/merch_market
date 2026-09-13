@@ -9,6 +9,7 @@ get:
   responses:
     "200":
       description: Newest-first movement page.
+      headers: {X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}}
       content: {application/json: {schema: {$ref: ../components/schemas/inventory-movement-page.yaml}}}
     "400": {$ref: ../components/responses/bad-request.yaml}
     "401": {$ref: ../components/responses/unauthorized.yaml}

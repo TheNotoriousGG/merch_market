@@ -6,6 +6,7 @@ get:
   responses:
     "200":
       description: Editorial collections in display order.
+      headers: {X-Trace-Id: {$ref: ../components/headers/trace-id.yaml}}
       content: {application/json: {schema: {$ref: ../components/schemas/admin-collection-list.yaml}}}
     "401": {$ref: ../components/responses/unauthorized.yaml}
     "403": {$ref: ../components/responses/forbidden.yaml}
