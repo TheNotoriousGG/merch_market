@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { Cart } from "../api/generated";
-import { catalogApi, cookie, customerApi } from "../api/client";
+import { cookie, customerApi } from "../api/client";
 import { loadStorefrontProducts } from "../catalog/catalog-api";
 import { toShopProduct } from "../catalog/catalog-data";
 
@@ -35,7 +35,7 @@ type ShopContextValue = {
   cartNotices: string[];
   cartVersion: number;
   loading: boolean;
-  addToCart: (product: ShopProduct) => void;
+  addToCart: (product: ShopProduct, variantId: string) => void;
   removeFromCart: (id: string) => void;
   setQuantity: (id: string, quantity: number) => void;
   toggleFavorite: (product: ShopProduct) => void;
@@ -124,18 +124,14 @@ export function ShopStateProvider({ children }: { children: React.ReactNode }) {
       cartTotal: cartPayload ? cartPayload.subtotalMinor / 100 : 0,
       cartNotices: cartPayload?.notices.map((notice) => notice.message) ?? [],
       cartVersion: cartPayload?.version ?? 0,
-      addToCart: (product) => {
-        if (!product.slug || cart.some((item) => item.id === product.id)) return;
-        void catalogApi.getCatalogProduct({ slug: product.slug }).then((detail) => {
-          const variant = detail.variants[0];
-          if (!variant) return undefined;
-          return customerApi.setCartItem({
-            variantId: variant.id,
+      addToCart: (product, variantId) => {
+        if (!product.slug || !variantId || cart.some((item) => item.id === product.id)) return;
+        void customerApi.setCartItem({
+            variantId,
             ifMatch: etag(cartPayload?.version ?? 0),
             xAMRACSRF: csrf(),
             setCartItemRequest: { quantity: 1 },
-          });
-        }).then((updated) => { if (updated) applyCart(updated); });
+          }).then((updated) => applyCart(updated));
       },
       removeFromCart,
       setQuantity: (id, quantity) => {

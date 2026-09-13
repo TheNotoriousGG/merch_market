@@ -72,8 +72,8 @@ export default function Home() {
   const [salePage, setSalePage] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
   const [publishedProducts, setPublishedProducts] = useState<CatalogProduct[]>([]);
-  const { addToCart, toggleFavorite, isFavorite, isInCart } = useShop();
-  const cartAction = (product: CatalogProduct) => isInCart(product.id) ? router.push("/cart") : addToCart(toShopProduct(product));
+  const { toggleFavorite, isFavorite, isInCart } = useShop();
+  const cartAction = (product: CatalogProduct) => isInCart(product.id) ? router.push("/cart") : setSelectedProduct(product);
   const menuShellRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     void loadStorefrontCategories().then((categories) => {

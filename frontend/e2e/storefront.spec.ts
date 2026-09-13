@@ -64,6 +64,22 @@ test("избранное и корзина восстанавливаются и
   await expect(page.getByRole("region", { name: "Товары в корзине" }).getByText("2", { exact: true })).toBeVisible();
 });
 
+test("покупатель добавляет в корзину выбранный доступный вариант", async ({ page }) => {
+  const productId="01999999-9999-7999-8999-999999999951",small="01999999-9999-7999-8999-999999999952",medium="01999999-9999-7999-8999-999999999953";
+  const summary={id:productId,slug:"variant-shirt",name:"Футболка Variant",shortDescription:"Проверка размера",priceMinor:300000,newArrival:false,onSale:false,featured:false,currency:"RUB",primaryMedia:{id:"01999999-9999-7999-8999-999999999954",url:"/test.webp",alt:"Футболка",width:1200,height:1500,displayOrder:0},publishedAt:"2026-09-12T12:00:00Z",variantOptions:[{definitionCode:"size",definitionName:"Размер",type:"SIZE",values:[{valueCode:"s",label:"S"},{valueCode:"m",label:"M"}]}]};
+  const variant=(id:string,code:string,label:string)=>({id,sku:`SHIRT-${label}`,label,displayOrder:0,attributes:[{definitionCode:"size",definitionName:"Размер",type:"SIZE",valueCode:code,label}]});
+  await page.route("**/api/v1/catalog/products**",route=>route.fulfill({json:{items:[summary],page:{page:0,size:60,totalElements:1,totalPages:1}}}));
+  await page.route("**/api/v1/catalog/products/variant-shirt",route=>route.fulfill({json:{...summary,description:"Подробное описание",categories:[],collections:[],characteristics:[],media:[summary.primaryMedia],variants:[variant(small,"s","S"),variant(medium,"m","M")]}}));
+  await page.route("**/api/v1/inventory/availability**",route=>route.fulfill({json:{items:[{variantId:small,status:"OUT_OF_STOCK"},{variantId:medium,status:"IN_STOCK"}]}}));
+  await page.route("**/api/v1/customer/context",route=>route.fulfill({json:{authenticated:false,favoriteProductIds:[]}}));
+  await page.route("**/api/v1/customer/cart",async route=>{if(route.request().method()==="PUT"){expect(route.request().postDataJSON()).toEqual({quantity:1});expect(route.request().url()).toContain(medium)}await route.fulfill({json:{id:"01999999-9999-7999-8999-999999999956",version:1,items:[],subtotalMinor:0,currency:"RUB",notices:[]}})});
+  await page.goto("/search?q=Variant");
+  await page.getByRole("button",{name:"Открыть Футболка Variant"}).click();
+  await expect(page.getByRole("button",{name:"S"})).toBeDisabled();
+  await page.getByRole("button",{name:"M"}).click();
+  await page.getByRole("button",{name:"В корзину"}).click();
+});
+
 test("покупатель оформляет корзину и получает номер заказа", async ({ page }) => {
   const productId = "01999999-9999-7999-8999-999999999981";
   const variantId = "01999999-9999-7999-8999-999999999982";
