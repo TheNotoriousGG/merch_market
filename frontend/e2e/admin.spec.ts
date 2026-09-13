@@ -54,8 +54,8 @@ test("кладовщик видит остатки, приёмку и движе
   await expect(page.getByRole("button", { name: "Приёмка", exact: true })).toHaveAttribute("class", /viewTabActive/);
   await page.getByRole("button", { name: "Провести приёмку" }).click();
   await expect(page.getByText("Сначала добавьте хотя бы одну позицию в приёмку.")).toBeVisible();
-  await page.getByRole("textbox", { name: "Поиск товара" }).fill("HUB-M");
-  await page.getByRole("combobox", { name: "Товар и вариант" }).selectOption("22222222-2222-2222-2222-222222222222");
+  await page.getByRole("combobox", { name: "Поиск товара" }).fill("HUB-M");
+  await page.getByRole("option", { name: /Худи Urban Blue/ }).click();
   await page.getByRole("spinbutton", { name: "Количество", exact: true }).fill("4");
   await page.getByRole("button", { name: "Добавить", exact: true }).click();
   await expect(page.getByText("4 ед. будет принято")).toBeVisible();
