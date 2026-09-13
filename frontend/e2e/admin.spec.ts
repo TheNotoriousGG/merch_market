@@ -68,3 +68,39 @@ test("кладовщик видит остатки, приёмку и движе
   await page.getByRole("button", { name: "Движения" }).click();
   await expect(page.getByRole("cell", { name: "Свободная приёмка", exact: true })).toBeVisible();
 });
+
+test("редактор товара показывает сохранение и объясняет, что мешает публикации", async ({ page }) => {
+  const productId = "11111111-1111-1111-1111-111111111111";
+  await page.route("**/api/v1/session", route => route.fulfill({ json: {
+    authenticated: true, emailVerified: true, subject: "catalog-manager",
+    displayName: "Каталог-менеджер", permissions: ["CATALOG_MANAGER"],
+  } }));
+  await page.route("**/api/v1/admin/catalog/categories", route => route.fulfill({ json: { items: [{
+    id: "22222222-2222-2222-2222-222222222222", slug: "clothes", name: "Одежда",
+    displayOrder: 0, status: "ACTIVE", archived: false, version: 1, updatedAt: "2026-09-12T12:00:00Z",
+  }] } }));
+  await page.route(`**/api/v1/admin/catalog/products/${productId}`, async route => {
+    if (route.request().method() === "PATCH") {
+      const body = route.request().postDataJSON();
+      await route.fulfill({ headers: { ETag: '"2"' }, json: {
+        id: productId, status: "DRAFT", variants: [], media: [], ...body,
+      } });
+      return;
+    }
+    await route.fulfill({ headers: { ETag: '"1"' }, json: {
+      id: productId, name: "Худи Base", slug: "hoodie-base", shortDescription: "Короткое описание",
+      description: "Полное описание", primaryCategoryId: "22222222-2222-2222-2222-222222222222",
+      priceMinor: 549000, status: "DRAFT", variants: [], media: [], merchandising: null,
+    } });
+  });
+
+  await page.goto(`/admin/catalog/products/${productId}`);
+  await expect(page.getByText("Все изменения сохранены", { exact: true })).toBeVisible();
+  await page.getByLabel("Название товара").fill("Худи Base 2");
+  await expect(page.getByText("Есть несохранённые изменения")).toBeVisible();
+  await page.getByRole("button", { name: "Сохранить изменения" }).click();
+  await expect(page.locator("body")).not.toContainText("Не удалось выполнить действие");
+  await expect(page.getByText("Все изменения сохранены", { exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Опубликовать товар" }).click();
+  await expect(page.getByText(/Чтобы опубликовать товар, добавьте: хотя бы один размер, фотография/)).toBeVisible();
+});

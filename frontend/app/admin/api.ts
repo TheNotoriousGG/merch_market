@@ -59,4 +59,5 @@ export async function api<T>(path:string, init:RequestInit = {}):Promise<{data:T
   const data = response.status === 204 ? undefined as T : await response.json() as T;
   return {data, etag:response.headers.get("ETag")};
 }
-export const commandHeaders = (etag?:string|null) => ({...(etag?{"If-Match":etag}:{}), "Idempotency-Key":crypto.randomUUID()});
+const idempotencyKey = () => crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+export const commandHeaders = (etag?:string|null) => ({...(etag?{"If-Match":etag}:{}), "Idempotency-Key":idempotencyKey()});
