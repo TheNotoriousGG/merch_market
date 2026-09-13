@@ -15,6 +15,17 @@ test("витрина открывает поиск и сохраняет еди�
   await expect(page.getByRole("link", { name: /Амра Шоп, на главную/ })).toBeVisible();
 });
 
+test("ошибка поиска не выглядит как пустой результат и допускает повтор", async ({page})=>{
+  let failed=false;
+  await page.route("**/api/v1/catalog/products**",route=>{const searched=route.request().url().includes("q=broken");if(searched&&!failed){failed=true;return route.abort("failed")}return route.fulfill({json:{items:[],page:{page:0,size:60,totalElements:0,totalPages:0}}})});
+  await page.route("**/api/v1/customer/context",route=>route.fulfill({json:{authenticated:false,favoriteProductIds:[]}}));
+  await page.route("**/api/v1/customer/cart",route=>route.fulfill({json:{id:"01999999-9999-7999-8999-999999999941",version:0,items:[],subtotalMinor:0,currency:"RUB",notices:[]}}));
+  await page.goto("/search?q=broken");
+  await expect(page.getByRole("heading",{name:"Поиск временно недоступен"})).toBeVisible();
+  await page.getByRole("button",{name:/Попробовать снова/}).click();
+  await expect(page.getByText("Ничего не найдено")).toBeVisible();
+});
+
 test("клиентские служебные страницы доступны из хедера", async ({ page }) => {
   await page.goto("/favorites");
   await expect(page.getByRole("heading", { name: "Избранное" })).toBeVisible();

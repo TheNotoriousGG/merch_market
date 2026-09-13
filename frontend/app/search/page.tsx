@@ -13,12 +13,14 @@ export default function SearchPage() {
   const query = (searchParams.get("q") ?? "").trim();
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
   const [apiProducts, setApiProducts] = useState<CatalogProduct[]>([]);
+  const [loading,setLoading]=useState(Boolean(query)),[error,setError]=useState(""),[attempt,setAttempt]=useState(0);
   useEffect(() => {
-    if (!query) { setApiProducts([]); return; }
+    if (!query) { setApiProducts([]); setLoading(false); setError(""); return; }
     let active = true;
-    void loadStorefrontProducts({ query }).then((items) => active && setApiProducts(items)).catch(() => active && setApiProducts([]));
+    setLoading(true);setError("");
+    void loadStorefrontProducts({ query }).then((items) => {if(active)setApiProducts(items)}).catch(() => {if(active)setError("Не удалось выполнить поиск. Проверьте соединение и попробуйте ещё раз.")}).finally(()=>active&&setLoading(false));
     return () => { active = false; };
-  }, [query]);
+  }, [query,attempt]);
   const products = useMemo(() => {
     if (!query) return [];
     return apiProducts;
@@ -28,8 +30,8 @@ export default function SearchPage() {
     <StoreHeader />
     <div className="catalog-page-body">
       <div className="catalog-breadcrumbs"><a href="/">Главная</a><span>·</span><span>Поиск</span></div>
-      <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{query ? `«${query}»` : "Поиск"}</h1></div><span>{products.length} найдено</span></div>
-      {products.length > 0 ? <section className="catalog-product-grid" aria-label={`Результаты поиска: ${query}`}>
+      <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{query ? `«${query}»` : "Поиск"}</h1></div>{!loading&&!error&&<span>{products.length} {resultWord(products.length)}</span>}</div>
+      {loading?<section className="utility-empty" aria-live="polite"><h2>Ищем товары…</h2><p>Проверяем каталог по вашему запросу.</p></section>:error?<section className="utility-empty" role="alert"><h2>Поиск временно недоступен</h2><p>{error}</p><button className="utility-primary-link" onClick={()=>setAttempt(value=>value+1)}>Попробовать снова<span>›</span></button></section>:products.length > 0 ? <section className="catalog-product-grid" aria-label={`Результаты поиска: ${query}`}>
         {products.map((product) => <CatalogProductCard product={product} onOpen={() => setSelectedProduct(product)} key={product.id} />)}
       </section> : <section className="utility-empty">
         <span>{query ? "Ничего не найдено" : "Введите название товара"}</span>
@@ -40,3 +42,5 @@ export default function SearchPage() {
     {selectedProduct && <CatalogProductDialog product={selectedProduct} onClose={() => setSelectedProduct(null)} key={selectedProduct.id} />}
   </main>;
 }
+
+function resultWord(value:number){const mod100=value%100,mod10=value%10;return mod10===1&&mod100!==11?"товар найден":mod10>=2&&mod10<=4&&(mod100<12||mod100>14)?"товара найдено":"товаров найдено"}

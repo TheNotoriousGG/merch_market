@@ -29,15 +29,16 @@ export default function CatalogPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [apiProducts, setApiProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError,setProductsError]=useState(""),[attempt,setAttempt]=useState(0);
   useEffect(() => {
     let active = true;
-    setProductsLoading(true);
+    setProductsLoading(true);setProductsError("");
     void loadStorefrontProducts({ category: requestedCategory })
       .then((items) => active && setApiProducts(items))
-      .catch(() => active && setApiProducts([]))
+      .catch(() => active && setProductsError("Не удалось загрузить товары. Проверьте соединение и попробуйте ещё раз."))
       .finally(() => active && setProductsLoading(false));
     return () => { active = false; };
-  }, [requestedCategory]);
+  }, [requestedCategory,attempt]);
 
   const products = useMemo(() => {
     const result = newOnly ? apiProducts.filter((product) => product.isNew) : [...apiProducts];
@@ -69,7 +70,7 @@ export default function CatalogPage() {
     <StoreHeader />
     <div className="catalog-page-body">
       <div className="catalog-breadcrumbs"><a href="/">Главная</a><span>·</span><span>{current.label}</span></div>
-      <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{categoriesLoaded&&!category?"Категория скрыта":title}</h1></div><span>{products.length} товара</span></div>
+      <div className="catalog-title-row"><div><span className="section-kicker">Каталог Amra</span><h1>{categoriesLoaded&&!category?"Раздел не найден":title}</h1></div>{!productsLoading&&!productsError&&<span>{products.length} {productWord(products.length)}</span>}</div>
       <nav className="catalog-chips" aria-label={`Подкатегории: ${current.label}`}>
         {category&&current.sections.map((item) => <button type="button" className={item.slug === (selectedSection?.slug ?? "") ? "active" : ""} onClick={()=>navigateSection(item.slug)} key={item.slug||key}>{item.name}</button>)}
       </nav>
@@ -78,9 +79,9 @@ export default function CatalogPage() {
         <label>Сортировка <select value={sort} onChange={(event) => { setSort(event.target.value); updatePage(1, false); }}><option value="popular">По популярности</option><option value="new">Сначала новые</option><option value="price">Сначала дешевле</option></select></label>
       </div>
       {filterOpen && <aside className="catalog-filter-panel"><label><input type="checkbox" checked={newOnly} onChange={(event) => { setNewOnly(event.target.checked); updatePage(1, false); }} /> Только новинки</label><button onClick={() => { setNewOnly(false); updatePage(1, false); }}>Сбросить</button></aside>}
-      <section className={`catalog-product-grid ${productsLoading?"is-loading":""}`} aria-busy={productsLoading} aria-label={`Товары: ${title}`}>
+      {productsError?<section className="utility-empty" role="alert"><h2>Каталог временно недоступен</h2><p>{productsError}</p><button className="utility-primary-link" onClick={()=>setAttempt(value=>value+1)}>Попробовать снова<span>›</span></button></section>:<section className={`catalog-product-grid ${productsLoading?"is-loading":""}`} aria-busy={productsLoading} aria-label={`Товары: ${title}`}>
         {visibleProducts.map((product) => <CatalogProductCard product={product} onOpen={() => setSelectedProduct(product)} key={product.id} />)}
-      </section>
+      </section>}
       {productsLoading&&<p className="catalog-loading" role="status">Загружаем подборку…</p>}
       {!productsLoading&&products.length === 0 && <p className="catalog-empty">В этой подборке пока нет товаров.</p>}
       {!productsLoading&&products.length > 0 && totalPages > 1 && <nav className="catalog-pagination" aria-label="Страницы каталога">
@@ -92,3 +93,5 @@ export default function CatalogPage() {
     {selectedProduct && <CatalogProductDialog product={selectedProduct} onClose={() => setSelectedProduct(null)} key={selectedProduct.id} />}
   </main>;
 }
+
+function productWord(value:number){const mod100=value%100,mod10=value%10;return mod10===1&&mod100!==11?"товар":mod10>=2&&mod10<=4&&(mod100<12||mod100>14)?"товара":"товаров"}
